@@ -1,0 +1,7 @@
+Use QT Creator to open project FuzzyBuilder.pro
+Configure project
+Build
+
+If you get an error 
+cannot find -lGL
+install libglu1-mesa-dev or the libGL files.
