@@ -141,7 +141,7 @@ void MainWindow::SelectNode(Node *np)
             ui->Min->setMaximum(NODEHIGHVAL);
 
 
-            ui->Min->setValue(fnp->fuzzy.Count()>0 ? fnp->fuzzy.IndexAt(0):0);
+//            ui->Min->setValue(np->InValue);
             ui->Min->setVisible(true);
             //            ui->MinScale->setVisible(true);
             //            ui->MaxScale->setVisible(true);
@@ -152,13 +152,17 @@ void MainWindow::SelectNode(Node *np)
             ui->MaxLabel->setVisible(true);
             ui->Max->setMinimum(0);
             ui->Max->setMaximum(NODEHIGHVAL);
-            ui->Max->setValue(fnp->fuzzy.Count()>0 ? fnp->fuzzy.Value(ui->Min->value()):0);
+
+//            ui->Max->setValue(fnp->fuzzy.Value(np->InValue));
+
             ui->Max->setVisible(true);
 
             ui->SetPoint->setVisible(true);
             ui->Graph->setVisible(true);
             ui->ValueTable->setModel(fnp);
             ui->ValueTable->setVisible(true);
+            on_Min_valueChanged(np->getActiveValue()*NODEHIGHVAL);
+
             UpdateTableAndGraph(fnp);
             }
             break;
@@ -368,7 +372,10 @@ void MainWindow::on_Min_valueChanged(int value)
     case fIN:
     case fOUT:
     case fTIMER:
+        s.sprintf("%d",value);
+        ui->MinText->setText(s);
         ui->MinLabel->setText(FormatLabel("Min",1.0 * ui->Min->minimum(),1.0 * value,1.0 * ui->Min->maximum()));
+        ui->Min->setValue(1.0*value);
         Active->IOMin  = value;
         ui->pid->setMinimum(value * Active->SimulateScale());
         if (value>=ui->Max->value())
@@ -407,13 +414,14 @@ void MainWindow::on_Min_valueChanged(int value)
 void MainWindow::on_Max_valueChanged(int value)
 {
     if (!Active) return;
-
+QString s;
     switch (Active->GetLogicType()) {
     case fIN:
     case fOUT:
         if (value<1) value = 1;
         ui->MaxLabel->setText(FormatLabel("Max",1.0 * ui->Max->minimum(),1.0 * value,1.0 * ui->Max->maximum()));
-
+        s.sprintf("%d",value);
+        ui->MaxText->setText(s);
         Active->IOMax = value;
         ui->Max->setValue(value);
         if (value<=ui->Min->value())
@@ -454,6 +462,7 @@ void MainWindow::on_pid_valueChanged(int value)
        ui->pidlabel->setText(FormatLabel("Simulate input Value",ui->pid->minimum() / Active->SimulateScale(),
                                             value / Active->SimulateScale(),ui->pid->maximum() / Active->SimulateScale()));
        Active->InValue = value / Active->SimulateScale();
+
        ui->graphicsView->simulate();
    }
        break;
@@ -666,7 +675,8 @@ Node *MainWindow::findNode(const QString &Name)
 
 void MainWindow::on_LoadTest_clicked()
 {
-    Load("test");
+    ui->Min->setValue(50);
+    //Load("test");
 }
 
 void MainWindow::on_GroupSelect_currentIndexChanged(const QString &arg1)
@@ -806,6 +816,27 @@ void MainWindow::on_MinText_editingFinished()
             if (!Active) return;
             QString ss;
             ss.sprintf("%05.5f",Active->IOMin);
+            ui->MinText->setText(ss);
+        }
+    }
+    catch(...)
+    {
+
+    }
+}
+
+void MainWindow::on_MaxText_editingFinished()
+{
+    try {
+        bool OK;
+    int value = ui->MaxText->text().toDouble(&OK);
+        if (OK)
+            on_Max_valueChanged(value);
+        else {
+            QMessageBox::information(NULL, "Bad Value","Integer Value Expected");
+            if (!Active) return;
+            QString ss;
+            ss.sprintf("%05.5f",Active->IOMax);
             ui->MinText->setText(ss);
         }
     }

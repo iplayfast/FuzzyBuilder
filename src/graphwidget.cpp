@@ -367,6 +367,10 @@ void GraphWidget::simulate()
     }
 
     foreach (Node *node, nodes) {
+        if (node->GetLogicType()!=fOUT)
+                node->Simulate();
+    }
+    foreach (Node *node, nodes) {
         if (node->GetLogicType()==fOUT)
                 node->Simulate();
     }

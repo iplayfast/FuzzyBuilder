@@ -98,6 +98,8 @@ private slots:
 
     void on_MinText_editingFinished();
 
+    void on_MaxText_editingFinished();
+
 private:
     bool Frozen;
     Ui::MainWindow *ui;

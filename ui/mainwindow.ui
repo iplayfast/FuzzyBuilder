@@ -17,14 +17,17 @@
    <iconset>
     <normaloff>fuzzy.bmp</normaloff>fuzzy.bmp</iconset>
   </property>
+  <property name="layoutDirection">
+   <enum>Qt::LeftToRight</enum>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QWidget" name="formLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>360</y>
+      <y>400</y>
       <width>911</width>
-      <height>481</height>
+      <height>441</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout" columnstretch="0">
@@ -160,7 +163,7 @@
       <x>0</x>
       <y>30</y>
       <width>921</width>
-      <height>311</height>
+      <height>361</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -220,19 +223,19 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
-              <widget class="QLabel" name="MinLabel">
-               <property name="text">
-                <string>Min</string>
-               </property>
-              </widget>
-             </item>
-             <item>
               <widget class="QLineEdit" name="MinText">
                <property name="maximumSize">
                 <size>
                  <width>80</width>
                  <height>16777215</height>
                 </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="MinLabel">
+               <property name="text">
+                <string>Min</string>
                </property>
               </widget>
              </item>
@@ -299,19 +302,19 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
-              <widget class="QLabel" name="MaxLabel">
-               <property name="text">
-                <string>Max</string>
-               </property>
-              </widget>
-             </item>
-             <item>
               <widget class="QLineEdit" name="MaxText">
                <property name="maximumSize">
                 <size>
                  <width>80</width>
                  <height>16777215</height>
                 </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="MaxLabel">
+               <property name="text">
+                <string>Max</string>
                </property>
               </widget>
              </item>

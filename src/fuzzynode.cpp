@@ -94,8 +94,8 @@ double    Current = 0.0;
     {
         if (edge->getSource()!=this)
         {
-            double v = edge->getSource()->Simulate();
-            setCurrent(Current = fuzzy.Value(v));
+            InValue = edge->getSource()->Simulate();
+            setCurrent(Current = fuzzy.Value(InValue));
             this->update();
             return Current;
         }
