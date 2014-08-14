@@ -52,7 +52,7 @@ void MainWindow::SelectNode(Node *np)
     bool visible = np!=0;
     ui->tabWidget->setVisible(visible);
     ui->LogicLabel->setVisible(visible);
-    ui->NodeNameRO->setVisible(visible);
+    ui->NodeName->setVisible(visible);
     ui->ValueTable->setVisible(visible);
     ui->MinLabel->setVisible(false);
     ui->Min->setVisible(false);
@@ -67,6 +67,10 @@ void MainWindow::SelectNode(Node *np)
     ui->MinScale->setVisible(false);
     ui->MaxScale->setVisible(false);
     ui->MinText->setVisible(false);
+    ui->MaxText->setVisible(false);
+    ui->MaxScaleLabel->setVisible(false);
+    ui->MinScaleLabel->setVisible(false);
+
     if (np) {
         Active = np;
         switch(np->GetLogicType()) {
@@ -76,12 +80,12 @@ void MainWindow::SelectNode(Node *np)
         case fOUT:
         {
             double v = Active->InValue; // incase invalue get's corrupted while setting limits
-
             ui->MinLabel->setVisible(true);
             ui->Min->setMinimum(0);
             ui->Min->setValue(np->IOMin);
             this->on_MinScale_valueChanged(np->IOMin > 16 ? 512 : 16);
             ui->Min->setVisible(true);
+            ui->Min->setStatusTip("The minimum expected value");
             ui->MinScale->setVisible(true);
             ui->MinText->setVisible(true);
             QString ss;
@@ -93,13 +97,13 @@ void MainWindow::SelectNode(Node *np)
             ui->Max->setValue(np->IOMax);
             this->on_MaxScale_valueChanged(np->IOMax > 16 ? 512 : 16);
             ui->Max->setVisible(true);
+            ui->Max->setStatusTip("The maximum expected value");
             ui->MaxScale->setVisible(true);
-
-            if (np->GetLogicType()==fIN)   {
+            if (np->GetLogicType()==fIN) {  // needs to be set after min and max are set
                 ui->pidlabel->setVisible(true);
                 ui->pid->setMinimum(np->IOMin * Active->SimulateScale());
                 ui->pid->setMaximum(np->IOMax * Active->SimulateScale());
-                np->InValue = v;
+
                 if (np->InValue<np->IOMin) np->InValue = np->IOMin;
                 if (np->InValue>np->IOMax) np->InValue = np->IOMax;
                 this->on_pid_valueChanged(np->InValue * Active->SimulateScale());
@@ -115,12 +119,14 @@ void MainWindow::SelectNode(Node *np)
             ui->Max->setMaximum(NODEHIGHVAL);
             ui->Max->setVisible(true);
             on_Max_valueChanged(np->getActiveValue());
+            ui->Max->setStatusTip("The maximum of all inputs up to this level");
             break;
         case fOR:
             ui->MinLabel->setVisible(true);
             ui->Min->setMinimum(0);
             ui->Min->setMaximum(NODEHIGHVAL);
             ui->Min->setVisible(true);
+            ui->Min->setStatusTip("The minimum of all inputs down to this level");
             on_Min_valueChanged(np->getActiveValue());
             break;
         case fNOT:
@@ -143,6 +149,8 @@ void MainWindow::SelectNode(Node *np)
 
 //            ui->Min->setValue(np->InValue);
             ui->Min->setVisible(true);
+            ui->Min->setStatusTip("");
+
             //            ui->MinScale->setVisible(true);
             //            ui->MaxScale->setVisible(true);
             //            ui->MinScale->setValue(np->IOMin);
@@ -156,7 +164,7 @@ void MainWindow::SelectNode(Node *np)
 //            ui->Max->setValue(fnp->fuzzy.Value(np->InValue));
 
             ui->Max->setVisible(true);
-
+            ui->Max->setStatusTip("");
             ui->SetPoint->setVisible(true);
             ui->Graph->setVisible(true);
             ui->ValueTable->setModel(fnp);
@@ -191,7 +199,7 @@ void MainWindow::SelectNode(Node *np)
         case fTIMER:
             break;
         }
-        ui->NodeNameRO->setText(np->getName());
+        ui->NodeName->setText(np->getName());
         FillCodeUI(np);
     }
     else Active = 0;
@@ -772,8 +780,8 @@ void MainWindow::on_regenerate_clicked()
 
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
-    if (Active==0) return;
-    if (index==1) {
+    if (Active==0) return;// No node selected
+    if (index==1) {// looking at code
         QString os;
         QTextStream ss(&os);
             Active->WriteSourcePlainGuts(ss);
@@ -783,6 +791,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
         if (s=="") s = os;
         ui->FunctionBody->setPlainText(s);
         QString Return,Parameters,FunctionReturn;
+        ui->FunctionHeader->setText(Active->getName());
         Active->FunctionData(Return,Parameters,FunctionReturn);
         ui->FunctionReturn->setText(Return);
         ui->FunctionParameters->setText(Parameters);
@@ -795,6 +804,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
        Active->WriteSourcePlainGuts(ss);
        QString s;
        s = ui->FunctionBody->toPlainText();
+       ui->NodeName->setText(Active->getName());
        //s = Active->getUserGuts();
        QString regen = Active->Regenerate();
        if (regen==os) // no change from regenerated
@@ -844,4 +854,11 @@ void MainWindow::on_MaxText_editingFinished()
     {
 
     }
+}
+
+void MainWindow::on_NodeName_editingFinished()
+{
+    if (Active==0) return;
+    Active->setName(ui->NodeName->text());
+    Active->update();
 }

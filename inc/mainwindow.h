@@ -100,6 +100,8 @@ private slots:
 
     void on_MaxText_editingFinished();
 
+    void on_NodeName_editingFinished();
+
 private:
     bool Frozen;
     Ui::MainWindow *ui;

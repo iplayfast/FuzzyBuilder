@@ -199,14 +199,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="NodeNameRO"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="UpdateName">
-           <property name="text">
-            <string>Update name</string>
-           </property>
-          </widget>
+          <widget class="QLineEdit" name="NodeName"/>
          </item>
         </layout>
        </item>
@@ -629,7 +622,7 @@
      <x>0</x>
      <y>0</y>
      <width>931</width>
-     <height>23</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
