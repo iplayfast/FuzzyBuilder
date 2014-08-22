@@ -171,6 +171,21 @@ void GraphWidget::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Right:
         centerNode->moveBy(20, 0);
         break;*/
+    case Qt::Key_Delete:
+    {
+        QList<Node *> nodes;
+        foreach (QGraphicsItem *item, scene()->items()) {
+            if (Node *node = qgraphicsitem_cast<Node *>(item)){
+                if (node->getSelected())
+                {
+                    node->DeleteAllEdges();
+                    scene()->items().removeOne(item);
+                    delete node;
+                }
+            }
+        }
+    }
+        break;
     case Qt::Key_Plus:
         zoomIn();
         break;
