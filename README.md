@@ -3,19 +3,20 @@ FuzzyBuilder
 
 A Gui for designing Fuzzy Logic which will write out C++ Source
 
-Sample uses:
-Conditioning input from joystick to ignore dead spots and adjust output value ranges.
-
 Really fast Tutorial
 ====================
+
+This tutorial is to show how to condition joystick inputs, and ignore dead spots. By going though this tutorial you will get an understanding of how to use this system to build code.
 
 The code is not quite up to the tutorial so this tutorial won't work. But it's enough to show you the direction the project is taking.
 
 Step 1. Add components
 ----------------------
-Click on Add Logic, Select In, name Joystick
+Click on Add Logic, Select In 
 Click on Add Logic, select Fuzzy
-Click on Add Logic, Select Out, name output
+Click on Add Logic, Select Out 
+Left click on out to select, name it Output
+Left click on in to select, name it Joystick
 
 Step 2. Connect Components
 --------------------------

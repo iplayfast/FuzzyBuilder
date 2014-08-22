@@ -14,16 +14,19 @@ class AddLogic : public QDialog
 {
     Q_OBJECT
 MainWindow *wp;
+QString Name;
 public:
     explicit AddLogic(MainWindow *mwp,QWidget *parent = 0);
     ~AddLogic();
-    QString GetName() const;
     LOGICTYPE GetLogicType() const;
     int GetMax() const;
     int GetMin() const;
     QString getINLINE() const;
     void Load(Node *v);
     void HideType();
+    QString getName() const;
+
+
 private slots:
     void on_buttonBox_accepted();
 

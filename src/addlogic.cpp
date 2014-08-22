@@ -1,6 +1,12 @@
 #include "addlogic.h"
 #include "ui_addlogic.h"
 #include "Util.h"
+
+QString AddLogic::getName() const
+{
+    return Name;
+}
+
 AddLogic::AddLogic(MainWindow *mwp,QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AddLogic)
@@ -17,11 +23,6 @@ AddLogic::AddLogic(MainWindow *mwp,QWidget *parent) :
 AddLogic::~AddLogic()
 {
     delete ui;
-}
-
-QString AddLogic::GetName() const
-{
-    return ui->Name->text();
 }
 
 LOGICTYPE AddLogic::GetLogicType() const
@@ -46,7 +47,6 @@ void AddLogic::Load(Node *v)
     case fTIMER:    ui->Timer->setChecked(true); break;
     }
     SelectType(v->GetLogicType());
-    ui->Name->setText(v->getName());
 
     QString h,s;
     QTextStream hs(&h),ss(&s);
@@ -65,19 +65,20 @@ void AddLogic::HideType()
 
 
 void AddLogic::SelectType(LOGICTYPE ltv)
-{    
+{
     lt = ltv;
-
-    switch(ltv)
+    this->Name = wp->SuggestName(ltv);
+/*    switch(ltv)
     {
-    case fSETUP:    
-        ui->Name->setText(wp->SuggestName(fSETUP));    
+    case fSETUP:
+
+        ui->Name->setText(wp->SuggestName(fSETUP));
         break;
-    case fIN:        // input    
-        ui->Name->setText(wp->SuggestName(fIN));        
+    case fIN:        // input
+        ui->Name->setText(wp->SuggestName(fIN));
         break;
     case fOUT: // output
-        ui->Name->setText(wp->SuggestName(fOUT));        
+        ui->Name->setText(wp->SuggestName(fOUT));
         break;
     case fFUZZY: // fuzzyvalue
         ui->Name->setText(wp->SuggestName(fFUZZY));
@@ -97,7 +98,7 @@ void AddLogic::SelectType(LOGICTYPE ltv)
     case fTIMER: // timer
         ui->Name->setText(wp->SuggestName(fTIMER));
     break;
-    }
+    }*/
 }
 
 void AddLogic::on_buttonBox_accepted()

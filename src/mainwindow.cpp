@@ -324,7 +324,7 @@ void MainWindow::on_AddLogic_clicked()
         return;
     }
     LOGICTYPE lt = al->GetLogicType();
-    QString Name = al->GetName();
+    QString Name = al->getName();
 
 
     Node *node1 = NodeFactory::Create(ui->graphicsView,lt);
@@ -725,7 +725,7 @@ void MainWindow::on_EditLogic_clicked()
             delete al;
             return;
         }
-        Active->setName(al->GetName());
+        Active->setName(al->getName());
         delete al;
         return;
     }
