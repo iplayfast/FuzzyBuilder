@@ -37,8 +37,8 @@ QString InNode::Regenerate()
 };
 QRectF InNode::boundingRect() const
 {
-int width = 40;
-int height = 20;
+int width = getWidth();
+int height = getHeight();
 qreal adjust = 2;
 return QRectF( -width - adjust, -height - adjust, 2 * width + adjust, 2 * height + adjust);
 }
@@ -97,11 +97,10 @@ QPainterPath InNode::shape() const
 {
     QPainterPath path,epath;
     QRectF r= boundingRect();
+
     epath.addEllipse(r);
     r.setWidth(r.width()/2);
 
     path.addRect(r);
     return epath.subtracted(path);
-
-
 }

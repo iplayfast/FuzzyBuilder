@@ -14,3 +14,4 @@ TEMPLATE = app
 
 include(FuzzyBuilder.pri)
 
+

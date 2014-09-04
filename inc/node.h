@@ -9,6 +9,8 @@ enum LOGICTYPE { fIN,fOUT,fFUZZY,fAND,fOR,fNOT,fPID,fTIMER,fSETUP};
 
 #include <QTextStream>
 #include <qnamespace.h>
+#include <QPainterPath>
+#include <QIcon>
 
 class Edge;
 class GraphWidget;
@@ -26,6 +28,8 @@ class Node : public QGraphicsItem
 QString Name;
 QString UserGuts;
 QString Notes;
+int width;
+int height;
 public:
     Node(GraphWidget *graphWidget);
 
@@ -64,7 +68,7 @@ public:
 
     virtual void setPos(qreal ax, qreal ay);
     virtual void setPos(QPointF p);
-
+    QIcon generateIcon();
 
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
@@ -132,6 +136,12 @@ public:
 
     QString getNotes() const;
     void setNotes(const QString &value);
+
+    int getWidth() const;
+    void setWidth(int value);
+
+    int getHeight() const;
+    void setHeight(int value);
 
 private:
     bool selected;

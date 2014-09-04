@@ -1,4 +1,5 @@
 #include <qstring.h>
+#include <QPainter>
 #include "Util.h"
 QString FormatLabel(const char *text, double min, double v, double max)
 {

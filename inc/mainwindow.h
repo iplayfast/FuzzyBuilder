@@ -32,7 +32,9 @@ public:
 
     void WriteSource(QTextStream &h, QTextStream &s);
     void SaveFile(QString filename);
-    void FillCodeUI(Node *np);
+    void FillCodeUI(Node *np);    
+
+
 private slots:
     void on_actionLoad_triggered();
 
@@ -44,7 +46,6 @@ private slots:
 
     void on_AddLogic_clicked();
 
-    void on_UpdateName_clicked();
 
     void on_ValueTable_clicked(const QModelIndex &index);
 
@@ -101,12 +102,33 @@ private slots:
     void on_MaxText_editingFinished();
 
     void on_NodeName_editingFinished();
-
+    void AddIn();
+    void AddOut();
+    void AddOr();
+    void AddAnd();
+    void AddNot();
+    void AddFuzzy();
+    void AddSetup();
+    void AddPID();
+    void AddTimer();
+    void AddNode(LOGICTYPE lt);
 private:
     bool Frozen;
     Ui::MainWindow *ui;
     Node *Active;
     GroupTableItem *gti;
+    QToolBar *editToolBar;
+    void createToolBars();
+    void createActions();
+    QAction *inNodeAct;
+    QAction *outNodeAct;
+    QAction *orNodeAct;
+    QAction *andNodeAct;
+    QAction *notNodeAct;
+    QAction *fuzzyNodeAct;
+    QAction *setupNodeAct;
+    QAction *pidNodeAct;
+    QAction *timerNodeAct;
 signals:
     void editCompleted(const QString &);
 };

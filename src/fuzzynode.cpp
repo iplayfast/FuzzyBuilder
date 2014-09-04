@@ -10,13 +10,14 @@
 
 FuzzyNode::FuzzyNode(GraphWidget *graphWidget) : Node(graphWidget)
 {
-
+    setWidth(40);
+    setHeight(40);
 }
 
 QRectF FuzzyNode::boundingRect() const
 {
-int width = 40;
-int height = 40;
+    int width = getWidth();
+    int height = getHeight();
 qreal adjust = 2;
 return QRectF( -width - adjust, -height - adjust, 2 * width + adjust, 2 * height + adjust);
 }

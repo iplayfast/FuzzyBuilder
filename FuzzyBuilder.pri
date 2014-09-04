@@ -23,7 +23,8 @@ SOURCES += src/main.cpp\
     src/Util.cpp \
     src/boundnode.cpp \
     src/notnode.cpp \
-    src/groupitem.cpp
+    src/groupitem.cpp \
+    src/timernode.cpp
 
 HEADERS  += inc/mainwindow.h \
     inc/addlogic.h \
@@ -45,7 +46,8 @@ HEADERS  += inc/mainwindow.h \
     inc/Util.h \
     inc/boundnode.h \
     inc/notnode.h \
-    inc/groupitem.h
+    inc/groupitem.h \
+    inc/timernode.h
 
 FORMS += ui/addlogic.ui \
 	ui/groups.ui \

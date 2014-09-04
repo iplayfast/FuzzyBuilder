@@ -44,9 +44,31 @@ void Node::setNotes(const QString &value)
     Notes = value;
 }
 
+
+int Node::getWidth() const
+{
+    return width;
+}
+
+void Node::setWidth(int value)
+{
+    width = value;
+}
+
+int Node::getHeight() const
+{
+    return height;
+}
+
+void Node::setHeight(int value)
+{
+    height = value;
+}
 Node::Node(GraphWidget *graphWidget)
     : graph(graphWidget)
 {
+    width = 40;
+    height = 20;
     QGraphicsScene *scene = graphWidget->scene();
     scene->addItem(this);
     setFlag(ItemIsMovable);
@@ -57,6 +79,42 @@ Node::Node(GraphWidget *graphWidget)
     UserGuts = "";
     QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
     setPos(exposedRect.width()/2,exposedRect.height() / 2);
+}
+/**
+ * Generate a QIcon for the supplied QPainterPath.
+ *
+ * @param path a const reference to a QPainterPath
+ *
+ * @return a QIcon
+ */
+QIcon Node::generateIcon()
+{    
+    QPixmap pixmap(48,48);
+    pixmap.fill(Qt::white);
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+
+    QStyleOptionGraphicsItem g;
+    QRectF r1 = paintSetup(&painter,&g);
+    QPainterPath s = shape();
+    QRectF r = s.boundingRect();
+    painter.translate(0,0);
+    painter.scale(48.0 /r1.width() ,48 / r1.height());
+    painter.translate(-r.x(),-r.y());
+    painter.drawPath(s);
+    QString nodetype = gettype();
+
+
+    // this is wrong, but I don't know how to fix
+    // todo fix this so text is shown
+    r.setWidth(100);
+    r.setHeight(100);
+    painter.drawText(r,nodetype);
+
+    painter.end();
+
+    pixmap.scaled(48,48);
+    return QIcon(pixmap);
 }
 
 QRectF Node::paintSetup(QPainter *painter, const QStyleOptionGraphicsItem *option)

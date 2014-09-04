@@ -22,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
     Active = 0;
     SelectNode(0);
     Filename = "";
+    createActions();
+    createToolBars();
 }
 
 void MainWindow::FillCodeUI(Node *np)
@@ -360,12 +362,6 @@ void MainWindow::on_AddLogic_clicked()
     delete al;
 }
 
-void MainWindow::on_UpdateName_clicked()
-{
-    if (!Active) return;
-    Active->setName( ui->FunctionHeader->text());
-    Active->update();
-}
 
 void MainWindow::on_ValueTable_clicked(const QModelIndex &/*index*/)
 {
@@ -588,7 +584,7 @@ QTextStream hs(&h),ss(&s);
    delete vs;
 }
 
-
+#include <QDockWidget>
 void MainWindow::on_DeleteBlock_clicked()
 {
     QGraphicsScene *scene = this->ui->graphicsView->scene();
@@ -861,4 +857,134 @@ void MainWindow::on_NodeName_editingFinished()
     if (Active==0) return;
     Active->setName(ui->NodeName->text());
     Active->update();
+}
+
+void MainWindow::AddIn()
+{
+    AddNode(fIN);
+}
+
+void MainWindow::AddOut()
+{
+    AddNode(fOUT);
+}
+
+void MainWindow::AddOr()
+{
+    AddNode(fOR);
+}
+
+void MainWindow::AddNot()
+{
+    AddNode(fNOT);
+}
+
+void MainWindow::AddAnd()
+{
+    AddNode(fAND);
+}
+void MainWindow::AddFuzzy()
+{
+    AddNode(fFUZZY);
+}
+void MainWindow::AddSetup()
+{
+    AddNode(fSETUP);
+}
+
+void MainWindow::AddPID()
+{
+    AddNode(fPID);
+}
+
+void MainWindow::AddTimer()
+{
+    AddNode(fTIMER);
+}
+
+void MainWindow::AddNode(LOGICTYPE lt)
+{
+    Node *node = NodeFactory::Create(ui->graphicsView,lt);
+    node->setName(SuggestName(lt));
+    QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());
+}
+
+
+void MainWindow::createToolBars()
+{
+    editToolBar = addToolBar(tr("Edit"));
+    editToolBar->addAction(inNodeAct);
+    editToolBar->addAction(outNodeAct);
+    editToolBar->addAction(orNodeAct);
+    editToolBar->addAction(andNodeAct);
+    editToolBar->addAction(notNodeAct);
+    editToolBar->addAction(fuzzyNodeAct);
+    editToolBar->addAction(setupNodeAct);
+    editToolBar->addAction(pidNodeAct);
+    editToolBar->addAction(timerNodeAct);
+
+}
+
+void MainWindow::createActions()
+{
+    Node *node;
+    node = NodeFactory::Create(ui->graphicsView,fIN);
+    inNodeAct = new QAction(node->generateIcon(), tr("&In"), this);
+    //inNodeAct->setShortcuts(QKeySequence::Undo);
+    inNodeAct->setStatusTip(tr("Add an Input Node"));    
+    connect(inNodeAct, SIGNAL(triggered()), this, SLOT(AddIn()));
+    delete node;
+
+
+    node = NodeFactory::Create(ui->graphicsView,fOUT);
+    outNodeAct = new QAction(node->generateIcon(), tr("&Out"), this);
+    outNodeAct->setStatusTip(tr("Add an Output Node"));
+    connect(outNodeAct, SIGNAL(triggered()), this, SLOT(AddOut()));
+    delete node;
+
+    node = NodeFactory::Create(ui->graphicsView,fOR);
+    orNodeAct = new QAction(node->generateIcon(), tr("&Or"), this);
+    //orNodeAct->setShortcuts(QKeySequence::Undo);
+    orNodeAct->setStatusTip(tr("Add an Or Node"));
+    connect(orNodeAct, SIGNAL(triggered()), this, SLOT(AddOr()));
+    delete node;
+
+    node = NodeFactory::Create(ui->graphicsView,fAND);
+    andNodeAct = new QAction(node->generateIcon(), tr("&And"), this);
+    //andNodeAct->setShortcuts(QKeySequence::Undo);
+    andNodeAct->setStatusTip(tr("Add an And Node"));
+    connect(andNodeAct, SIGNAL(triggered()), this, SLOT(AddAnd()));
+    delete node;
+
+    node = NodeFactory::Create(ui->graphicsView,fNOT);
+    notNodeAct = new QAction(node->generateIcon(), tr("&Not"), this);
+    //notNodeAct->setShortcuts(QKeySequence::Undo);
+    notNodeAct->setStatusTip(tr("Add a Not Node"));
+    connect(notNodeAct, SIGNAL(triggered()), this, SLOT(AddNot()));
+    delete node;
+
+    node = NodeFactory::Create(ui->graphicsView,fFUZZY);
+    fuzzyNodeAct = new QAction(node->generateIcon(), tr("&Fuzzy"), this);
+    fuzzyNodeAct->setStatusTip(tr("Add a Fuzzy Node"));
+    connect(fuzzyNodeAct, SIGNAL(triggered()), this, SLOT(AddFuzzy()));
+    delete node;
+
+    node = NodeFactory::Create(ui->graphicsView,fSETUP);
+    setupNodeAct = new QAction(node->generateIcon(), tr("&Setup"), this);
+    setupNodeAct->setStatusTip(tr("Add a setup node"));
+    connect(setupNodeAct, SIGNAL(triggered()), this, SLOT(AddSetup()));
+    delete node;
+
+    node = NodeFactory::Create(ui->graphicsView,fPID);
+    pidNodeAct = new QAction(node->generateIcon(), tr("&PID"), this);
+    pidNodeAct->setStatusTip(tr("Add a PID node"));
+    connect(pidNodeAct, SIGNAL(triggered()), this, SLOT(AddPID()));
+    delete node;
+
+    node = NodeFactory::Create(ui->graphicsView,fTIMER);
+    timerNodeAct = new QAction(node->generateIcon(), tr("&Timer"), this);
+    timerNodeAct->setStatusTip(tr("Add a timer node"));
+    connect(timerNodeAct, SIGNAL(triggered()), this, SLOT(AddTimer()));
+    delete node;
+
 }

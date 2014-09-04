@@ -26,6 +26,7 @@ Node *NodeFactory::Create(GraphWidget *graphWidget, LOGICTYPE lt)
     case fPID:
         return new PidNode(graphWidget);
     case fTIMER:
+        return new TimerNode(graphWidget);
     default:
         throw "Bad LogicType";
     }
@@ -47,6 +48,7 @@ QString Line;
                       lastNode = 0;
                       continue;
             }
+            if (TokenList[1]=="fTIMER") lt = fTIMER;
             if (TokenList[1]=="fSetup") lt = fSETUP;
             if (TokenList[1]=="fIn") lt = fIN;
             if (TokenList[1]=="fOut") lt = fOUT;
@@ -157,6 +159,13 @@ QString Line;
                 // todo
             }
                 break;
+            case fTIMER:
+            {
+                TimerNode *n = new TimerNode(graphWidget);
+                lastNode = n;
+                n->setName(TokenList[2]);
+                // to do
+            }
             default:
                 throw "Bad LogicType";
             }

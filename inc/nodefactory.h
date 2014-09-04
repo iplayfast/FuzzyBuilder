@@ -11,7 +11,7 @@
 #include "ornode.h"
 #include "notnode.h"
 #include "pidnode.h"
-
+#include "timernode.h"
 
 
 class NodeFactory
