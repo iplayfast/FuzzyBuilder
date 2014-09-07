@@ -25,6 +25,11 @@ QT_END_NAMESPACE
 //! [0]
 class Node : public QGraphicsItem
 {
+    struct lmc{
+        double Least;
+        double Most;
+        double Current;
+    };
 QString Name;
 QString UserGuts;
 QString Notes;
@@ -69,7 +74,8 @@ public:
     virtual void setPos(qreal ax, qreal ay);
     virtual void setPos(QPointF p);
     QIcon generateIcon();
-
+    double OnMinValueChanged(int Value,QString &MinText);
+    double OnMaxValueChanged(int Value,QString &MinText);
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -88,6 +94,7 @@ private:
 public:
 
     double InValue;
+
     double IOMin;   // pid_p
     double IOMax;   // pid_i
     double ActiveValue; // pid_d
@@ -149,6 +156,7 @@ private:
 
     QPointF newPos;
     GraphWidget *graph;
+    QString FormatLabel(const char *text, const Node::lmc &v);
 protected:
     QList<Edge *> edgeList;
     QList<int> GroupIDList; // list of groups this node is a member of

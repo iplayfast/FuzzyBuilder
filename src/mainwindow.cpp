@@ -376,16 +376,12 @@ void MainWindow::on_Min_valueChanged(int value)
     case fIN:
     case fOUT:
     case fTIMER:
-        s.sprintf("%d",value);
+        Active->OnMinValueChanged(value,s);
         ui->MinText->setText(s);
         ui->MinLabel->setText(FormatLabel("Min",1.0 * ui->Min->minimum(),1.0 * value,1.0 * ui->Min->maximum()));
-        ui->Min->setValue(1.0*value);
-        Active->IOMin  = value;
         ui->pid->setMinimum(value * Active->SimulateScale());
         if (value>=ui->Max->value())
             this->on_Max_valueChanged(value+1);
-        // Active->Simulate(Active->InValue);
-        // update all outputs
         break;
 
     case fAND:
@@ -421,12 +417,11 @@ void MainWindow::on_Max_valueChanged(int value)
 QString s;
     switch (Active->GetLogicType()) {
     case fIN:
-    case fOUT:
-        if (value<1) value = 1;
-        ui->MaxLabel->setText(FormatLabel("Max",1.0 * ui->Max->minimum(),1.0 * value,1.0 * ui->Max->maximum()));
-        s.sprintf("%d",value);
+    case fOUT:    
+        if (value<1) value = 1;    
+        Active->OnMaxValueChanged(value,s);
         ui->MaxText->setText(s);
-        Active->IOMax = value;
+        ui->MaxLabel->setText(FormatLabel("Max",1.0 * ui->Max->minimum(),1.0 * value,1.0 * ui->Max->maximum()));
         ui->Max->setValue(value);
         if (value<=ui->Min->value())
             this->on_Min_valueChanged(value-1);

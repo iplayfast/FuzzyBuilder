@@ -116,6 +116,26 @@ QIcon Node::generateIcon()
     pixmap.scaled(48,48);
     return QIcon(pixmap);
 }
+QString Node::FormatLabel(const char *text,const struct Node::lmc &v)
+{
+    QString ss;
+    ss.sprintf("%s %05.5f>=%05.5f<=%05.5f",text,v.Least,v.Current,v.Most);
+    return ss;
+}
+
+double Node::OnMinValueChanged(int Value, QString &MinText)
+{
+    MinText.sprintf("%d",Value);
+    IOMin = Value;
+    return Value;
+}
+
+double Node::OnMaxValueChanged(int Value, QString &MinText)
+{
+    MinText.sprintf("%d",Value);
+    IOMax = Value;
+    return Value;
+}
 
 QRectF Node::paintSetup(QPainter *painter, const QStyleOptionGraphicsItem *option)
 {
