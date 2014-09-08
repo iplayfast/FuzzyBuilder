@@ -14,7 +14,7 @@ public:
     void WriteNodeInfo(QTextStream &s);
     virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn);
     virtual void WriteSourcePlainGuts(QTextStream &ts);
-
+    virtual bool UsesMax() { return false; }
     virtual QString Regenerate();
     virtual double Simulate();
     virtual QPainterPath shape() const;

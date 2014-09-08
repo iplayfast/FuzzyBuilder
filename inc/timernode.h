@@ -9,10 +9,11 @@ public:
     virtual bool AllowAttach(Node *) const;
     virtual void WriteHeader(QTextStream &h);
     void WriteNodeInfo(QTextStream &s);
-virtual void FunctionData(QString &Return,QString &Parameters,QString &FunctionReturn);
-
+    virtual void FunctionData(QString &Return,QString &Parameters,QString &FunctionReturn);
+    void WriteSourcePlainGuts(QTextStream &s);
+    virtual QString Regenerate();
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/);
-virtual void setName(const QString &value);
+    virtual void setName(const QString &value);
     virtual double Simulate() { return 0;} // setup doesn't do any simulations
     virtual QPainterPath shape() const;
     // Node interface

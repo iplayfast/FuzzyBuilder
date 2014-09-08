@@ -7,7 +7,7 @@ class AndNode : public Node
 {
     double AndValue;
 public:
-    AndNode(GraphWidget *graphWidget);    
+    AndNode(GraphWidget *graphWidget);
     virtual QRectF boundingRect() const;
     virtual bool AllowAttach(Node *) const;
 
@@ -19,7 +19,7 @@ public:
 
     virtual QString Regenerate();
 
-
+    virtual bool UsesMin() { return false; }
     virtual double Simulate();
     virtual QPainterPath shape() const;
     // Node interface

@@ -75,40 +75,46 @@ void MainWindow::SelectNode(Node *np)
 
     if (np) {
         Active = np;
+        QString ss;
+        double v = Active->InValue; // incase invalue get's corrupted while setting limits
+        visible = Active->UsesMin();
+
+        ui->MinLabel->setVisible(visible);
+        ui->Min->setVisible(visible);
+        ui->MinLabel->setVisible(visible);
+        ui->Min->setValue(Active->IOMin);
+        ui->Min->setMinimum(0);
+        on_MinScale_valueChanged(Active->IOMin > 16 ? 512 : 16);
+        ui->MinScale->setVisible(visible);
+        ui->Min->setStatusTip("The minimum expected value");
+        ui->MinText->setVisible(visible);
+        ss.sprintf("%05.5f",v);
+        ui->MinText->setText(ss);
+        if (visible) this->on_Min_valueChanged(Active->IOMin);
+
+        visible = Active->UsesMax();
+        ui->MaxLabel->setVisible(visible);
+        ui->Max->setMinimum(0);
+        ui->Max->setValue(Active->IOMax);
+        on_MaxScale_valueChanged(Active->IOMax > 16 ? 512 : 16);
+        ui->Max->setVisible(visible);
+        ui->Max->setStatusTip("The maximum expected value");
+        ui->MaxScale->setVisible(visible);
+        if (visible) this->on_Max_valueChanged(Active->IOMax);
         switch(np->GetLogicType()) {
         case fSETUP:
             break;
         case fIN:
         case fOUT:
         {
-            double v = Active->InValue; // incase invalue get's corrupted while setting limits
-            ui->MinLabel->setVisible(true);
-            ui->Min->setMinimum(0);
-            ui->Min->setValue(np->IOMin);
-            this->on_MinScale_valueChanged(np->IOMin > 16 ? 512 : 16);
-            ui->Min->setVisible(true);
-            ui->Min->setStatusTip("The minimum expected value");
-            ui->MinScale->setVisible(true);
-            ui->MinText->setVisible(true);
-            QString ss;
-            ss.sprintf("%05.5f",v);
-            ui->MinText->setText(ss);
-
-            ui->MaxLabel->setVisible(true);
-            ui->Max->setMinimum(0);
-            ui->Max->setValue(np->IOMax);
-            this->on_MaxScale_valueChanged(np->IOMax > 16 ? 512 : 16);
-            ui->Max->setVisible(true);
-            ui->Max->setStatusTip("The maximum expected value");
-            ui->MaxScale->setVisible(true);
             if (np->GetLogicType()==fIN) {  // needs to be set after min and max are set
                 ui->pidlabel->setVisible(true);
-                ui->pid->setMinimum(np->IOMin * Active->SimulateScale());
-                ui->pid->setMaximum(np->IOMax * Active->SimulateScale());
+                ui->pid->setMinimum(Active->IOMin * Active->SimulateScale());
+                ui->pid->setMaximum(Active->IOMax * Active->SimulateScale());
 
-                if (np->InValue<np->IOMin) np->InValue = np->IOMin;
-                if (np->InValue>np->IOMax) np->InValue = np->IOMax;
-                this->on_pid_valueChanged(np->InValue * Active->SimulateScale());
+                if (Active->InValue<Active->IOMin) Active->InValue = Active->IOMin;
+                if (Active->InValue>Active->IOMax) Active->InValue = Active->IOMax;
+                this->on_pid_valueChanged(Active->InValue * Active->SimulateScale());
                 ui->pid->setVisible(true);
             }
         }
@@ -417,8 +423,8 @@ void MainWindow::on_Max_valueChanged(int value)
 QString s;
     switch (Active->GetLogicType()) {
     case fIN:
-    case fOUT:    
-        if (value<1) value = 1;    
+    case fOUT:
+        if (value<1) value = 1;
         Active->OnMaxValueChanged(value,s);
         ui->MaxText->setText(s);
         ui->MaxLabel->setText(FormatLabel("Max",1.0 * ui->Max->minimum(),1.0 * value,1.0 * ui->Max->maximum()));
@@ -926,7 +932,7 @@ void MainWindow::createActions()
     node = NodeFactory::Create(ui->graphicsView,fIN);
     inNodeAct = new QAction(node->generateIcon(), tr("&In"), this);
     //inNodeAct->setShortcuts(QKeySequence::Undo);
-    inNodeAct->setStatusTip(tr("Add an Input Node"));    
+    inNodeAct->setStatusTip(tr("Add an Input Node"));
     connect(inNodeAct, SIGNAL(triggered()), this, SLOT(AddIn()));
     delete node;
 

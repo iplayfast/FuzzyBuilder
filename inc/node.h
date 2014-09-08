@@ -76,6 +76,10 @@ public:
     QIcon generateIcon();
     double OnMinValueChanged(int Value,QString &MinText);
     double OnMaxValueChanged(int Value,QString &MinText);
+
+    virtual bool UsesMin() { return true; }
+    virtual bool UsesMax() { return true; }
+    virtual bool UsesExtra() { return true; }
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
