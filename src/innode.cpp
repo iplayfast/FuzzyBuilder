@@ -14,6 +14,9 @@ InNode::InNode(GraphWidget *graphWidget) : Node(graphWidget)
     QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
     //QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());    
     setPos(0,exposedRect.height() / 2);
+    if (!FindNewVertPosition(-1))
+        FindNewVertPosition(1);
+
     IOMax = 1;
     IOMin = 0;
     Regenerate();

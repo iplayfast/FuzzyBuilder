@@ -14,6 +14,8 @@ OutNode::OutNode(GraphWidget *graphWidget) : Node(graphWidget)
     IOMax = 1.0;
     IOMin = 0.0;
     setPos(exposedRect.width(),exposedRect.height() / 2);
+    if (!FindNewVertPosition(-1))
+        FindNewVertPosition(1);
 
     Regenerate();
 }

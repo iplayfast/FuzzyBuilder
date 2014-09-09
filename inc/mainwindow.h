@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <qgraphicssceneevent.h>
 #include <QFileDialog>
-
+#include <QToolBar>
 #include "nodefactory.h"
 #include "groupitem.h"
 namespace Ui {

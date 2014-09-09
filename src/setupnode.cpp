@@ -17,6 +17,9 @@ SetupNode::SetupNode(GraphWidget *graphWidget) : Node(graphWidget)
     QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
     //QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());
     setPos(20,20);
+    if (!FindNewVertPosition(-1))
+        FindNewVertPosition(1);
+
 }
 
 QRectF SetupNode::boundingRect() const

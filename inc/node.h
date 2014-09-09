@@ -154,6 +154,7 @@ public:
     int getHeight() const;
     void setHeight(int value);
 
+    bool FindNewVertPosition(int updown);
 private:
     bool selected;
     double Current;

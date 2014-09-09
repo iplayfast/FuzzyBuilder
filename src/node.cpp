@@ -64,12 +64,38 @@ void Node::setHeight(int value)
 {
     height = value;
 }
+bool Node::FindNewVertPosition(int updown)
+{
+    QGraphicsScene *scene = graph->scene();
+    QPointF p = pos();
+    bool restart = true;
+    while(restart) {
+        restart =false;
+        foreach (QGraphicsItem *item, scene->items()) {
+            Node *node = qgraphicsitem_cast<Node *>(item);
+            if (!node || node==this)
+                continue;
+            if (node->pos()==p){
+                if (p.y()<100) return false; // can't do it
+                double y = p.y();
+             //   QRectF r = boundingRect();
+                int height = 50;
+                p.setY(y+ height * updown);
+                restart = true;
+                break;
+            }
+        }
+    }
+    setPos(p);
+    return true;
+}
+
 Node::Node(GraphWidget *graphWidget)
     : graph(graphWidget)
 {
     width = 40;
     height = 20;
-    QGraphicsScene *scene = graphWidget->scene();
+    QGraphicsScene *scene = graph->scene();
     scene->addItem(this);
     setFlag(ItemIsMovable);
     setFlag(ItemSendsGeometryChanges);
@@ -77,8 +103,11 @@ Node::Node(GraphWidget *graphWidget)
     setZValue(-1);
     selected = false;
     UserGuts = "";
-    QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
-    setPos(exposedRect.width()/2,exposedRect.height() / 2);
+    QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());        
+    setPos(exposedRect.width()/2,exposedRect.height() / 2);            
+    if (!FindNewVertPosition(-1))
+        FindNewVertPosition(1);
+
 }
 /**
  * Generate a QIcon for the supplied QPainterPath.
@@ -104,12 +133,11 @@ QIcon Node::generateIcon()
     painter.drawPath(s);
     QString nodetype = gettype();
 
-
-    // this is wrong, but I don't know how to fix
-    // todo fix this so text is shown
-    r.setWidth(100);
-    r.setHeight(100);
-    painter.drawText(r,nodetype);
+    QFont f = painter.font();
+    f.setBold(true);
+    painter.setFont(f);
+    QPointF p(-24,0);
+    painter.drawText(r,Qt::AlignHCenter | Qt::AlignBottom,nodetype);
 
     painter.end();
 
