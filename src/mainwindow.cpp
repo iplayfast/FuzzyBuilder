@@ -60,6 +60,7 @@ void MainWindow::SelectNode(Node *np)
     ui->Min->setVisible(false);
     ui->MaxLabel->setVisible(false);
     ui->Max->setVisible(false);
+    ui->MaxText->setVisible(false);
     ui->pidlabel->setVisible(false);
     ui->pid->setVisible(false);
     ui->SetPoint->setVisible(false);
@@ -85,7 +86,10 @@ void MainWindow::SelectNode(Node *np)
         ui->Min->setValue(Active->IOMin);
         ui->Min->setMinimum(0);
         on_MinScale_valueChanged(Active->IOMin > 16 ? 512 : 16);
-        ui->MinScale->setVisible(visible);
+        ui->MinScale->setVisible(Active->UsesMinScale());
+        ui->MinScaleLabel->setVisible(Active->UsesMinScale());
+
+
         ui->Min->setStatusTip("The minimum expected value");
         ui->MinText->setVisible(visible);
         ss.sprintf("%05.5f",v);
@@ -97,7 +101,13 @@ void MainWindow::SelectNode(Node *np)
         ui->Max->setMinimum(0);
         ui->Max->setValue(Active->IOMax);
         on_MaxScale_valueChanged(Active->IOMax > 16 ? 512 : 16);
-        ui->Max->setVisible(visible);
+        ui->MaxScale->setVisible(Active->UsesMaxScale());
+        ui->MaxScaleLabel->setVisible(Active->UsesMaxScale());
+
+
+        ss.sprintf("%05.5f",Active->IOMax);
+        ui->MaxText->setText(ss);
+        ui->MaxText->setVisible(visible);
         ui->Max->setStatusTip("The maximum expected value");
         ui->MaxScale->setVisible(visible);
         if (visible) this->on_Max_valueChanged(Active->IOMax);
@@ -126,6 +136,7 @@ void MainWindow::SelectNode(Node *np)
             ui->Max->setValue(np->getActiveValue());
             ui->Max->setMaximum(NODEHIGHVAL);
             ui->Max->setVisible(true);
+            ui->MaxText->setVisible(visible);
             on_Max_valueChanged(np->getActiveValue());
             ui->Max->setStatusTip("The maximum of all inputs up to this level");
             break;
@@ -172,6 +183,7 @@ void MainWindow::SelectNode(Node *np)
 //            ui->Max->setValue(fnp->fuzzy.Value(np->InValue));
 
             ui->Max->setVisible(true);
+            ui->MaxText->setVisible(true);
             ui->Max->setStatusTip("");
             ui->SetPoint->setVisible(true);
             ui->Graph->setVisible(true);
@@ -195,6 +207,7 @@ void MainWindow::SelectNode(Node *np)
             ui->MaxLabel->setText("I");
             ui->Max->setValue(pnp->get_i());
             ui->Max->setVisible(true);
+            ui->MaxText->setVisible(true);
             on_Max_valueChanged(pnp->get_i());
 
             ui->pidlabel->setVisible(true);

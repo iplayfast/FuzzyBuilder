@@ -15,6 +15,9 @@ public:
     virtual QString Regenerate();
     virtual double Simulate();
     virtual QPainterPath shape() const;
+    virtual bool UsesMinScale() { return true; }
+    virtual bool UsesMaxScale() { return true; }
+
     // Node interface
 public:
     LOGICTYPE GetLogicType() const

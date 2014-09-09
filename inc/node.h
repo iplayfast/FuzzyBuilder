@@ -78,6 +78,8 @@ public:
     double OnMaxValueChanged(int Value,QString &MinText);
 
     virtual bool UsesMin() { return true; }
+    virtual bool UsesMinScale() { return false; }
+    virtual bool UsesMaxScale() { return false; }
     virtual bool UsesMax() { return true; }
     virtual bool UsesExtra() { return true; }
 protected:
