@@ -170,16 +170,7 @@ QRectF Node::paintSetup(QPainter *painter, const QStyleOptionGraphicsItem *optio
     painter->setPen(Qt::NoPen);
     painter->setBrush(Qt::darkGray);
 QRectF r =  boundingRect();
-    //r.adjust(-3,-3,0,0);
-    /*static const QPointF points[4] = {
-         QPointF(10.0, 80.0),
-         QPointF(20.0, 10.0),
-         QPointF(80.0, 30.0),
-         QPointF(90.0, 70.0)
-     };
-    painter->drawPolygon(points,4);*/
-    //painter->drawEllipse(r);
-    //r.adjust(3,3,0,0);
+
     QRadialGradient gradient(r.center(),r.height());
     if (option->state & QStyle::State_Sunken) {
         gradient.setCenter(3, 3);
@@ -216,7 +207,12 @@ void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     NameV += v;
 
     painter->drawPath(shape());
-    painter->drawText(r,Qt::AlignHCenter,NameV);
+    if (fType==fIN || fType==fSETUP)    {
+        painter->drawText(r,Qt::AlignRight,NameV);
+    }
+    else
+        painter->drawText(r,Qt::AlignHCenter,NameV);
+
 
 }
 bool Node::getSourceBeenWritten() const

@@ -14,9 +14,11 @@ public:
     virtual QString Regenerate();
     virtual double Simulate();
     virtual QPainterPath shape() const;
+    virtual QString MinText() { return "Min possible Real world value"; }
     virtual bool UsesMinScale() { return true; }
     virtual bool UsesMaxScale() { return true; }
-
+    virtual bool UsesExtra() { return true; }
+    virtual QString ExtraText() { return "Simulated Input"; }
     // Node interface
 public:
     LOGICTYPE GetLogicType() const

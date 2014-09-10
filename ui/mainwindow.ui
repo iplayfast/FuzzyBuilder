@@ -338,9 +338,9 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
-              <widget class="QLabel" name="pidlabel">
+              <widget class="QLabel" name="extraLabel">
                <property name="text">
-                <string>d</string>
+                <string>Extra</string>
                </property>
               </widget>
              </item>
@@ -349,7 +349,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
-              <widget class="QSlider" name="pid">
+              <widget class="QSlider" name="Extra">
                <property name="maximum">
                 <number>1024</number>
                </property>
@@ -586,7 +586,7 @@
      <x>0</x>
      <y>0</y>
      <width>931</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

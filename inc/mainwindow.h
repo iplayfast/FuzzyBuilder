@@ -35,6 +35,9 @@ public:
     void FillCodeUI(Node *np);    
 
 
+    void SetupMinSlider(Node *Active);
+    void SetupMaxSlider(Node *Active);
+    void SetupUsesExtra();
 private slots:
     void on_actionLoad_triggered();
 
@@ -53,7 +56,7 @@ private slots:
 
     void on_Max_valueChanged(int value);
 
-    void on_pid_valueChanged(int value);
+
 
     void on_SetPoint_clicked();
 
@@ -112,6 +115,8 @@ private slots:
     void AddPID();
     void AddTimer();
     void AddNode(LOGICTYPE lt);
+    void on_Extra_sliderMoved(int position);
+
 private:
     bool Frozen;
     Ui::MainWindow *ui;

@@ -78,10 +78,13 @@ public:
     double OnMaxValueChanged(int Value,QString &MinText);
 
     virtual bool UsesMin() { return true; }
+    virtual QString MinText() { return ""; }
     virtual bool UsesMinScale() { return false; }
     virtual bool UsesMaxScale() { return false; }
     virtual bool UsesMax() { return true; }
-    virtual bool UsesExtra() { return true; }
+    virtual QString MaxText() { return ""; }
+    virtual bool UsesExtra() { return false; }
+    virtual QString ExtraText() { return ""; }
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
