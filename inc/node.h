@@ -78,12 +78,19 @@ public:
     double OnMaxValueChanged(int Value,QString &MinText);
 
     virtual bool UsesMin() { return true; }
+    virtual int MinMin() { return 0; } // Min value for min slider
+    virtual int MinMax(int Scale=1) { return NODEHIGHVAL * Scale; }
     virtual QString MinText() { return ""; }
     virtual bool UsesMinScale() { return false; }
     virtual bool UsesMaxScale() { return false; }
     virtual bool UsesMax() { return true; }
+    virtual int MaxMin() { return 0; } // min value for max slider
+    virtual int MaxMax(int scale=1) { return NODEHIGHVAL * scale; } // max value for max slider
+
     virtual QString MaxText() { return ""; }
     virtual bool UsesExtra() { return false; }
+    virtual int ExtraMin() { return 0; } // min value for extra slider
+    virtual int ExtraMax() { return NODEHIGHVAL; } // max value for extra slider
     virtual QString ExtraText() { return ""; }
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
@@ -166,7 +173,7 @@ private:
 
     QPointF newPos;
     GraphWidget *graph;
-    QString FormatLabel(const char *text, const Node::lmc &v);
+
 protected:
     QList<Edge *> edgeList;
     QList<int> GroupIDList; // list of groups this node is a member of

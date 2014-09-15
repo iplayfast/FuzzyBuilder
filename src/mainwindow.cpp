@@ -49,27 +49,61 @@ void MainWindow::FillCodeUI(Node *np)
     }
 }
 
-void MainWindow::SetupMinSlider(Node *Active)
+void MainWindow::SelectAllAction(bool Select)
 {
-    QString ss;
+    QGraphicsScene *scene = this->ui->graphicsView->scene();
+    foreach (QGraphicsItem *item, scene->items()) {
+        Node *node = qgraphicsitem_cast<Node *>(item);
+        if (!node)
+            continue;
+        if (node->getSelected()!=Select)    {
+            node->setSelected(Select);
+            node->update();
+        }
+       }
+}
+
+void MainWindow::SetupMinSlider(Node *Active,int Value)
+{
+
     double v = Active->InValue; // incase invalue get's corrupted while setting limits
     if (Active->UsesMin())
     {
     ui->MinLabel->setVisible(true);
-    ui->MinLabel->setText(Active->MinText());
+    ui->MinLabel->setText("");//Active->MinText());
     ui->Min->setVisible(true);
-    ui->Min->setValue(Active->IOMin);
-    ui->Min->setMinimum(0);
-    on_MinScale_valueChanged(Active->IOMin > 16 ? 512 : 16);
-    ui->MinScale->setVisible(Active->UsesMinScale());
-    ui->MinScale->setMinimum(0);
-    ui->MinScale->setMaximum(1023);
-    ui->MinScaleLabel->setVisible(Active->UsesMinScale());
+    if (Value>-1)
+        Active->IOMin = v = Value;
+    if (ui->Min->value()!=Active->IOMin)
+        ui->Min->setValue(Active->IOMin);
+    ui->Min->setMinimum(Active->MinMin());
+
+    //on_MinScale_valueChanged(Active->IOMin > 16 ? 512 : 16);
+
+    if (Active->UsesMinScale()) {
+        int v = Active->IOMin > 16 ? 512 : 16;
+        if (!ui->MinScale->isVisible()) {
+            ui->MinScale->setMinimum(1);
+            ui->MinScale->setMaximum(v*2);
+        }
+        ui->MinScale->setVisible(true);
+        ui->MinScaleLabel->setVisible(true);
+        ui->Min->setMaximum(Active->MinMax(ui->MinScale->value()));
+    }
+    else    {
+        ui->MinScale->setVisible(false);
+        ui->MinScaleLabel->setVisible(false);
+        ui->Min->setMaximum(Active->MinMax());
+    }
+    ui->MinTitle->setText(Active->MinText());
     ui->Min->setStatusTip("The minimum expected value");
+    if (v>ui->Min->maximum())
+        v = ui->Min->maximum();
+    QString ss;
     ss.sprintf("%05.5f",v);
     ui->MinText->setText(ss);
     ui->MinText->setVisible(true);
-    on_Min_valueChanged(Active->IOMin);
+    //on_Min_valueChanged(Active->IOMin);
     }
     else {
         ui->MinLabel->setVisible(false);
@@ -78,31 +112,50 @@ void MainWindow::SetupMinSlider(Node *Active)
         ui->MinScaleLabel->setVisible(false);
         ui->MinText->setVisible(false);
     }
-
+ //   ui->MinScale->update();
+ //   ui->Min->update();
 }
 
-void MainWindow::SetupMaxSlider(Node *Active)
+void MainWindow::SetupMaxSlider(Node *Active,int value)
 {
+
     if (Active->UsesMax())  {
-    ui->MaxLabel->setVisible(true);
-    ui->MaxLabel->setText(Active->MaxText());
-    ui->Max->setMinimum(0);
-    ui->Max->setValue(Active->IOMax);
-    ui->Max->setVisible(true);
-    on_MaxScale_valueChanged(Active->IOMax > 16 ? 512 : 16);
-    ui->MaxScale->setVisible(Active->UsesMaxScale());
-    ui->MaxScale->setMinimum(0);
-    ui->MaxScale->setMaximum(1023);
+        ui->MaxLabel->setVisible(true);
+        ui->MaxLabel->setText("");//Active->MaxText());
+        ui->Max->setVisible(true);
+        if (value!=-1)
+            Active->setIOMax(value);
+        if (ui->Max->value()!=Active->IOMax)
+            ui->Max->setValue(Active->IOMax);
+        ui->Max->setMinimum(Active->MaxMin());
 
-    ui->MaxScaleLabel->setVisible(Active->UsesMaxScale());
 
-QString ss;
-    ss.sprintf("%05.5f",Active->IOMax);
-    ui->MaxText->setText(ss);
-    ui->MaxText->setVisible(true);
-    ui->Max->setStatusTip("The maximum expected value");
-    ui->MaxScale->setVisible(true);
-    on_Max_valueChanged(Active->IOMax);
+        if (Active->UsesMaxScale()) {
+            int v = Active->IOMax > 16 ? 512 : 16;
+            if (!ui->MaxScale->isVisible()) {
+                ui->MaxScale->setMinimum(1);
+                ui->MaxScale->setMaximum(v*2);
+            }
+            ui->MaxScale->setVisible(true);
+            ui->MaxScaleLabel->setVisible(true);
+            ui->Max->setMaximum(Active->MaxMax(ui->MaxScale->value()));
+        }
+        else {
+            ui->MaxScale->setVisible(false);
+            ui->MaxScaleLabel->setVisible(false);
+            ui->Max->setMaximum(Active->MaxMax());
+        }
+        ui->MaxTitle->setText(Active->MaxText());
+        ui->Max->setStatusTip("The maximum expected value");
+        double v = Active->IOMax;
+
+        if (v>ui->Max->maximum())
+            v = ui->Max->maximum();
+        QString ss;
+        ss.sprintf("%05.5f",Active->IOMax);
+        ui->MaxText->setText(ss);
+        ui->MaxText->setVisible(true);
+        //on_Max_valueChanged(Active->IOMax);
     }
     else    {
         ui->Max->setVisible(false);
@@ -111,17 +164,18 @@ QString ss;
         ui->MaxScaleLabel->setVisible(false);
         ui->MaxText->setVisible(false);
     }
-
+    //   ui->Max->update();
+    //   ui->MaxScale->update();
 }
 
-void MainWindow::SetupUsesExtra()
+void MainWindow::SetupExtraSlider(Node *Active)
 {
     if (Active->UsesExtra()) {
          ui->extraLabel->setVisible(true);
          // this may not be true in all cases but until proven otherwise it will stay
-         ui->Extra->setMinimum(Active->IOMin * Active->SimulateScale());
-         ui->Extra->setMaximum(Active->IOMax * Active->SimulateScale());
-
+         ui->Extra->setMinimum(Active->ExtraMin());
+         ui->Extra->setMaximum(Active->ExtraMax());
+         ui->extraLabel->setText(Active->ExtraText());
          if (Active->InValue<Active->IOMin) Active->InValue = Active->IOMin;
          if (Active->InValue>Active->IOMax) Active->InValue = Active->IOMax;
          on_Extra_sliderMoved(Active->InValue * Active->SimulateScale());
@@ -160,11 +214,12 @@ void MainWindow::SelectNode(Node *np)
 
     if (np) {
         Active = np;
+        Active->setSelected(true);
         QString ss;
         SetupMinSlider(Active);
 
         SetupMaxSlider(Active);
-        SetupUsesExtra();
+        SetupExtraSlider(Active);
         switch(np->GetLogicType()) {
         case fSETUP:
             break;
@@ -426,6 +481,8 @@ void MainWindow::on_AddLogic_clicked()
         break;
     }
     delete al;
+    SelectNode(node1);
+
 }
 
 
@@ -437,12 +494,17 @@ void MainWindow::on_ValueTable_clicked(const QModelIndex &/*index*/)
 void MainWindow::on_Min_valueChanged(int value)
 {
     if (!Active) return;
+    SetupMinSlider(Active,value);
+    //SetupMaxSlider(Active);
+    //SetupExtraSlider(Active);
+return;
     QString s;
     switch (Active->GetLogicType()) {
     case fIN:
     case fOUT:
     case fTIMER:
         Active->OnMinValueChanged(value,s);
+
         ui->MinText->setText(s);
         ui->MinLabel->setText(FormatLabel("Min",1.0 * ui->Min->minimum(),1.0 * value,1.0 * ui->Min->maximum()));
         ui->Extra->setMinimum(value * Active->SimulateScale());
@@ -480,14 +542,20 @@ void MainWindow::on_Min_valueChanged(int value)
 void MainWindow::on_Max_valueChanged(int value)
 {
     if (!Active) return;
+    //SetupMinSlider(Active);
+    SetupMaxSlider(Active,value);
+    //SetupExtraSlider(Active);
+return;
+
 QString s;
     switch (Active->GetLogicType()) {
     case fIN:
     case fOUT:
         if (value<1) value = 1;
+        Active->ActiveValue = value;
         Active->OnMaxValueChanged(value,s);
         ui->MaxText->setText(s);
-        ui->MaxLabel->setText(FormatLabel("Max",1.0 * ui->Max->minimum(),1.0 * value,1.0 * ui->Max->maximum()));
+        ui->MaxLabel->setText(Active->MaxText());
         ui->Max->setValue(value);
         if (value<=ui->Min->value())
             this->on_Min_valueChanged(value-1);
@@ -495,7 +563,7 @@ QString s;
         this->on_Extra_sliderMoved(ui->Extra->value());
         break;
     case fAND:
-        ui->MinLabel->setText(FormatLabel("Maximum Output",1.0 * ui->Min->minimum()/ NODEHIGHVAL,1.0 * value/ NODEHIGHVAL,1.0 * ui->Min->maximum() / NODEHIGHVAL));
+        ui->MinLabel->setText(Active->MinText());
         Active->setActiveValue(value/ NODEHIGHVAL);
         break;
     case fOR:
@@ -584,18 +652,21 @@ void MainWindow::Simulate()
 
 void MainWindow::on_MinScale_valueChanged(int value)
 {
-    ui->Min->setMaximum(value * 2);
+    SetupMinSlider(Active);
+    /*ui->Min->setMaximum(value * 2);
     ui->MinScale->setValue(value);
     on_Min_valueChanged(ui->Min->value());
-    ui->MinScale->update();
+    ui->MinScale->update();*/
 }
 
 void MainWindow::on_MaxScale_valueChanged(int value)
 {
-    ui->Max->setMaximum(value * 2);
+    SetupMaxSlider(Active);
+/*    ui->Max->setMaximum(value * 2);
     ui->MaxScale->setValue(value);
     this->on_Max_valueChanged(ui->Max->value());
     ui->MaxScale->update();
+*/
 }
 
 void MainWindow::on_actionView_as_C_Source_triggered()
@@ -932,6 +1003,10 @@ void MainWindow::AddNode(LOGICTYPE lt)
     Node *node = NodeFactory::Create(ui->graphicsView,lt);
     node->setName(SuggestName(lt));
     QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());
+    SelectAllAction(false);// unselect all nodes
+    SelectNode(node);
+
+
 }
 
 

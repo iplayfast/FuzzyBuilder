@@ -16,10 +16,11 @@ public:
     virtual void WriteNodeInfo(QTextStream &s);
 
     virtual void WriteSourcePlainGuts(QTextStream &s);//plain guts
-
+    virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn);
     virtual QString Regenerate();
 
-    virtual bool UsesMin() { return false; }
+    virtual bool UsesMax() { return false; }
+    virtual QString MinText();
     virtual double Simulate();
     virtual QPainterPath shape() const;
     // Node interface

@@ -32,12 +32,12 @@ public:
 
     void WriteSource(QTextStream &h, QTextStream &s);
     void SaveFile(QString filename);
-    void FillCodeUI(Node *np);    
+    void FillCodeUI(Node *np);
+    void SelectAllAction(bool Select);
 
-
-    void SetupMinSlider(Node *Active);
-    void SetupMaxSlider(Node *Active);
-    void SetupUsesExtra();
+    void SetupMinSlider(Node *Active, int Value=-1);
+    void SetupMaxSlider(Node *Active, int value=-1);
+    void SetupExtraSlider(Node *Active);
 private slots:
     void on_actionLoad_triggered();
 

@@ -12,7 +12,7 @@
 InNode::InNode(GraphWidget *graphWidget) : Node(graphWidget)
 {
     QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
-    //QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());    
+    //QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());
     setPos(0,exposedRect.height() / 2);
     if (!FindNewVertPosition(-1))
         FindNewVertPosition(1);
@@ -107,3 +107,9 @@ QPainterPath InNode::shape() const
     path.addRect(r);
     return epath.subtracted(path);
 }
+
+/*QString InNode::MaxText()
+{
+    return FormatLabel("Max",1.0 * MaxMin(),1.0*ActiveValue,1.0 * MaxMax());
+}
+*/

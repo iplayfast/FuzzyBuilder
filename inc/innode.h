@@ -14,7 +14,12 @@ public:
     virtual QString Regenerate();
     virtual double Simulate();
     virtual QPainterPath shape() const;
-    virtual QString MinText() { return "Min possible Real world value"; }
+    virtual QString MinText() { return "Min possible Real world input value"; }
+    virtual QString MaxText() { return "Max possible Real world input value"; }
+    virtual int ExtraMin() { return IOMin; }
+    virtual int ExtraMax() { return IOMax; }
+    virtual int MaxMin() { return IOMin; }
+    virtual int MaxMax(int Scale=1) { return IOMax * Scale; }
     virtual bool UsesMinScale() { return true; }
     virtual bool UsesMaxScale() { return true; }
     virtual bool UsesExtra() { return true; }

@@ -13,10 +13,12 @@ public:
     virtual QRectF boundingRect() const;
     virtual bool AllowAttach(Node *) const;
 
-    virtual void WriteHeader(QTextStream &h);    
+    virtual void WriteHeader(QTextStream &h);
     void WriteNodeInfo(QTextStream &s);
     virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn);
     virtual void WriteSourcePlainGuts(QTextStream &s);//plain guts
+    virtual QString MinText() { return "Cause (the idea)"; }
+    virtual QString MaxText() { return "Effect (the truthiness of the idea)"; }
 
 
     virtual double Simulate();
@@ -34,7 +36,7 @@ public:
     {
      return fFUZZY;
     }
-    virtual QString gettype() const { return "FUZZY"; }    
+    virtual QString gettype() const { return "FUZZY"; }
 };
 
 #endif // ANDNODE_H

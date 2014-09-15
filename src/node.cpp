@@ -11,7 +11,6 @@
 #include <qnamespace.h>
 #include <QDebug>
 
-//! [0]
 
 QString Node::getInLineText() const
 {
@@ -103,8 +102,8 @@ Node::Node(GraphWidget *graphWidget)
     setZValue(-1);
     selected = false;
     UserGuts = "";
-    QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());        
-    setPos(exposedRect.width()/2,exposedRect.height() / 2);            
+    QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
+    setPos(exposedRect.width()/2,exposedRect.height() / 2);
     if (!FindNewVertPosition(-1))
         FindNewVertPosition(1);
 
@@ -117,7 +116,7 @@ Node::Node(GraphWidget *graphWidget)
  * @return a QIcon
  */
 QIcon Node::generateIcon()
-{    
+{
     QPixmap pixmap(48,48);
     pixmap.fill(Qt::white);
     QPainter painter(&pixmap);
@@ -143,12 +142,6 @@ QIcon Node::generateIcon()
 
     pixmap.scaled(48,48);
     return QIcon(pixmap);
-}
-QString Node::FormatLabel(const char *text,const struct Node::lmc &v)
-{
-    QString ss;
-    ss.sprintf("%s %05.5f>=%05.5f<=%05.5f",text,v.Least,v.Current,v.Most);
-    return ss;
 }
 
 double Node::OnMinValueChanged(int Value, QString &MinText)
@@ -297,7 +290,7 @@ void Node::WriteSourcePlainGuts(QTextStream &s)
 }
 
 QString Node::Regenerate()
-{    
+{
     setUserGuts("");
     return getUserGuts();
 }
@@ -782,6 +775,7 @@ double Node::getIOMax() const
 void Node::setIOMax(double value)
 {
     IOMax = value;
+
 }
 
 bool Node::getSelected() const

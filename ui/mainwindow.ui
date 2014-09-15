@@ -206,13 +206,24 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0,0,80">
+          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0,0,0,0,80">
            <property name="spacing">
             <number>6</number>
            </property>
            <property name="rightMargin">
             <number>0</number>
            </property>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_14">
+             <item>
+              <widget class="QLabel" name="MinTitle">
+               <property name="text">
+                <string>MinTitle</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
@@ -269,6 +280,17 @@
                </property>
                <property name="tickInterval">
                 <number>64</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_16">
+             <item>
+              <widget class="QLabel" name="MaxTitle">
+               <property name="text">
+                <string>MaxTitle</string>
                </property>
               </widget>
              </item>
@@ -586,7 +608,7 @@
      <x>0</x>
      <y>0</y>
      <width>931</width>
-     <height>25</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

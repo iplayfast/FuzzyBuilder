@@ -17,6 +17,9 @@ public:
     virtual QPainterPath shape() const;
     virtual bool UsesMinScale() { return true; }
     virtual bool UsesMaxScale() { return true; }
+    virtual QString MinText() { return "Min possible Real world input value"; }
+    virtual QString MaxText() { return "Max possible Real world input value"; }
+
 
     // Node interface
 public:

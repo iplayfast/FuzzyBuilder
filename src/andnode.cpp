@@ -6,7 +6,7 @@
 #include <qevent.h>
 #include <qnamespace.h>
 #include <QDebug>
-
+#include "Util.h"
 AndNode::AndNode(GraphWidget *graphWidget) : Node(graphWidget)
 {
     AndValue = 1.0;
@@ -61,6 +61,13 @@ void AndNode::WriteSourcePlainGuts(QTextStream &s)
         else s << getUserGuts();
 }
 
+void AndNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn)
+{
+    Return = "double ";
+    Parameters = "()";
+    FunctionReturn = " return Current;";
+}
+
 QString AndNode::Regenerate()
 {
     QString s,ss;
@@ -77,6 +84,11 @@ QString AndNode::Regenerate()
             }
         }
         return s;
+}
+
+QString AndNode::MinText()
+{
+    return FormatLabel("Maximum Output",1.0 * MaxMin() / NODEHIGHVAL,IOMin,1.0*MaxMax() / NODEHIGHVAL);
 }
 
 
