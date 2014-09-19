@@ -12,7 +12,7 @@ The code is not quite up to the tutorial so this tutorial won't work. But it's e
 
 Step 1. Add components
 ----------------------
-Click on Add Logic, Select In 
+Click on Add Logic, Select In ![In](/images/in.png)
 Click on Add Logic, select Fuzzy
 Click on Add Logic, Select Out 
 Left click on out to select, name it Output
