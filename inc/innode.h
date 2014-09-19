@@ -19,11 +19,13 @@ public:
     virtual int ExtraMin() { return IOMin; }
     virtual int ExtraMax() { return IOMax; }
     virtual int MaxMin() { return IOMin; }
-    virtual int MaxMax(int Scale=1) { return IOMax * Scale; }
+    virtual int MaxMax(int Scale=1);
     virtual bool UsesMinScale() { return true; }
     virtual bool UsesMaxScale() { return true; }
     virtual bool UsesExtra() { return true; }
     virtual QString ExtraText() { return "Simulated Input"; }
+    virtual void setIOMin(double value);
+    virtual void setIOMax(double value);
     // Node interface
 public:
     LOGICTYPE GetLogicType() const

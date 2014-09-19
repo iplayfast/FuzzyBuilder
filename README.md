@@ -12,11 +12,15 @@ The code is not quite up to the tutorial so this tutorial won't work. But it's e
 
 Step 1. Add components
 ----------------------
-* Click on In Icon ![In](/images/in.png)
-* Click on Fuzzy Icon ![Fuzzy](/images/fuzzy.png)
-* Click on Out Icon ![Out](/images/out.png)
+* Click on the Input Icon ![In](/images/in.png)
+* Click on the Fuzzy Icon ![Fuzzy](/images/fuzzy.png)
+* Click on the Output Icon ![Out](/images/out.png)
+
+At this point you've got an input, output and fuzzy component on diagram.
+
 * Left click on out to select, name it Output
 * Left click on in to select, name it Joystick
+
 
 Step 2. Connect Components
 --------------------------
@@ -25,10 +29,14 @@ Step 2. Connect Components
 * Left click on Fuzzy1
 * Right click on Output
 
+
 Step 3. Adjust Values
 ---------------------
+
+We have now connected the input to the fuzzy, and the fuzzy to the output. In the real world, inputs and outputs can have many different possible ranges. Between the inputs and outputs all values are between 0 and 1. 1 being true and 0 being false. All other values are a range of truthiness.
+
 * Left click on Joystick (in)
-* Min slider adjusts the minimum expected value from the joystick. For our example use 5.
+* Min slider adjusts the minimum expected value from the joystick. For our example use 5. There are two slides, the top one is for scaling the bottom is for the value.
 * Max slider adjusts the maximum expected value from the joystick. For our example use 240.
 * Simulate slider sets the simulated input.
 * Selecting the code tab shows the code that would be generated. You can change this as needed, or regenerate to start fresh.

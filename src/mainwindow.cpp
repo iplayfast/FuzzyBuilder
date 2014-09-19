@@ -73,7 +73,7 @@ void MainWindow::SetupMinSlider(Node *Active,int Value)
     ui->MinLabel->setText("");//Active->MinText());
     ui->Min->setVisible(true);
     if (Value>-1)
-        Active->IOMin = v = Value;
+        Active->setIOMin(v = Value);
     if (ui->Min->value()!=Active->IOMin)
         ui->Min->setValue(Active->IOMin);
     ui->Min->setMinimum(Active->MinMin());
@@ -127,7 +127,7 @@ void MainWindow::SetupMaxSlider(Node *Active,int value)
             Active->setIOMax(value);
         if (ui->Max->value()!=Active->IOMax)
             ui->Max->setValue(Active->IOMax);
-        ui->Max->setMinimum(Active->MaxMin());
+        ui->Max->setMinimum(Active->MaxMin()+1);
 
 
         if (Active->UsesMaxScale()) {
@@ -495,8 +495,8 @@ void MainWindow::on_Min_valueChanged(int value)
 {
     if (!Active) return;
     SetupMinSlider(Active,value);
-    //SetupMaxSlider(Active);
-    //SetupExtraSlider(Active);
+    SetupMaxSlider(Active,Active->getIOMax());
+    SetupExtraSlider(Active);
 return;
     QString s;
     switch (Active->GetLogicType()) {
@@ -542,9 +542,13 @@ return;
 void MainWindow::on_Max_valueChanged(int value)
 {
     if (!Active) return;
-    //SetupMinSlider(Active);
+static bool busy = false;
+    if (busy) return;
+    busy = true;
     SetupMaxSlider(Active,value);
-    //SetupExtraSlider(Active);
+    SetupMinSlider(Active,Active->getIOMin());
+    SetupExtraSlider(Active);
+    busy = false;
 return;
 
 QString s;

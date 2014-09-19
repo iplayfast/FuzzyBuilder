@@ -108,6 +108,26 @@ QPainterPath InNode::shape() const
     return epath.subtracted(path);
 }
 
+int InNode::MaxMax(int Scale)
+{
+    return IOMax >255 ? 512 * Scale : 512;
+}
+
+void InNode::setIOMin(double value)
+{
+    if (IOMax<=value)
+        IOMax = value+1;
+    IOMin = value;
+}
+
+void InNode::setIOMax(double value)
+{
+    if (value<1) value = 1;
+    if (IOMin>=value)
+           IOMin = value-1;
+    IOMax = value;
+}
+
 /*QString InNode::MaxText()
 {
     return FormatLabel("Max",1.0 * MaxMin(),1.0*ActiveValue,1.0 * MaxMax());

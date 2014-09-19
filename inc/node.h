@@ -123,10 +123,10 @@ public:
 
     void setInGroup(int GroupID,bool IsIn);
     double getIOMax() const;
-    void setIOMax(double value);
+    virtual void setIOMax(double value);
 
     double getIOMin() const;
-    void setIOMin(double value);
+    virtual void setIOMin(double value);
 
     double getActiveValue() const;
     void setActiveValue(double value);
