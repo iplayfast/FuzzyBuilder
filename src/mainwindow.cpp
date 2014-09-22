@@ -9,6 +9,7 @@
 #include "fuzzynode.h"
 #include "TFuzzy.h"
 #include "Util.h"
+#include <QtDebug>
 FuzzyNode *fnp =0;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -863,6 +864,7 @@ void MainWindow::on_regenerate_clicked()
     if (Active) {
         QString os;
         QTextStream ss(&os);
+        Active->setSourceBeenWritten(false);
         Active->WriteSourcePlainGuts(ss);
         ui->FunctionBody->setPlainText(os);
         QString Return,Parameters,FunctionReturn;
@@ -1004,11 +1006,14 @@ void MainWindow::AddTimer()
 
 void MainWindow::AddNode(LOGICTYPE lt)
 {
+
+
     Node *node = NodeFactory::Create(ui->graphicsView,lt);
     node->setName(SuggestName(lt));
     QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());
     SelectAllAction(false);// unselect all nodes
     SelectNode(node);
+
 
 
 }

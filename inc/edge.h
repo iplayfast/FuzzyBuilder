@@ -45,7 +45,6 @@
 #include <QTextStream>
 class Node;
 
-
 //! [0]
 class Edge : public QGraphicsItem
 {

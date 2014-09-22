@@ -1,0 +1,4 @@
+#ifndef LOGICTYPE_H
+#define LOGICTYPE_H
+enum LOGICTYPE { fIN,fOUT,fFUZZY,fAND,fOR,fNOT,fPID,fTIMER,fSETUP};
+#endif // LOGICTYPE_H

@@ -6,10 +6,16 @@
 #include <qevent.h>
 #include <qnamespace.h>
 #include <QDebug>
+
 #include "Util.h"
 AndNode::AndNode(GraphWidget *graphWidget) : Node(graphWidget)
 {
     AndValue = 1.0;
+    QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
+    setPos(exposedRect.width()/2,exposedRect.height() / 2);
+    if (!FindNewVertPosition(-1))
+        FindNewVertPosition(1);
+
 }
 
 QRectF AndNode::boundingRect() const

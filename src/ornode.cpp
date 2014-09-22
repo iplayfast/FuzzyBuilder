@@ -14,6 +14,10 @@
 OrNode::OrNode(GraphWidget *graphWidget) : Node(graphWidget)
 {
 ActiveValue = 0;
+QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
+setPos(exposedRect.width()/2,exposedRect.height() / 2);
+if (!FindNewVertPosition(-1))
+    FindNewVertPosition(1);
 
 }
 

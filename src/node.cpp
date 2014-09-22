@@ -1,6 +1,6 @@
 #include "edge.h"
 #include "node.h"
-#include "graphwidget.h"
+
 #include "mainwindow.h"
 
 #include <QGraphicsScene>
@@ -64,7 +64,7 @@ void Node::setHeight(int value)
     height = value;
 }
 bool Node::FindNewVertPosition(int updown)
-{
+{    
     QGraphicsScene *scene = graph->scene();
     QPointF p = pos();
     bool restart = true;
@@ -102,11 +102,6 @@ Node::Node(GraphWidget *graphWidget)
     setZValue(-1);
     selected = false;
     UserGuts = "";
-    QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
-    setPos(exposedRect.width()/2,exposedRect.height() / 2);
-    if (!FindNewVertPosition(-1))
-        FindNewVertPosition(1);
-
 }
 /**
  * Generate a QIcon for the supplied QPainterPath.
@@ -578,6 +573,8 @@ void Node::setPos(qreal ax, qreal ay)
 
 void Node::setPos(QPointF p)
 {
+    if (p.rx()!=0)
+    qDebug() << getName() << pos() << QString(" new pos ") << p;
     setNewPos(p);
     QGraphicsItem::setPos(p);
 }

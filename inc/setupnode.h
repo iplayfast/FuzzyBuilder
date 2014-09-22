@@ -1,6 +1,7 @@
 #ifndef SETUPNODE_H
 #define SETUPNODE_H
 #include "nodefactory.h"
+
 class SetupNode : public Node
 {
 public:

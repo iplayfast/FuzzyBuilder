@@ -42,10 +42,10 @@
 #define GRAPHWIDGET_H
 #include <QTextStream>
 #include <QGraphicsView>
-#include "nodefactory.h"
+//#include "nodefactory.h"
+#include "logictype.h"
+
 class Node;
-
-
 //! [0]
 class GraphWidget : public QGraphicsView
 {

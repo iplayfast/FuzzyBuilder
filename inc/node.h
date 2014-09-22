@@ -1,9 +1,9 @@
 #ifndef NODE_H
 #define NODE_H
-enum LOGICTYPE { fIN,fOUT,fFUZZY,fAND,fOR,fNOT,fPID,fTIMER,fSETUP};
+
 #include "edge.h"
 #include "Util.h"
-
+#include "logictype.h"
 #include <QGraphicsItem>
 #include <QList>
 
@@ -11,7 +11,7 @@ enum LOGICTYPE { fIN,fOUT,fFUZZY,fAND,fOR,fNOT,fPID,fTIMER,fSETUP};
 #include <qnamespace.h>
 #include <QPainterPath>
 #include <QIcon>
-
+#include "graphwidget.h"
 class Edge;
 class GraphWidget;
 QT_BEGIN_NAMESPACE
