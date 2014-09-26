@@ -14,8 +14,8 @@ public:
     virtual double Simulate();
     virtual QPainterPath shape() const;
     // Node interface
-    virtual bool UsesMax() { return false; }
-    virtual bool UsesMin() { return false; }
+    virtual bool UsesMax() const { return false; }
+    virtual bool UsesMin() const { return false; }
 public:
     LOGICTYPE GetLogicType() const
     {

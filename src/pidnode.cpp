@@ -76,7 +76,7 @@ double PidNode::Simulate()
     {
         if (edge->getSource()!=this)
         {
-            InValue  = edge->getSource()->Simulate();
+            setInValue(edge->getSource()->Simulate());
             //double error =
 
         }

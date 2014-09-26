@@ -19,8 +19,8 @@ public:
     virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn);
     virtual QString Regenerate();
 
-    virtual bool UsesMax() { return false; }
-    virtual QString MinText();
+    virtual bool UsesMax() const { return false; }
+    virtual QString MinText() const;
     virtual double Simulate();
     virtual QPainterPath shape() const;
     // Node interface

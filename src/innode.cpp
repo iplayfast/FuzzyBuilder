@@ -17,8 +17,8 @@ InNode::InNode(GraphWidget *graphWidget) : Node(graphWidget)
     if (!FindNewVertPosition(-1))
         FindNewVertPosition(1);
 
-    IOMax = 1;
-    IOMin = 0;
+    setIOMax(1);
+    setIOMin(0);
     Regenerate();
 }
 QString InNode::Regenerate()
@@ -26,8 +26,8 @@ QString InNode::Regenerate()
     QString b;
     QString s;
     QString min,max;
-    min.sprintf("%05.5f",IOMin);
-    max.sprintf("%05.5f",IOMax);
+    min.sprintf("%05.5f",getIOMin());
+    max.sprintf("%05.5f",getIOMax());
 
     s = "double RealWorldMin = "; s+= min; s+= ",RealWorldMax = "; s+= max; s+= ";\n";
 
@@ -91,7 +91,7 @@ void InNode::WriteSourcePlainGuts(QTextStream &ts)
 
 double InNode::Simulate()
 {
-    double v = (InValue - IOMin) / (IOMax - IOMin); // normalize
+    double v = (getInValue() - getIOMin()) / (getIOMax() - getIOMin()); // normalize
     setCurrent(v);
     return v;
 }
@@ -108,24 +108,37 @@ QPainterPath InNode::shape() const
     return epath.subtracted(path);
 }
 
-int InNode::MaxMax(int Scale)
+int InNode::MaxOfMin() const
 {
-    return IOMax >255 ? 512 * Scale : 512;
+    return 256 * this->getMinScale();
+}
+
+int InNode::MaxOfMax() const
+{
+    return 256 * this->getMaxScale();
+}
+
+QString InNode::ExtraText() const
+{
+QString s;
+    s.sprintf("Simulated Input %f -> %f <- %f",getIOMin(),getActiveValue(),getIOMax());
+    return s;
 }
 
 void InNode::setIOMin(double value)
 {
-    if (IOMax<=value)
-        IOMax = value+1;
-    IOMin = value;
+    if (getIOMax()<value)
+        setIOMax(value);
+    Node::setIOMin(value);
 }
 
 void InNode::setIOMax(double value)
 {
     if (value<1) value = 1;
-    if (IOMin>=value)
-           IOMin = value-1;
-    IOMax = value;
+    if (getIOMin()>=value)
+           setIOMin(value-1);
+    Node::setIOMax(value);
+
 }
 
 /*QString InNode::MaxText()

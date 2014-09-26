@@ -13,7 +13,7 @@
 
 OrNode::OrNode(GraphWidget *graphWidget) : Node(graphWidget)
 {
-ActiveValue = 0;
+    setActiveValue(0);
 QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
 setPos(exposedRect.width()/2,exposedRect.height() / 2);
 if (!FindNewVertPosition(-1))
@@ -54,7 +54,7 @@ void OrNode::WriteNodeInfo(QTextStream &s)
 
     QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
     QString ss;
-        ss.sprintf("%05.5f",ActiveValue);
+        ss.sprintf("%05.5f",getActiveValue());
     s << "//!!fOr!!" << getName() << "!!" << ss << ps;
     foreach (Edge *edge, edgeList)
         if (edge->getSource()!=this)
@@ -80,7 +80,7 @@ QString OrNode::Regenerate()
 {
 
     QString ss;
-        ss.sprintf("%05.5f;\n",ActiveValue);
+        ss.sprintf("%05.5f;\n",getActiveValue());
     QString s;
     s = "double  temp,Current = "; s +=  ss;
         foreach (Edge *edge, edgeList)

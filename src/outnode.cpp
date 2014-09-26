@@ -11,8 +11,8 @@ OutNode::OutNode(GraphWidget *graphWidget) : Node(graphWidget)
 {
     //QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());
     QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
-    IOMax = 1.0;
-    IOMin = 0.0;
+    Node::setIOMax(1.0);
+    Node::setIOMin(0.0);
     setPos(exposedRect.width(),exposedRect.height() / 2);
     if (!FindNewVertPosition(-1))
         FindNewVertPosition(1);
@@ -29,8 +29,8 @@ QString OutNode::Regenerate()
         if (edge->getSource()!=this) // only one possible
         {
             QString min,max;
-            min.sprintf("%05.5f",IOMin);
-            max.sprintf("%05.5f",IOMax);
+            min.sprintf("%05.5f",getIOMin());
+            max.sprintf("%05.5f",getIOMax());
             s = "/* Call this routine to get the conditioned value from any inputs */\n";
             s += "double RealWorldMin = "; s+= min; s+= ",RealWorldMax = "; s+= max; s+= ";\n";
             s += "/*convert from range [0..1] to real world values */\n";
@@ -117,7 +117,7 @@ double    Current = 0.0;
         if (edge->getSource()!=this)
         {
             double v = edge->getSource()->Simulate();
-            Current = (IOMax - IOMin) * v + IOMin;
+            Current = (getIOMax() - getIOMin()) * v + getIOMin();
             setCurrent(Current);
             return Current;
         }
@@ -135,4 +135,14 @@ QPainterPath OutNode::shape() const
     r.adjust(r.width()/2,0,0,0);
     path.addRect(r);
     return epath.subtracted(path);
+}
+
+int OutNode::MaxOfMin() const
+{
+    return 256 * this->getMinScale();
+}
+
+int OutNode::MaxOfMax() const
+{
+    return 256 * this->getMaxScale();
 }

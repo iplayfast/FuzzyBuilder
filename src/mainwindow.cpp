@@ -64,47 +64,43 @@ void MainWindow::SelectAllAction(bool Select)
        }
 }
 
-void MainWindow::SetupMinSlider(Node *Active,int Value)
-{
-
-    double v = Active->InValue; // incase invalue get's corrupted while setting limits
-    if (Active->UsesMin())
+void MainWindow::SetupMinSlider()
+{    
+const Node *cActive = Active; // use a const here so we can't change the Node at all
+    if (cActive->UsesMin()) // are we using the min slider (IOMin in node)
     {
-    ui->MinLabel->setVisible(true);
-    ui->MinLabel->setText("");//Active->MinText());
-    ui->Min->setVisible(true);
-    if (Value>-1)
-        Active->setIOMin(v = Value);
-    if (ui->Min->value()!=Active->IOMin)
-        ui->Min->setValue(Active->IOMin);
-    ui->Min->setMinimum(Active->MinMin());
+        ui->MinLabel->setVisible(true);
+        ui->MinLabel->setText("");//Active->MinText());
+        ui->Min->setVisible(true);
+        ui->Min->setMinimum(cActive->MinOfMin());
 
-    //on_MinScale_valueChanged(Active->IOMin > 16 ? 512 : 16);
+        //on_MinScale_valueChanged(Active->IOMin > 16 ? 512 : 16);
 
-    if (Active->UsesMinScale()) {
-        int v = Active->IOMin > 16 ? 512 : 16;
-        if (!ui->MinScale->isVisible()) {
-            ui->MinScale->setMinimum(1);
-            ui->MinScale->setMaximum(v*2);
+        if (cActive->UsesMinScale()) {
+            int v = cActive->getIOMin() > 16 ? 512 : 16;
+            if (!ui->MinScale->isVisible()) {// not yet showing, set to reasonable values
+                ui->MinScale->setMinimum(1);
+                ui->MinScale->setMaximum(v*2);
+                ui->MinScale->setVisible(true);
+            }
+            ui->MinScaleLabel->setVisible(true);
+            ui->Min->setMaximum(cActive->MaxOfMin());
         }
-        ui->MinScale->setVisible(true);
-        ui->MinScaleLabel->setVisible(true);
-        ui->Min->setMaximum(Active->MinMax(ui->MinScale->value()));
-    }
-    else    {
-        ui->MinScale->setVisible(false);
-        ui->MinScaleLabel->setVisible(false);
-        ui->Min->setMaximum(Active->MinMax());
-    }
-    ui->MinTitle->setText(Active->MinText());
-    ui->Min->setStatusTip("The minimum expected value");
-    if (v>ui->Min->maximum())
-        v = ui->Min->maximum();
-    QString ss;
-    ss.sprintf("%05.5f",v);
-    ui->MinText->setText(ss);
-    ui->MinText->setVisible(true);
-    //on_Min_valueChanged(Active->IOMin);
+        else    {
+            ui->MinScale->setVisible(false);
+            ui->MinScaleLabel->setVisible(false);
+            ui->Min->setMaximum(cActive->MaxOfMin()*NODEHIGHVAL);
+        }
+
+        ui->MinTitle->setText(cActive->MinText());
+        ui->Min->setStatusTip("The minimum expected value");
+
+
+        QString ss;
+        ss.sprintf("%05.5f",cActive->getIOMin());
+        ui->MinText->setText(ss);
+        ui->MinText->setVisible(true);
+        //on_Min_valueChanged(Active->IOMin);
     }
     else {
         ui->MinLabel->setVisible(false);
@@ -113,47 +109,39 @@ void MainWindow::SetupMinSlider(Node *Active,int Value)
         ui->MinScaleLabel->setVisible(false);
         ui->MinText->setVisible(false);
     }
- //   ui->MinScale->update();
- //   ui->Min->update();
+    //   ui->MinScale->update();
+    //   ui->Min->update();
 }
 
-void MainWindow::SetupMaxSlider(Node *Active,int value)
+void MainWindow::SetupMaxSlider()
 {
-
-    if (Active->UsesMax())  {
+const Node *cActive = Active;
+    if (cActive->UsesMax())  {
         ui->MaxLabel->setVisible(true);
         ui->MaxLabel->setText("");//Active->MaxText());
         ui->Max->setVisible(true);
-        if (value!=-1)
-            Active->setIOMax(value);
-        if (ui->Max->value()!=Active->IOMax)
-            ui->Max->setValue(Active->IOMax);
-        ui->Max->setMinimum(Active->MaxMin()+1);
+        ui->Max->setMinimum(cActive->MinOfMax());
 
 
-        if (Active->UsesMaxScale()) {
-            int v = Active->IOMax > 16 ? 512 : 16;
+        if (cActive->UsesMaxScale()) {
+            int v = cActive->getIOMax() > 16 ? 512 : 16;
             if (!ui->MaxScale->isVisible()) {
                 ui->MaxScale->setMinimum(1);
                 ui->MaxScale->setMaximum(v*2);
             }
             ui->MaxScale->setVisible(true);
             ui->MaxScaleLabel->setVisible(true);
-            ui->Max->setMaximum(Active->MaxMax(ui->MaxScale->value()));
+            ui->Max->setMaximum(cActive->MaxOfMax());
         }
         else {
             ui->MaxScale->setVisible(false);
             ui->MaxScaleLabel->setVisible(false);
-            ui->Max->setMaximum(Active->MaxMax());
+            ui->Max->setMaximum(cActive->MaxOfMax()*NODEHIGHVAL);
         }
-        ui->MaxTitle->setText(Active->MaxText());
+        ui->MaxTitle->setText(cActive->MaxText());
         ui->Max->setStatusTip("The maximum expected value");
-        double v = Active->IOMax;
-
-        if (v>ui->Max->maximum())
-            v = ui->Max->maximum();
         QString ss;
-        ss.sprintf("%05.5f",Active->IOMax);
+        ss.sprintf("%05.5f",cActive->getIOMax());
         ui->MaxText->setText(ss);
         ui->MaxText->setVisible(true);
         //on_Max_valueChanged(Active->IOMax);
@@ -169,22 +157,19 @@ void MainWindow::SetupMaxSlider(Node *Active,int value)
     //   ui->MaxScale->update();
 }
 
-void MainWindow::SetupExtraSlider(Node *Active)
+void MainWindow::SetupExtraSlider()
 {
     if (Active->UsesExtra()) {
-         ui->extraLabel->setVisible(true);
-         // this may not be true in all cases but until proven otherwise it will stay
-         ui->Extra->setMinimum(Active->ExtraMin());
-         ui->Extra->setMaximum(Active->ExtraMax());
-         ui->extraLabel->setText(Active->ExtraText());
-         if (Active->InValue<Active->IOMin) Active->InValue = Active->IOMin;
-         if (Active->InValue>Active->IOMax) Active->InValue = Active->IOMax;
-         on_Extra_sliderMoved(Active->InValue * Active->SimulateScale());
-         ui->Extra->setVisible(true);
+        ui->ExtraLabel->setVisible(true);
+        // this may not be true in all cases but until proven otherwise it will stay
+        ui->Extra->setMinimum(Active->MinOfExtra());
+        ui->Extra->setMaximum(Active->MaxOfExtra());
+        ui->ExtraLabel->setText(Active->ExtraText());
+        ui->Extra->setVisible(true);
     }
     else {
-         ui->extraLabel->setVisible(false);
-         ui->Extra->setVisible(false);
+        ui->ExtraLabel->setVisible(false);
+        ui->Extra->setVisible(false);
     }
 }
 
@@ -200,7 +185,7 @@ void MainWindow::SelectNode(Node *np)
     ui->MaxLabel->setVisible(false);
     ui->Max->setVisible(false);
     ui->MaxText->setVisible(false);
-    ui->extraLabel->setVisible(false);
+    ui->ExtraLabel->setVisible(false);
     ui->Extra->setVisible(false);
     ui->SetPoint->setVisible(false);
     ui->ValueTable->setVisible(false);
@@ -217,10 +202,10 @@ void MainWindow::SelectNode(Node *np)
         Active = np;
         Active->setSelected(true);
         QString ss;
-        SetupMinSlider(Active);
+        SetupMinSlider();
 
-        SetupMaxSlider(Active);
-        SetupExtraSlider(Active);
+        SetupMaxSlider();
+        SetupExtraSlider();
         switch(np->GetLogicType()) {
         case fSETUP:
             break;
@@ -269,7 +254,7 @@ void MainWindow::SelectNode(Node *np)
             ui->Min->setMaximum(NODEHIGHVAL);
 
 
-//            ui->Min->setValue(np->InValue);
+            //            ui->Min->setValue(np->InValue);
             ui->Min->setVisible(true);
             ui->Min->setStatusTip("");
 
@@ -283,7 +268,7 @@ void MainWindow::SelectNode(Node *np)
             ui->Max->setMinimum(0);
             ui->Max->setMaximum(NODEHIGHVAL);
 
-//            ui->Max->setValue(fnp->fuzzy.Value(np->InValue));
+            //            ui->Max->setValue(fnp->fuzzy.Value(np->InValue));
 
             ui->Max->setVisible(true);
             ui->MaxText->setVisible(true);
@@ -295,7 +280,7 @@ void MainWindow::SelectNode(Node *np)
             on_Min_valueChanged(np->getActiveValue()*NODEHIGHVAL);
 
             UpdateTableAndGraph(fnp);
-            }
+        }
             break;
         case fPID:
         {
@@ -313,11 +298,10 @@ void MainWindow::SelectNode(Node *np)
             ui->MaxText->setVisible(true);
             on_Max_valueChanged(pnp->get_i());
 
-            ui->extraLabel->setVisible(true);
-            ui->extraLabel->setText("P");
+            ui->ExtraLabel->setVisible(true);
+            ui->ExtraLabel->setText("P");
             ui->Extra->setValue(pnp->get_d());
             ui->Extra->setVisible(true);
-            on_Extra_sliderMoved(pnp->get_d());
         }
             break;
         case fTIMER:
@@ -495,99 +479,67 @@ void MainWindow::on_ValueTable_clicked(const QModelIndex &/*index*/)
 void MainWindow::on_Min_valueChanged(int value)
 {
     if (!Active) return;
-    SetupMinSlider(Active,value);
-    SetupMaxSlider(Active,Active->getIOMax());
-    SetupExtraSlider(Active);
-return;
-    QString s;
-    switch (Active->GetLogicType()) {
-    case fIN:
-    case fOUT:
-    case fTIMER:
-        Active->OnMinValueChanged(value,s);
+double v = value;
+    if (!Active->UsesMinScale())
+            v /= NODEHIGHVAL;
+    double Max = Active->getIOMax();
+    double MinOfMax = Active->MinOfMax();
+    double MaxOfMax = Active->MaxOfMax();
 
-        ui->MinText->setText(s);
-        ui->MinLabel->setText(FormatLabel("Min",1.0 * ui->Min->minimum(),1.0 * value,1.0 * ui->Min->maximum()));
-        ui->Extra->setMinimum(value * Active->SimulateScale());
-        if (value>=ui->Max->value())
-            this->on_Max_valueChanged(value+1);
-        break;
+    double Extra = Active->getActiveValue();
+    double MinOfExtra = Active->MinOfExtra();
+    double MaxOfExtra = Active->MaxOfExtra();
+    Active->setIOMin(v);
+    SetupMinSlider();
 
-    case fAND:
-        break;
-    case fOR:
-        ui->MinLabel->setText(FormatLabel("Minimum Output",ui->Min->minimum() / NODEHIGHVAL,1.0 * value / NODEHIGHVAL,1.0 * ui->Min->maximum()/ NODEHIGHVAL));
-        Active->setActiveValue(value);
-        break;
-    case fFUZZY:
+    if (Max!=Active->getIOMax() || MinOfMax!=Active->MinOfMax() || MaxOfMax!=Active->MaxOfMax())
     {
-        FuzzyNode *fnp = (FuzzyNode *) Active;
-        ui->MinLabel->setText(FormatLabel("Cause",1.0 * ui->Min->minimum() / NODEHIGHVAL,1.0 * value/ NODEHIGHVAL,1.0 * ui->Min->maximum()/ NODEHIGHVAL));
-        ui->Max->setValue(NODEHIGHVAL * fnp->fuzzy.Value(value / NODEHIGHVAL));
+        double v = Active->getIOMax();
+        if (!Active->UsesMaxScale())
+                v *= NODEHIGHVAL;
+        ui->Max->setValue(v);
     }
-        break;
-    case fPID:
-    {
-        ((PidNode *)Active)->set_p(value);
-        ui->MinLabel->setText(FormatLabel("P",1.0 * ui->Min->minimum()/ NODEHIGHVAL,1.0 * value/ NODEHIGHVAL,1.0 * ui->Min->maximum()/ NODEHIGHVAL));
-    }
-    default:
-        break;
-
-    }
-    // update all outputs
+    if (Extra!=Active->getActiveValue() || MinOfExtra!=Active->MinOfExtra() || MaxOfExtra!=Active->MaxOfExtra())
+        SetupExtraSlider();
     Active->update();
-
 }
 
 void MainWindow::on_Max_valueChanged(int value)
 {
     if (!Active) return;
-static bool busy = false;
-    if (busy) return;
-    busy = true;
-    SetupMaxSlider(Active,value);
-    SetupMinSlider(Active,Active->getIOMin());
-    SetupExtraSlider(Active);
-    busy = false;
-return;
+    double v = value;
+    if (!Active->UsesMaxScale())
+            v /= NODEHIGHVAL;
 
-QString s;
-    switch (Active->GetLogicType()) {
-    case fIN:
-    case fOUT:
-        if (value<1) value = 1;
-        Active->ActiveValue = value;
-        Active->OnMaxValueChanged(value,s);
-        ui->MaxText->setText(s);
-        ui->MaxLabel->setText(Active->MaxText());
-        ui->Max->setValue(value);
-        if (value<=ui->Min->value())
-            this->on_Min_valueChanged(value-1);
-        ui->Extra->setMaximum(value * Active->SimulateScale());
-        this->on_Extra_sliderMoved(ui->Extra->value());
-        break;
-    case fAND:
-        ui->MinLabel->setText(Active->MinText());
-        Active->setActiveValue(value/ NODEHIGHVAL);
-        break;
-    case fOR:
-        break;
-    case fFUZZY:
-        ui->Max->setMaximum(NODEHIGHVAL);
-        ui->MaxLabel->setText(FormatLabel("Effect",1.0 * ui->Max->minimum()/ NODEHIGHVAL,1.0 * value/ NODEHIGHVAL,1.0 * ui->Max->maximum()/ NODEHIGHVAL));
-        break;
-    case fPID:
-        ((PidNode *)Active)->set_i(value);
-        ui->MaxLabel->setText(FormatLabel("I",1.0 * ui->Max->minimum()/ NODEHIGHVAL,1.0 * value/ NODEHIGHVAL,1.0 * ui->Max->maximum()/ NODEHIGHVAL));
-       case fTIMER:
-        break;
-    default:
-        break;
-    }
-// update all outputs
-    //Active->Simulate(Active->Current);
+    double Min = Active->getIOMin();
+    double MinOfMin = Active->MinOfMin();
+    double MaxOfMin = Active->MaxOfMin();
+
+    double Extra = Active->getActiveValue();
+    double MinOfExtra = Active->MinOfExtra();
+    double MaxOfExtra = Active->MaxOfExtra();
+
+    Active->setIOMax(v);
+    SetupMaxSlider();
+    if (Active->getIOMin()!=Min || MinOfMin!=Active->MinOfMin() || MaxOfMin!=Active->MaxOfMin())
+        SetupMinSlider();
+    if (Extra!=Active->getActiveValue() || MinOfExtra!=Active->MinOfExtra() || MaxOfExtra!=Active->MaxOfExtra())
+        SetupExtraSlider();
     Active->update();
+}
+void MainWindow::on_Extra_valueChanged(int value)
+{
+    if (!Active) return;
+    double Max = Active->getIOMax();
+    double Min = Active->getIOMin();
+    Active->setActiveValue(value);
+    SetupExtraSlider();
+        if (Max!=Active->getIOMax())
+            SetupMaxSlider();
+    if (Min!=Active->getIOMin())
+        SetupMinSlider();
+    Active->update();
+    Simulate();
 }
 
 
@@ -613,7 +565,7 @@ void MainWindow::UpdateTableAndGraph(FuzzyNode *fActive)
         ui->Graph->replot();
 
     }
-    this->on_MaxScale_valueChanged(ui->Max->value());
+
 }
 
 void MainWindow::on_SetPoint_clicked()
@@ -657,21 +609,21 @@ void MainWindow::Simulate()
 
 void MainWindow::on_MinScale_valueChanged(int value)
 {
-    SetupMinSlider(Active);
-    /*ui->Min->setMaximum(value * 2);
-    ui->MinScale->setValue(value);
-    on_Min_valueChanged(ui->Min->value());
-    ui->MinScale->update();*/
+     Q_UNUSED(value);
+    if (Active)
+    {
+        if (Active->UsesMinScale())
+            Active->setMinScale(value);
+            SetupMinSlider();
+    }
 }
 
 void MainWindow::on_MaxScale_valueChanged(int value)
-{
-    SetupMaxSlider(Active);
-/*    ui->Max->setMaximum(value * 2);
-    ui->MaxScale->setValue(value);
-    this->on_Max_valueChanged(ui->Max->value());
-    ui->MaxScale->update();
-*/
+{    
+    if (!Active) return;
+    Active->setMaxScale(value);
+
+    SetupMaxSlider();
 }
 
 void MainWindow::on_actionView_as_C_Source_triggered()
@@ -914,16 +866,21 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 
 void MainWindow::on_MinText_editingFinished()
 {
+    if (!Active) return;
     try {
         bool OK;
-    int value = ui->MinText->text().toDouble(&OK);
+    double value = ui->MinText->text().toDouble(&OK);
         if (OK)
-            on_Min_valueChanged(value);
+        {
+            if (!Active->UsesMinScale())
+                value *= NODEHIGHVAL;
+            ui->Min->setValue(value);
+        }
         else {
-            QMessageBox::information(NULL, "Bad Value","Integer Value Expected");
-            if (!Active) return;
+            QMessageBox::information(NULL, "Bad Value","Number Expected");
+
             QString ss;
-            ss.sprintf("%05.5f",Active->IOMin);
+            ss.sprintf("%05.5f",Active->getIOMin());
             ui->MinText->setText(ss);
         }
     }
@@ -935,16 +892,20 @@ void MainWindow::on_MinText_editingFinished()
 
 void MainWindow::on_MaxText_editingFinished()
 {
+    if (!Active) return;
     try {
         bool OK;
-    int value = ui->MaxText->text().toDouble(&OK);
-        if (OK)
-            on_Max_valueChanged(value);
+    double value = ui->MaxText->text().toDouble(&OK);
+        if (OK) {
+            if (!Active->UsesMaxScale())
+                value *= NODEHIGHVAL;
+            ui->Max->setValue(value);
+        }
         else {
             QMessageBox::information(NULL, "Bad Value","Integer Value Expected");
-            if (!Active) return;
+
             QString ss;
-            ss.sprintf("%05.5f",Active->IOMax);
+            ss.sprintf("%05.5f",Active->getIOMax());
             ui->MinText->setText(ss);
         }
     }
@@ -1098,39 +1059,3 @@ void MainWindow::createActions()
 
 }
 
-void MainWindow::on_Extra_sliderMoved(int position)
-{
-    if (!Active) return;
-     double v = position / NODEHIGHVAL;
-    switch (Active->GetLogicType()) {
-    case fIN:
-    {
-        ui->extraLabel->setText(FormatLabel("Simulate input Value",ui->Extra->minimum() / Active->SimulateScale(),
-                                             position / Active->SimulateScale(),ui->Extra->maximum() / Active->SimulateScale()));
-        Active->InValue = position / Active->SimulateScale();
-
-        ui->graphicsView->simulate();
-    }
-        break;
-    case fOUT:
-        break;
-    case fAND:
-        break;
-    case fOR:
-        break;
-    case fFUZZY:
-        ui->MaxLabel->setText(FormatLabel("Effect",ui->Max->minimum(), v,ui->Max->maximum()));
-        break;
-    case fPID:
-        ((PidNode *)Active)->set_d(position);
-        ui->extraLabel->setText(FormatLabel("D",ui->Extra->minimum()/ NODEHIGHVAL, v/ NODEHIGHVAL,ui->Extra->maximum()/ NODEHIGHVAL));
-        break;
-    case fTIMER:
-        break;
-    default:
-        break;
-    }
- // update all outputs
- //   Active->Simulate(Active->Current);
-    Active->update();
-}

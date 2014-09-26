@@ -66,7 +66,7 @@ void TimerNode::WriteSourcePlainGuts(QTextStream &s)
 QString TimerNode::Regenerate()
 {
     QString ss;
-        ss.sprintf("%05.5f;\n",ActiveValue);
+        ss.sprintf("%05.5f;\n",getActiveValue());
 
     QString s = "static double Current=-1.0;// first time call flag value\n";
     s += "static unsigned long milliseconds;\nunsigned long ms;\n";

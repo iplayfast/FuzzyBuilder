@@ -92,6 +92,7 @@ bool Node::FindNewVertPosition(int updown)
 Node::Node(GraphWidget *graphWidget)
     : graph(graphWidget)
 {
+    MinScale = MaxScale = ExtraScale = 1.0;
     width = 40;
     height = 20;
     QGraphicsScene *scene = graph->scene();
@@ -102,6 +103,7 @@ Node::Node(GraphWidget *graphWidget)
     setZValue(-1);
     selected = false;
     UserGuts = "";
+    MinScale = MaxScale = ExtraScale = 1.0;
 }
 /**
  * Generate a QIcon for the supplied QPainterPath.
@@ -203,6 +205,46 @@ void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
 
 }
+double Node::getInValue() const
+{
+    return InValue;
+}
+
+void Node::setInValue(double value)
+{
+    InValue = value;
+}
+
+double Node::getExtraScale() const
+{
+    return ExtraScale;
+}
+
+void Node::setExtraScale(double value)
+{
+    ExtraScale = value;
+}
+
+double Node::getMaxScale() const
+{
+    return MaxScale;
+}
+
+void Node::setMaxScale(double value)
+{
+    MaxScale = value;
+}
+
+double Node::getMinScale() const
+{
+    return MinScale;
+}
+
+void Node::setMinScale(double value)
+{
+    MinScale = value;
+}
+
 bool Node::getSourceBeenWritten() const
 {
     return SourceBeenWritten;
@@ -573,8 +615,8 @@ void Node::setPos(qreal ax, qreal ay)
 
 void Node::setPos(QPointF p)
 {
-    if (p.rx()!=0)
-    qDebug() << getName() << pos() << QString(" new pos ") << p;
+    if (getName()=="In1")
+        qDebug() << getName() << pos() << QString(" new pos ") << p;
     setNewPos(p);
     QGraphicsItem::setPos(p);
 }

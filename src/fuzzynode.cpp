@@ -17,6 +17,7 @@ FuzzyNode::FuzzyNode(GraphWidget *graphWidget) : Node(graphWidget)
     if (!FindNewVertPosition(-1))
         FindNewVertPosition(1);
 
+
 }
 
 QRectF FuzzyNode::boundingRect() const
@@ -92,6 +93,16 @@ void FuzzyNode::WriteSourcePlainGuts(QTextStream &s)
 
 }
 
+void FuzzyNode::setIOMin(double value)
+{
+    Node::setIOMin(value);
+    double lIOMax = fuzzy.Value(value);
+        if (lIOMax==-1)  // no value found
+            lIOMax = 0; // false
+        Node::setIOMax(lIOMax);
+}
+
+
 
 double FuzzyNode::Simulate()
 {
@@ -100,8 +111,8 @@ double    Current = 0.0;
     {
         if (edge->getSource()!=this)
         {
-            InValue = edge->getSource()->Simulate();
-            setCurrent(Current = fuzzy.Value(InValue));
+            setInValue(edge->getSource()->Simulate());
+            setCurrent(Current = fuzzy.Value(getInValue()));
             this->update();
             return Current;
         }

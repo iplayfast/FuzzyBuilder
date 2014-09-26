@@ -49,7 +49,7 @@ void AndNode::WriteNodeInfo(QTextStream &s)
     StartComment(s);
     s << "* And Node will find the minimum of a set of inputs\n";
     s << "* Fuzzy builder Description\n";
-         QString ps; ps.sprintf("!!%05.5f!!%f!!%f\n",ActiveValue,pos().rx(),pos().ry());
+         QString ps; ps.sprintf("!!%05.5f!!%f!!%f\n",getActiveValue(),pos().rx(),pos().ry());
     s << "//!!fAnd!!" << getName()  << ps; // fAnd,name,active value,positionx,position y
     foreach (Edge *edge, edgeList)
         if (edge->getSource()!=this)
@@ -77,7 +77,7 @@ void AndNode::FunctionData(QString &Return, QString &Parameters, QString &Functi
 QString AndNode::Regenerate()
 {
     QString s,ss;
-        ss.sprintf("%05.5f",ActiveValue);
+        ss.sprintf("%05.5f",getActiveValue());
 
     s = "{\n";
     s += "double  temp,Current = "; s+= ss; s+= ";\n";
@@ -92,9 +92,9 @@ QString AndNode::Regenerate()
         return s;
 }
 
-QString AndNode::MinText()
+QString AndNode::MinText() const
 {
-    return FormatLabel("Maximum Output",1.0 * MaxMin() / NODEHIGHVAL,IOMin,1.0*MaxMax() / NODEHIGHVAL);
+    return FormatLabel("Maximum Output",1.0 * MaxOfMin() / NODEHIGHVAL,getIOMin(),1.0*MaxOfMax() / NODEHIGHVAL);
 }
 
 

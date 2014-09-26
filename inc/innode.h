@@ -14,16 +14,16 @@ public:
     virtual QString Regenerate();
     virtual double Simulate();
     virtual QPainterPath shape() const;
-    virtual QString MinText() { return "Min possible Real world input value"; }
-    virtual QString MaxText() { return "Max possible Real world input value"; }
-    virtual int ExtraMin() { return IOMin; }
-    virtual int ExtraMax() { return IOMax; }
-    virtual int MaxMin() { return IOMin; }
-    virtual int MaxMax(int Scale=1);
-    virtual bool UsesMinScale() { return true; }
-    virtual bool UsesMaxScale() { return true; }
-    virtual bool UsesExtra() { return true; }
-    virtual QString ExtraText() { return "Simulated Input"; }
+    virtual QString MinText()const  { return "Min possible Real world input value"; }
+    virtual QString MaxText()const  { return "Max possible Real world input value"; }
+    virtual int MinOfExtra()const  { return getIOMin(); }
+    virtual int MaxOfExtra()const  { return getIOMax(); }
+    virtual int MaxOfMin()const;
+    virtual int MaxOfMax()const ;
+    virtual bool UsesMinScale() const { return true; }
+    virtual bool UsesMaxScale() const { return true; }
+    virtual bool UsesExtra() const { return true; }
+    virtual QString ExtraText() const;
     virtual void setIOMin(double value);
     virtual void setIOMax(double value);
     // Node interface

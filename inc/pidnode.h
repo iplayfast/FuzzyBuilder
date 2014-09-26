@@ -18,12 +18,12 @@ public:
 
 
     virtual double Simulate();
-    double get_p() const { return IOMax; }
-    double get_i() const { return IOMin; }
-    double get_d() const { return ActiveValue; }
-    void set_p(double v) { IOMax = v; }
-    void set_i(double v) { IOMin = v; }
-    void set_d(double v) { ActiveValue = v; }
+    double get_p() const { return getIOMax(); }
+    double get_i() const { return getIOMin(); }
+    double get_d() const { return getActiveValue(); }
+    void set_p(double v) { setIOMax(v); }
+    void set_i(double v) { setIOMin(v); }
+    void set_d(double v) { setActiveValue(v); }
     virtual void setNewPos(const QPointF &value);
     // Node interface
 public:
