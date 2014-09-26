@@ -35,9 +35,9 @@ public:
     void FillCodeUI(Node *np);
     void SelectAllAction(bool Select);
 
-    void SetupMinSlider(Node *Active, int Value=-1);
-    void SetupMaxSlider(Node *Active, int value=-1);
-    void SetupExtraSlider(Node *Active);
+    void SetupMinSlider();
+    void SetupMaxSlider();
+    void SetupExtraSlider();
 private slots:
     void on_actionLoad_triggered();
 
@@ -115,7 +115,8 @@ private slots:
     void AddPID();
     void AddTimer();
     void AddNode(LOGICTYPE lt);
-    void on_Extra_sliderMoved(int position);
+
+    void on_Extra_valueChanged(int value);
 
 private:
     bool Frozen;

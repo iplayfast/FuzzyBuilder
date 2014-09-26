@@ -167,7 +167,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="ValueTab">
      <attribute name="title">
@@ -208,15 +208,27 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0,0,0,0,80">
            <property name="spacing">
-            <number>6</number>
+            <number>0</number>
            </property>
            <property name="rightMargin">
             <number>0</number>
            </property>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_14">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QLabel" name="MinTitle">
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color:rgb(246, 224, 224)</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
                <property name="text">
                 <string>MinTitle</string>
                </property>
@@ -226,6 +238,9 @@
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QLineEdit" name="MinText">
                <property name="maximumSize">
@@ -234,10 +249,22 @@
                  <height>16777215</height>
                 </size>
                </property>
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color:rgb(246, 224, 224)</string>
+               </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="MinLabel">
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color:rgb(246, 224, 224)</string>
+               </property>
                <property name="text">
                 <string>Min</string>
                </property>
@@ -245,6 +272,12 @@
              </item>
              <item>
               <widget class="QSlider" name="MinScale">
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color:rgb(246, 224, 224)</string>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -258,6 +291,12 @@
                  <height>16777215</height>
                 </size>
                </property>
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color:rgb(246, 224, 224)</string>
+               </property>
                <property name="text">
                 <string>Scale</string>
                </property>
@@ -269,6 +308,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_7">
              <item>
               <widget class="QSlider" name="Min">
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color:rgb(246, 224, 224)</string>
+               </property>
                <property name="maximum">
                 <number>1024</number>
                </property>
@@ -287,8 +332,14 @@
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_16">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QLabel" name="MaxTitle">
+               <property name="styleSheet">
+                <string notr="true">BACKGROUND-COLOR:rgb(215, 236, 216)</string>
+               </property>
                <property name="text">
                 <string>MaxTitle</string>
                </property>
@@ -298,6 +349,9 @@
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QLineEdit" name="MaxText">
                <property name="maximumSize">
@@ -306,10 +360,16 @@
                  <height>16777215</height>
                 </size>
                </property>
+               <property name="styleSheet">
+                <string notr="true">BACKGROUND-COLOR:rgb(215, 236, 216)</string>
+               </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="MaxLabel">
+               <property name="styleSheet">
+                <string notr="true">BACKGROUND-COLOR:rgb(215, 236, 216)</string>
+               </property>
                <property name="text">
                 <string>Max</string>
                </property>
@@ -317,6 +377,9 @@
              </item>
              <item>
               <widget class="QSlider" name="MaxScale">
+               <property name="styleSheet">
+                <string notr="true">BACKGROUND-COLOR:rgb(215, 236, 216)</string>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -330,6 +393,9 @@
                  <height>16777215</height>
                 </size>
                </property>
+               <property name="styleSheet">
+                <string notr="true">BACKGROUND-COLOR:rgb(215, 236, 216)</string>
+               </property>
                <property name="text">
                 <string>Scale</string>
                </property>
@@ -339,8 +405,14 @@
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QSlider" name="Max">
+               <property name="styleSheet">
+                <string notr="true">BACKGROUND-COLOR:rgb(215, 236, 216)</string>
+               </property>
                <property name="maximum">
                 <number>1024</number>
                </property>
@@ -359,8 +431,14 @@
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <item>
-              <widget class="QLabel" name="extraLabel">
+              <widget class="QLabel" name="ExtraLabel">
+               <property name="styleSheet">
+                <string notr="true">background-color:rgb(25, 236, 221)</string>
+               </property>
                <property name="text">
                 <string>Extra</string>
                </property>
@@ -370,8 +448,14 @@
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QSlider" name="Extra">
+               <property name="styleSheet">
+                <string notr="true">background-color:rgb(25, 236, 221)</string>
+               </property>
                <property name="maximum">
                 <number>1024</number>
                </property>
@@ -396,6 +480,9 @@
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <property name="topMargin">
               <number>7</number>
              </property>

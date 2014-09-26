@@ -136,3 +136,13 @@ QPainterPath OutNode::shape() const
     path.addRect(r);
     return epath.subtracted(path);
 }
+
+int OutNode::MaxOfMin() const
+{
+    return 256 * this->getMinScale();
+}
+
+int OutNode::MaxOfMax() const
+{
+    return 256 * this->getMaxScale();
+}

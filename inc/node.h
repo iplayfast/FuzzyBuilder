@@ -22,10 +22,12 @@ QT_END_NAMESPACE
 
 
 
+
 //! [0]
 class Node : public QGraphicsItem
 {
     struct lmc{
+        bool Used;
         double Least;
         double Most;
         double Current;
@@ -77,21 +79,21 @@ public:
     double OnMinValueChanged(int Value,QString &MinText);
     double OnMaxValueChanged(int Value,QString &MinText);
 
-    virtual bool UsesMin() { return true; }
-    virtual int MinMin() { return 0; } // Min value for min slider
-    virtual int MinMax(int Scale=1) { return NODEHIGHVAL * Scale; }
-    virtual QString MinText() { return ""; }
-    virtual bool UsesMinScale() { return false; }
-    virtual bool UsesMaxScale() { return false; }
-    virtual bool UsesMax() { return true; }
-    virtual int MaxMin() { return 0; } // min value for max slider
-    virtual int MaxMax(int scale=1) { return NODEHIGHVAL * scale; } // max value for max slider
+    virtual bool UsesMin() const { return true; }
+    virtual int MinOfMin() const { return 0; } // Min value for min slider
+    virtual int MaxOfMin() const { return  MinScale; }
+    virtual QString MinText() const { return ""; }
+    virtual bool UsesMinScale() const { return MinScale != 1.0; }
+    virtual bool UsesMaxScale() const { return MaxScale != 1.0; }
+    virtual bool UsesMax() const { return true; }
+    virtual int MinOfMax() const { return 0; } // min value for max slider
+    virtual int MaxOfMax()const { return MaxScale; } // max value for max slider
 
-    virtual QString MaxText() { return ""; }
-    virtual bool UsesExtra() { return false; }
-    virtual int ExtraMin() { return 0; } // min value for extra slider
-    virtual int ExtraMax() { return NODEHIGHVAL; } // max value for extra slider
-    virtual QString ExtraText() { return ""; }
+    virtual QString MaxText() const { return ""; }
+    virtual bool UsesExtra() const { return false; }
+    virtual int MinOfExtra() const { return IOMin; } // min value for extra slider
+    virtual int MaxOfExtra() const { return IOMax; } // max value for extra slider
+    virtual QString ExtraText() const { return ""; }
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -107,6 +109,9 @@ private:
     bool HeaderBeenWritten;
     bool SourceBeenWritten;
     LOGICTYPE fType;
+    double MinScale; // normally 1.0 unless dealing with real world IO values
+    double MaxScale; // normally 1.0 unless dealing with real world IO values
+    double ExtraScale; // normally 1.0 unless dealing with real world IO values
 public:
 
     double InValue;
@@ -167,6 +172,15 @@ public:
     void setHeight(int value);
 
     bool FindNewVertPosition(int updown);
+    double getMinScale() const;
+    void setMinScale(double value);
+
+    double getMaxScale() const;
+    void setMaxScale(double value);
+
+    double getExtraScale() const;
+    void setExtraScale(double value);
+
 private:
     bool selected;
     double Current;

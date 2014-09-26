@@ -17,9 +17,9 @@ public:
     void WriteNodeInfo(QTextStream &s);
     virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn);
     virtual void WriteSourcePlainGuts(QTextStream &s);//plain guts
-    virtual QString MinText() { return "Cause (the idea)"; }
-    virtual QString MaxText() { return "Effect (the truthiness of the idea)"; }
-
+    virtual QString MinText() const { return "Cause (the idea)"; }
+    virtual QString MaxText() const { return "Effect (the truthiness of the idea)"; }
+    virtual void setIOMin(double value);
 
     virtual double Simulate();
     ClassFuzzy fuzzy;

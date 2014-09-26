@@ -108,15 +108,27 @@ QPainterPath InNode::shape() const
     return epath.subtracted(path);
 }
 
-int InNode::MaxMax(int Scale)
+int InNode::MaxOfMin() const
 {
-    return IOMax >255 ? 512 * Scale : 512;
+    return 256 * this->getMinScale();
+}
+
+int InNode::MaxOfMax() const
+{
+    return 256 * this->getMaxScale();
+}
+
+QString InNode::ExtraText() const
+{
+QString s;
+    s.sprintf("Simulated Input %f -> %f <- %f",IOMin,ActiveValue,IOMax);
+    return s;
 }
 
 void InNode::setIOMin(double value)
 {
-    if (IOMax<=value)
-        IOMax = value+1;
+    if (IOMax<value)
+        IOMax = value;
     IOMin = value;
 }
 
@@ -126,6 +138,7 @@ void InNode::setIOMax(double value)
     if (IOMin>=value)
            IOMin = value-1;
     IOMax = value;
+
 }
 
 /*QString InNode::MaxText()

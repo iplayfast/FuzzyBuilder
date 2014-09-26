@@ -15,10 +15,14 @@ public:
     virtual QString Regenerate();
     virtual double Simulate();
     virtual QPainterPath shape() const;
-    virtual bool UsesMinScale() { return true; }
-    virtual bool UsesMaxScale() { return true; }
-    virtual QString MinText() { return "Min possible Real world input value"; }
-    virtual QString MaxText() { return "Max possible Real world input value"; }
+    virtual bool UsesMinScale() const { return true; }
+    virtual bool UsesMaxScale()const  { return true; }
+    virtual QString MinText()const  { return "Min possible Real world output value"; }
+    virtual QString MaxText() const { return "Max possible Real world output value"; }
+    virtual int MinOfExtra()const  { return IOMin; }
+    virtual int MaxOfExtra()const  { return IOMax; }
+    virtual int MaxOfMin()const;
+    virtual int MaxOfMax()const ;
 
 
     // Node interface

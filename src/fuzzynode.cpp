@@ -17,6 +17,7 @@ FuzzyNode::FuzzyNode(GraphWidget *graphWidget) : Node(graphWidget)
     if (!FindNewVertPosition(-1))
         FindNewVertPosition(1);
 
+
 }
 
 QRectF FuzzyNode::boundingRect() const
@@ -90,6 +91,14 @@ void FuzzyNode::WriteSourcePlainGuts(QTextStream &s)
     }
     s << "// unused fuzzy logic node\n";
 
+}
+
+void FuzzyNode::setIOMin(double value)
+{
+    IOMin = value;
+    IOMax = fuzzy.Value(IOMin);
+    if (IOMax==-1)  // no value found
+        IOMax = 0; // false
 }
 
 

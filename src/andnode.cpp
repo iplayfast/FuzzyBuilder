@@ -92,9 +92,9 @@ QString AndNode::Regenerate()
         return s;
 }
 
-QString AndNode::MinText()
+QString AndNode::MinText() const
 {
-    return FormatLabel("Maximum Output",1.0 * MaxMin() / NODEHIGHVAL,IOMin,1.0*MaxMax() / NODEHIGHVAL);
+    return FormatLabel("Maximum Output",1.0 * MaxOfMin() / NODEHIGHVAL,IOMin,1.0*MaxOfMax() / NODEHIGHVAL);
 }
 
 
