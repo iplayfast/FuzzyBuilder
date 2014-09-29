@@ -38,8 +38,9 @@ void FuzzyNode::WriteHeader(QTextStream &h)
 {
     if (getHeaderBeenWritten()) return;
     setHeaderBeenWritten(true);
+    h << "#include <Fuzzy.h>\n";
     h << "double " << getName() << "(void);\n";
-    h << "struct TFuzzy" << getName() <<" {\n    int Count;\n    TFuzzyXY[" << fuzzy.Count() << "];\n};\n\n";
+    h << "struct TFuzzy" << getName() <<" {\n    int Count;\n    TFuzzyXY Data[" << fuzzy.Count() << "];\n};\n\n";
 }
 
 void FuzzyNode::WriteNodeInfo(QTextStream &s)
@@ -73,12 +74,12 @@ void FuzzyNode::FunctionData(QString &Return, QString &Parameters, QString &Func
 
 void FuzzyNode::WriteSourcePlainGuts(QTextStream &s)
 {
-    s << "\nstruct TFuzzy" << getName() << " = {" << fuzzy.Count();
+    s << "\nstruct TFuzzy" << getName() << " = {" << fuzzy.Count() << "{\n";
     for(int i=0;i<fuzzy.Count();i++)
     {
         s << "\n   ,{" << fuzzy.GetItemc(i)->x << "," << fuzzy.GetItemc(i)->y << "}";
     }
-    s << "};\n";
+    s << "}};\n";
 
     foreach (Edge *edge, edgeList)
     {
@@ -86,7 +87,7 @@ void FuzzyNode::WriteSourcePlainGuts(QTextStream &s)
         {
             //edge->getSource()->WriteSourceUserGuts(s);
             s << "   double value = Value((const struct TFuzzy *)&TFuzzy" << edge->getSource()->getName() << ");\n";
-
+            return; // only one incoming edge ever
         }
     }
     s << "// unused fuzzy logic node\n";
