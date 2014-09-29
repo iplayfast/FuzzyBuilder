@@ -27,6 +27,7 @@ SOURCES += src/main.cpp\
     src/timernode.cpp
 
 HEADERS  += inc/mainwindow.h \
+    inc/logictype.h \
     inc/addlogic.h \
     inc/node.h \
     inc/TFuzzy.h \
@@ -48,6 +49,7 @@ HEADERS  += inc/mainwindow.h \
     inc/notnode.h \
     inc/groupitem.h \
     inc/timernode.h
+
 
 FORMS += ui/addlogic.ui \
 	ui/groups.ui \
