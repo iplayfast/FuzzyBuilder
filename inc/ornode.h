@@ -12,9 +12,10 @@ public:
     virtual bool AllowAttach(Node *) const;
     virtual void WriteHeader(QTextStream &h);
     void WriteNodeInfo(QTextStream &s);
+    virtual QString MinText() const;
     virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn);
     virtual void WriteSourcePlainGuts(QTextStream &ts);
-    virtual bool UsesMax() { return false; }
+    virtual bool UsesMax() const { return false; }
     virtual QString Regenerate();
     virtual double Simulate();
     virtual QPainterPath shape() const;

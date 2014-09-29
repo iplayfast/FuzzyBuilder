@@ -26,6 +26,7 @@ public:
     virtual QString ExtraText() const;
     virtual void setIOMin(double value);
     virtual void setIOMax(double value);
+    virtual QString GetValueText() const;
     // Node interface
 public:
     LOGICTYPE GetLogicType() const

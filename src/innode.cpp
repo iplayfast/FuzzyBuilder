@@ -17,7 +17,7 @@ InNode::InNode(GraphWidget *graphWidget) : Node(graphWidget)
     if (!FindNewVertPosition(-1))
         FindNewVertPosition(1);
 
-    setIOMax(1);
+    setIOMax(255);
     setIOMin(0);
     Regenerate();
 }
@@ -91,7 +91,7 @@ void InNode::WriteSourcePlainGuts(QTextStream &ts)
 
 double InNode::Simulate()
 {
-    double v = (getInValue() - getIOMin()) / (getIOMax() - getIOMin()); // normalize
+    double v = Normalize(getInValue());
     setCurrent(v);
     return v;
 }
@@ -139,6 +139,15 @@ void InNode::setIOMax(double value)
            setIOMin(value-1);
     Node::setIOMax(value);
 
+}
+
+QString InNode::GetValueText() const
+{
+QString v = Node::GetValueText();
+QString v1;
+    v1.sprintf("\n(%d)",(int)round(this->getActiveValue()));
+    v1 += v;
+    return v1;
 }
 
 /*QString InNode::MaxText()

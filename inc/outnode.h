@@ -23,7 +23,7 @@ public:
     virtual int MaxOfExtra()const  { return getIOMax(); }
     virtual int MaxOfMin()const;
     virtual int MaxOfMax()const ;
-
+virtual QString GetValueText() const;
 
     // Node interface
 public:

@@ -79,9 +79,12 @@ const Node *cActive = Active; // use a const here so we can't change the Node at
         if (cActive->UsesMinScale()) {
             int v = cActive->getIOMin() > 16 ? 512 : 16;
             if (!ui->MinScale->isVisible()) {// not yet showing, set to reasonable values
+                Node *temp = Active;
+                Active = 0;
                 ui->MinScale->setMinimum(1);
                 ui->MinScale->setMaximum(v*2);
                 ui->MinScale->setVisible(true);
+                Active = temp;
             }
             ui->MinScaleLabel->setVisible(true);
             ui->Min->setMaximum(cActive->MaxOfMin());
@@ -138,6 +141,7 @@ const Node *cActive = Active;
             ui->MaxScaleLabel->setVisible(false);
             ui->Max->setMaximum(cActive->MaxOfMax()*NODEHIGHVAL);
         }
+        ui->MaxTitle->setVisible(true);
         ui->MaxTitle->setText(cActive->MaxText());
         ui->Max->setStatusTip("The maximum expected value");
         QString ss;
@@ -152,6 +156,7 @@ const Node *cActive = Active;
         ui->MaxScale->setVisible(false);
         ui->MaxScaleLabel->setVisible(false);
         ui->MaxText->setVisible(false);
+        ui->MaxTitle->setVisible(false);
     }
     //   ui->Max->update();
     //   ui->MaxScale->update();
@@ -171,6 +176,15 @@ void MainWindow::SetupExtraSlider()
         ui->ExtraLabel->setVisible(false);
         ui->Extra->setVisible(false);
     }
+}
+
+void MainWindow::SetupTable(FuzzyNode *fnp)
+{
+    ui->ValueTable->setModel(fnp);
+    ui->ValueTable->setVisible(true);
+    ui->ValueTable->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
+    ui->ValueTable->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
+    ui->ValueTable->update();
 }
 
 void MainWindow::SelectNode(Node *np)
@@ -202,22 +216,32 @@ void MainWindow::SelectNode(Node *np)
         Active = np;
         Active->setSelected(true);
         QString ss;
+        ui->Min->setValue(Active->getIOMin());
+        ui->Max->setValue(Active->getIOMax());
+        ui->Extra->setValue(Active->getActiveValue());
+
         SetupMinSlider();
 
         SetupMaxSlider();
         SetupExtraSlider();
+
         switch(np->GetLogicType()) {
         case fSETUP:
             break;
         case fIN:
-        case fOUT:
         {
-            if (np->GetLogicType()==fIN) {  // needs to be set after min and max are set
-
-            }
+            double v = Active->UnNormalize(Active->getCurrent());
+            ui->Extra->setValue(v);
+            on_Extra_valueChanged(v);
         }
             break;
-
+        case fOUT:
+        {
+            double v = Active->Normalize(Active->getCurrent());
+            ui->Min->setValue(v);
+            on_Min_valueChanged(v);
+        }
+            break;
         case fAND:
             ui->MaxLabel->setVisible(true);
             ui->Max->setMinimum(0);
@@ -241,43 +265,16 @@ void MainWindow::SelectNode(Node *np)
         case fFUZZY:
         {
             FuzzyNode *fnp = (FuzzyNode *)np;
+            fnp->setIOMin(fnp->getInValue());
             fnp->setHeaderData(0,Qt::Horizontal,"Cause");
             fnp->setHeaderData(1,Qt::Horizontal,"Effect");
-            ui->ValueTable->setModel(fnp);
-            ui->ValueTable->setVisible(true);
-            ui->ValueTable->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
-            ui->ValueTable->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
-            ui->ValueTable->update();
-            ui->MinLabel->setText("Cause");
-            ui->MinLabel->setVisible(true);
-            ui->Min->setMinimum(0);
-            ui->Min->setMaximum(NODEHIGHVAL);
-
-
-            //            ui->Min->setValue(np->InValue);
-            ui->Min->setVisible(true);
-            ui->Min->setStatusTip("");
-
-            //            ui->MinScale->setVisible(true);
-            //            ui->MaxScale->setVisible(true);
-            //            ui->MinScale->setValue(np->IOMin);
-            //            ui->MaxScale->setValue(np->IOMax);
-
-            ui->MaxLabel->setText("Effect");
-            ui->MaxLabel->setVisible(true);
-            ui->Max->setMinimum(0);
-            ui->Max->setMaximum(NODEHIGHVAL);
-
-            //            ui->Max->setValue(fnp->fuzzy.Value(np->InValue));
-
-            ui->Max->setVisible(true);
-            ui->MaxText->setVisible(true);
-            ui->Max->setStatusTip("");
+            SetupMinSlider();
+            SetupMaxSlider();
+            SetupTable(fnp);
             ui->SetPoint->setVisible(true);
             ui->Graph->setVisible(true);
-            ui->ValueTable->setModel(fnp);
-            ui->ValueTable->setVisible(true);
-            on_Min_valueChanged(np->getActiveValue()*NODEHIGHVAL);
+            ui->Min->setValue(fnp->getInValue()*NODEHIGHVAL);
+            on_Min_valueChanged(fnp->getInValue()*NODEHIGHVAL);
 
             UpdateTableAndGraph(fnp);
         }
@@ -533,6 +530,7 @@ void MainWindow::on_Extra_valueChanged(int value)
     double Max = Active->getIOMax();
     double Min = Active->getIOMin();
     Active->setActiveValue(value);
+    Active->setInValue(value);
     SetupExtraSlider();
         if (Max!=Active->getIOMax())
             SetupMaxSlider();

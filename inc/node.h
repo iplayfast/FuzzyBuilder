@@ -105,6 +105,7 @@ protected:
      QRectF paintSetup(QPainter *painter, const QStyleOptionGraphicsItem *option);
      virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/);
      virtual QString gettype() const=0;
+
 private:
     bool HeaderBeenWritten;
     bool SourceBeenWritten;
@@ -117,10 +118,9 @@ private:
     double IOMin;   // pid_p
     double IOMax;   // pid_i
     double ActiveValue; // pid_d
-
 public:
 
-
+    virtual QString GetValueText() const;
     bool getSelected() const;
     void setSelected(bool value);
 
@@ -184,6 +184,8 @@ public:
 
     double getInValue() const;
     void setInValue(double value);
+    double Normalize(double value) const;
+    double UnNormalize(double value) const;
 
 private:
     bool selected;

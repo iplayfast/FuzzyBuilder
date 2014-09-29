@@ -94,7 +94,7 @@ QString AndNode::Regenerate()
 
 QString AndNode::MinText() const
 {
-    return FormatLabel("Maximum Output",1.0 * MaxOfMin() / NODEHIGHVAL,getIOMin(),1.0*MaxOfMax() / NODEHIGHVAL);
+    return "Maximum possible Output";
 }
 
 

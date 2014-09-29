@@ -117,7 +117,7 @@ double    Current = 0.0;
         if (edge->getSource()!=this)
         {
             double v = edge->getSource()->Simulate();
-            Current = (getIOMax() - getIOMin()) * v + getIOMin();
+            Current = UnNormalize(v);
             setCurrent(Current);
             return Current;
         }
@@ -145,4 +145,13 @@ int OutNode::MaxOfMin() const
 int OutNode::MaxOfMax() const
 {
     return 256 * this->getMaxScale();
+}
+
+QString OutNode::GetValueText() const
+{
+    QString v = Node::GetValueText();
+    QString v1;
+        v1.sprintf("\n(%d)",(int)round(this->getActiveValue()));
+        v1 += v;
+        return v1;
 }

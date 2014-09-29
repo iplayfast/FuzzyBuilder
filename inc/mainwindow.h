@@ -38,6 +38,7 @@ public:
     void SetupMinSlider();
     void SetupMaxSlider();
     void SetupExtraSlider();
+    void SetupTable(FuzzyNode *fnp);
 private slots:
     void on_actionLoad_triggered();
 

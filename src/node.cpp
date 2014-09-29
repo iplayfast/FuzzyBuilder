@@ -191,10 +191,8 @@ QRectF r =  boundingRect();
 void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/)
 {
     QRectF r = paintSetup(painter, option);
-    QString v;
-        v.sprintf("\n%05.5f",getCurrent());
     QString NameV(getName());
-    NameV += v;
+    NameV += GetValueText();
 
     painter->drawPath(shape());
     if (fType==fIN || fType==fSETUP)    {
@@ -204,6 +202,23 @@ void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         painter->drawText(r,Qt::AlignHCenter,NameV);
 
 
+}
+
+double Node::Normalize(double value) const
+{
+    return (value - getIOMin()) / (getIOMax() - getIOMin()); // normalize
+}
+
+double Node::UnNormalize(double value) const
+{
+    return (getIOMax() - getIOMin()) * value + getIOMin();
+}
+
+QString Node::GetValueText() const
+{
+QString v;
+v.sprintf("\n%05.5f",getCurrent());
+    return v;
 }
 double Node::getInValue() const
 {

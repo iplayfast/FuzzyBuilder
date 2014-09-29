@@ -62,6 +62,11 @@ void OrNode::WriteNodeInfo(QTextStream &s)
     EndComment(s);
 }
 
+QString OrNode::MinText() const
+{
+    return  "The lowest possible value";
+}
+
 void OrNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn)
 {
     Return = "double ";
