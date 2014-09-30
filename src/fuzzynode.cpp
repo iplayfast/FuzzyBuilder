@@ -74,7 +74,7 @@ void FuzzyNode::FunctionData(QString &Return, QString &Parameters, QString &Func
 
 void FuzzyNode::WriteSourcePlainGuts(QTextStream &s)
 {
-    s << "\nstruct TFuzzy" << getName() << " = {" << fuzzy.Count() << "{\n";
+    s << "\nstruct TFuzzy" << getName() << " = {" << fuzzy.Count() << ",{\n";
     for(int i=0;i<fuzzy.Count();i++)
     {
         s << "\n   ,{" << fuzzy.GetItemc(i)->x << "," << fuzzy.GetItemc(i)->y << "}";

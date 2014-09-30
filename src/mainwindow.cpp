@@ -365,10 +365,13 @@ void MainWindow::on_actionSave_triggered()
          SaveFile(Filename);
     }
 }
+void MainWindow::WriteGroups(QTextStream &h)
+{
+    getGroupTableItem()->WriteNodeInfo(h);
+}
 
 void MainWindow::WriteSource(QTextStream &h, QTextStream &s)
-{
-    this->getGroupTableItem()->WriteNodeInfo(s);
+{    
     ui->graphicsView->WriteSource(h,s);
 }
 

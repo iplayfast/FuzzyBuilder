@@ -41,7 +41,7 @@
 #include "graphwidget.h"
 #include "edge.h"
 #include "nodefactory.h"
-
+#include "mainwindow.h"
 #include <math.h>
 #include <QGraphicsSceneEvent>
 #include <QKeyEvent>
@@ -417,20 +417,45 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
         if (Node *node = qgraphicsitem_cast<Node *>(item))
             nodes << node;
     }
+
+
     foreach (Node *node, nodes) {
         node->setSourceBeenWritten(false);
         node->setHeaderBeenWritten(false);
     }
 
+
+    StartComment(tss);
+    tss << "Header Section\n";
+    EndComment(tss);
+    foreach (Node *node, nodes)
+        node->WriteHeader(tsh);
+    StartComment(tss);
+    tss << "End Header Section\n";
+    EndComment(tss);
+
+
+
+
     StartComment(tss);
     tss << "This is the data used for FuzzyBuilder to regenerate the layout\n";
-    EndComment(tss);
-    foreach(Node *node,nodes) {
+    EndComment(tss);        
+    foreach(Node *node,nodes)
         node->WriteNodeInfo(tss);
-    }
     StartComment(tss);
     tss << "End of section\n";
     EndComment(tss);
+
+
+    StartComment(tss);
+    tss << "This is the data used for FuzzyBuilder to group items\n";
+    EndComment(tss);
+    wp->WriteGroups(tss);
+    StartComment(tss);
+    tss << "End of section\n";
+    EndComment(tss);
+
+
 
     foreach (Node *node,nodes) {
         if (node->GetLogicType()==fSETUP)   {
@@ -441,24 +466,23 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
             break; // only one setup
         }
     }
+
     StartComment(tss);
     tss << "// the loop routine runs over and over again forever\n";
     EndComment(tss);
     tss << "void loop() {\n";
     foreach (Node *node, nodes) {
-        node->WriteHeader(tsh);
-
         if (node->GetLogicType()==fOUT)
-
             tss << "  " << node->getName() << ";\n";
     }
     tss << "}\n\n\n";
+
     StartComment(tss);
-    tss<< "These are the routines written by the Fuzzybuilder\n";
+    tss<< "These are the Logic Blocks written by the Fuzzybuilder\n";
     EndComment(tss);
     foreach (Node *node, nodes) {
         if (node->GetLogicType()==fOUT)
-            node->WriteSourceUserGuts(tss);
+            node->WriteSourceUserGuts(tss); // the output nodes write out any connections they have to them recursively
     }
     bool notice = true;
 
@@ -478,7 +502,7 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
         }
     }
 }
-//! [7]
+
 
 void GraphWidget::shuffle()
 {

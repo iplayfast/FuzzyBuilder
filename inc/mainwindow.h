@@ -39,6 +39,7 @@ public:
     void SetupMaxSlider();
     void SetupExtraSlider();
     void SetupTable(FuzzyNode *fnp);
+    void WriteGroups(QTextStream &h);
 private slots:
     void on_actionLoad_triggered();
 
