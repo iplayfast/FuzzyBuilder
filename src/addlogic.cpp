@@ -50,7 +50,6 @@ void AddLogic::Load(Node *v)
 
     QString h,s;
     QTextStream hs(&h),ss(&s);
-    v->setHeaderBeenWritten(false);
     v->setSourceBeenWritten(false);
 
     v->WriteSourceUserGuts(ss);

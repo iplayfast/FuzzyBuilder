@@ -12,12 +12,12 @@ public:
     virtual bool AllowAttach(Node *) const;
 
 
-    virtual void WriteHeader(QTextStream &h);
-    virtual void WriteNodeInfo(QTextStream &s);
+    virtual void WriteHeader(QTextStream &h) const;
+    virtual void WriteNodeInfo(QTextStream &s) const;
 
-    virtual void WriteSourcePlainGuts(QTextStream &s);//plain guts
-    virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn);
-    virtual QString Regenerate();
+
+    virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const;
+    virtual QString Regenerate() const;
 
     virtual bool UsesMax() const { return false; }
     virtual QString MinText() const;

@@ -34,20 +34,12 @@ bool OrNode::AllowAttach(Node *) const
     return true;
 }
 
-void OrNode::WriteHeader(QTextStream &h)
+void OrNode::WriteHeader(QTextStream &h) const
 {
-    if (getHeaderBeenWritten()) return;
-    setHeaderBeenWritten(true);
     h << "double " << getName() << "(void);\n";
-    foreach (Edge *edge, edgeList)
-    {
-        if (edge->getSource()!=this)
-            edge->getSource()->WriteHeader(h);
-    }    
-
 }
 
-void OrNode::WriteNodeInfo(QTextStream &s)
+void OrNode::WriteNodeInfo(QTextStream &s) const
 {
         StartComment(s);
         s << "* Or Node will find the maximum of a set of inputs\n";
@@ -67,21 +59,21 @@ QString OrNode::MinText() const
     return  "The lowest possible value";
 }
 
-void OrNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn)
+void OrNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
 {
     Return = "double ";
     Parameters = "()";
     FunctionReturn = " return Current;";
 }
 
-void OrNode::WriteSourcePlainGuts(QTextStream &ts)
+void OrNode::WriteSourcePlainGuts(QTextStream &ts) const
 {
     if (getUserGuts()=="")
         ts << Regenerate();
     else ts << getUserGuts();
 }
 
-QString OrNode::Regenerate()
+QString OrNode::Regenerate() const
 {
 
     QString ss;

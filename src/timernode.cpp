@@ -35,35 +35,32 @@ bool TimerNode::AllowAttach(Node *) const
     return true;
 }
 
-void TimerNode::WriteHeader(QTextStream &h)
+void TimerNode::WriteHeader(QTextStream &h) const
 {
-    if (getHeaderBeenWritten()) return;
-    setHeaderBeenWritten(true);
     h << "void " << getName() << "(void);\n";
-    return;
 }
 
-void TimerNode::WriteNodeInfo(QTextStream &s)
+void TimerNode::WriteNodeInfo(QTextStream &s) const
 {
     QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
     s << "//!!fTimer!!" << getName() <<  ps;
 }
 
-void TimerNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn)
+void TimerNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
 {
  Return = "void ";
  Parameters = "()";
  FunctionReturn = "return Current;";
 }
 
-void TimerNode::WriteSourcePlainGuts(QTextStream &s)
+void TimerNode::WriteSourcePlainGuts(QTextStream &s) const
 {
     if (getUserGuts()=="")
         s << Regenerate();
     else s << getUserGuts();
 }
 
-QString TimerNode::Regenerate()
+QString TimerNode::Regenerate() const
 {
     QString ss;
         ss.sprintf("%05.5f;\n",getActiveValue());

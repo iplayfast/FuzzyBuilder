@@ -35,21 +35,18 @@ bool SetupNode::AllowAttach(Node *) const
     return false;
 }
 
-void SetupNode::WriteHeader(QTextStream &h)
+void SetupNode::WriteHeader(QTextStream &h) const
 {
-    if (getHeaderBeenWritten()) return;
-    setHeaderBeenWritten(true);
     h << "void " << getName() << "(void);\n";
-    return;
 }
 
-void SetupNode::WriteNodeInfo(QTextStream &s)
+void SetupNode::WriteNodeInfo(QTextStream &s) const
 {
     QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
     s << "//!!fSetup!!" << getName() <<  ps;
 }
 
-void SetupNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn)
+void SetupNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
 {
  Return = "void ";
  Parameters = "()";

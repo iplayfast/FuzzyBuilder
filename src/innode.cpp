@@ -21,7 +21,7 @@ InNode::InNode(GraphWidget *graphWidget) : Node(graphWidget)
     setIOMin(0);
     Regenerate();
 }
-QString InNode::Regenerate()
+QString InNode::Regenerate() const
 {
     QString b;
     QString s;
@@ -51,17 +51,12 @@ bool InNode::AllowAttach(Node *) const
     return false;
 }
 
-void InNode::WriteHeader(QTextStream &h)
+void InNode::WriteHeader(QTextStream &h) const
 {
-    if (getHeaderBeenWritten()) return;
-    setHeaderBeenWritten(true);
-
     h << "double " << getName() << "(void);\n";
-    return;
-
 }
 
-void InNode::WriteNodeInfo(QTextStream &ts)
+void InNode::WriteNodeInfo(QTextStream &ts) const
 {
 
     QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
@@ -70,7 +65,7 @@ void InNode::WriteNodeInfo(QTextStream &ts)
     Node::WriteNodeInfo(ts);
 }
 
-void InNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn)
+void InNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
 {
     Return = "double ";
     Parameters = "()";
@@ -81,7 +76,7 @@ void InNode::FunctionData(QString &Return, QString &Parameters, QString &Functio
 
 
 
-void InNode::WriteSourcePlainGuts(QTextStream &ts)
+void InNode::WriteSourcePlainGuts(QTextStream &ts) const
 {
 
     if (getUserGuts()=="")

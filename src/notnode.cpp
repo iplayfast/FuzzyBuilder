@@ -45,19 +45,12 @@ bool NotNode::AllowAttach(Node *) const
     return edgeList.count()<1;
 }
 
-void NotNode::WriteHeader(QTextStream &h)
+void NotNode::WriteHeader(QTextStream &h) const
 {
-    if (getHeaderBeenWritten()) return;
-    setHeaderBeenWritten(true);
     h << "double " << getName() << "(void);\n";
-    foreach (Edge *edge, edgeList)
-    {
-        if (edge->getSource()!=this)
-            edge->getSource()->WriteHeader(h);
-    }
 }
 
-void NotNode::WriteNodeInfo(QTextStream &s)
+void NotNode::WriteNodeInfo(QTextStream &s) const
 {
     StartComment(s);
     s << "* Not will return the opposite fuzzy value of an input (0 becomes 1, 1 becomes 0 etc)\n";
@@ -67,7 +60,7 @@ void NotNode::WriteNodeInfo(QTextStream &s)
     EndComment(s);
 }
 
-void NotNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn)
+void NotNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
 {
     Return = "double ";
     Parameters = "()";
@@ -75,7 +68,7 @@ void NotNode::FunctionData(QString &Return, QString &Parameters, QString &Functi
 }
 
 
-void NotNode::WriteSourcePlainGuts(QTextStream &s)
+void NotNode::WriteSourcePlainGuts(QTextStream &s) const
 {
          foreach (Edge *edge, edgeList)
          {

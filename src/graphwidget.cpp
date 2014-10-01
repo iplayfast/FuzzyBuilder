@@ -77,85 +77,12 @@ GraphWidget::GraphWidget(QWidget *parent)
     scale(qreal(0.95), qreal(0.95));
     setMinimumSize(400, 400);
     setWindowTitle(tr("Fuzzy Builder"));
-#ifdef shit
-//! [0]
-//! [1]
-    Node *node1 = NodeFactory::Create(this,fIN);
-    node1->IOMin = 0;
-    node1->IOMax = 5;
-    Node *node2 = NodeFactory::Create(this,fOUT);
-    node2->IOMin = 3;
-    node2->IOMax = 5;
-    node1->setName("sensor");
-    node2->setName("buzzer");
-    scene->addItem(node1);
-    scene->addItem(node2);
-    scene->addItem(new Edge(node1, node2));
-
-
-
-    Node *node3 = new Node(this,fFUZZY);
-    node3->Name = "fuzball";
-    Node *node4 = new Node(this,fOR);
-    node4->Name = "bob";
-    //centerNode = new Node(this,fAND);
-    //centerNode->Name = "george";
-    Node *node6 = new Node(this,fOUT);
-    node6->Name = "out1";
-
-
-    /*Node *node7 = new Node(this);
-    Node *node8 = new Node(this);
-    Node *node9 = new Node(this);
-*/
-    scene->addItem(node3);
-    scene->addItem(node4);
-    scene->addItem(node6);
-    /*scene->addItem(centerNode);*/
-  /*  scene->addItem(node6);
-    scene->addItem(node7);
-    scene->addItem(node8);
-    scene->addItem(node9);
-*/
-
-    //scene->addItem(new Edge(node1, node2));
-/*    scene->addItem(new Edge(node1, node3));
-    scene->addItem(new Edge(node1, node8));
-    scene->addItem(new Edge(node2, node3));
-    scene->addItem(new Edge(node2, centerNode));
-    scene->addItem(new Edge(node3, node6));
-    scene->addItem(new Edge(node4, node1));
-    scene->addItem(new Edge(node4, centerNode));
-    scene->addItem(new Edge(centerNode, node6));
-    scene->addItem(new Edge(centerNode, node8));
-    scene->addItem(new Edge(node6, node9));
-    scene->addItem(new Edge(node7, node4));
-    scene->addItem(new Edge(node8, node7));
-    scene->addItem(new Edge(node9, node8));
-*/
-    /*node1->setPos(-50, -50);
-    node2->setPos(0, -50);
-    node3->setPos(50, -50);
-    node4->setPos(-50, 0);*/
-    //centerNode->setPos(0, 0);
-/*    node6->setPos(50, 0);
-    node7->setPos(-50, 50);
-    node8->setPos(0, 50);
-    node9->setPos(50, 50);
-*/
-#endif
 }
-//! [1]
-
-//! [2]
 void GraphWidget::itemMoved()
 {
     if (!timerId)
         timerId = startTimer(1000 / 25);
 }
-//! [2]
-
-//! [3]
 void GraphWidget::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
@@ -209,9 +136,6 @@ void GraphWidget::keyReleaseEvent(QKeyEvent *event)
          Shift = false;
     QGraphicsView::keyPressEvent(event);
 }
-//! [3]
-
-//! [4]
 void GraphWidget::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event);
@@ -312,18 +236,18 @@ QString GraphWidget::SuggestName(LOGICTYPE t) const
         return result;
 
 }
-//! [4]
+
 
 #ifndef QT_NO_WHEELEVENT
-//! [5]
+
 void GraphWidget::wheelEvent(QWheelEvent *event)
 {
     scaleView(pow((double)2, -event->delta() / 240.0));
 }
-//! [5]
+
 #endif
 
-//! [6]
+
 void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
 {
     Q_UNUSED(rect);
@@ -361,9 +285,7 @@ void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
     painter->drawText(textRect, message);
     */
 }
-//! [6]
 
-//! [7]
 void GraphWidget::scaleView(qreal scaleFactor)
 {
     qreal factor = transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
@@ -420,16 +342,30 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
 
 
     foreach (Node *node, nodes) {
-        node->setSourceBeenWritten(false);
-        node->setHeaderBeenWritten(false);
+        node->setSourceBeenWritten(false);        
     }
 
 
     StartComment(tss);
     tss << "Header Section\n";
     EndComment(tss);
+    StartComment(tss);
+    tss << "Includes Section\n";
+    EndComment(tss);
+    foreach (Node *node, nodes)
+        node->WriteIncludes(tsh);
+    StartComment(tss);
+    tss << "End Includes Section\n";
+    EndComment(tss);
+
+    StartComment(tss);
+    tss << "Prototypes Section\n";
+    EndComment(tss);
     foreach (Node *node, nodes)
         node->WriteHeader(tsh);
+    StartComment(tss);
+    tss << "End Prototypes Section\n";
+    EndComment(tss);
     StartComment(tss);
     tss << "End Header Section\n";
     EndComment(tss);
@@ -438,21 +374,21 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
 
 
     StartComment(tss);
-    tss << "This is the data used for FuzzyBuilder to regenerate the layout\n";
+    tss << "FuzzyBuilder Layout Section\n";
     EndComment(tss);        
     foreach(Node *node,nodes)
         node->WriteNodeInfo(tss);
     StartComment(tss);
-    tss << "End of section\n";
+    tss << "End FuzzyBuilder Layout Section\n";
     EndComment(tss);
 
 
     StartComment(tss);
-    tss << "This is the data used for FuzzyBuilder to group items\n";
+    tss << "FuzzyBuilder Group Section\n";
     EndComment(tss);
     wp->WriteGroups(tss);
     StartComment(tss);
-    tss << "End of section\n";
+    tss << "End FuzzyBuilder Group Section\n";
     EndComment(tss);
 
 
@@ -471,6 +407,7 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
     tss << "// the loop routine runs over and over again forever\n";
     EndComment(tss);
     tss << "void loop() {\n";
+    tss << "//each output is called and it calls any inputs connected to it\n";
     foreach (Node *node, nodes) {
         if (node->GetLogicType()==fOUT)
             tss << "  " << node->getName() << ";\n";
@@ -487,8 +424,6 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
     bool notice = true;
 
     foreach (Node *node, nodes) {
-        if (!node->getHeaderBeenWritten())
-            node->WriteHeader(tsh);
         if (!node->getSourceBeenWritten())
         {
             if (notice) {

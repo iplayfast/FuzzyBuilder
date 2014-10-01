@@ -270,15 +270,6 @@ void Node::setSourceBeenWritten(bool value)
     SourceBeenWritten = value;
 }
 
-bool Node::getHeaderBeenWritten() const
-{
-    return HeaderBeenWritten;
-}
-
-void Node::setHeaderBeenWritten(bool value)
-{
-    HeaderBeenWritten = value;
-}
 
 
 void Node::addEdge(Edge *edge)
@@ -287,7 +278,7 @@ void Node::addEdge(Edge *edge)
     edge->adjust();
 }
 
-void Node::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn)
+void Node::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
 {
     Return = "void ";
     Parameters = "(void)";
@@ -295,7 +286,7 @@ void Node::FunctionData(QString &Return, QString &Parameters, QString &FunctionR
 }
 
 
-void Node::WriteHeader(QTextStream &h)
+void Node::WriteHeader(QTextStream &h) const
 {
     Q_UNUSED(h);
     return;
@@ -304,7 +295,12 @@ void Node::WriteHeader(QTextStream &h)
     }*/
 }
 
-void Node::WriteNodeInfo(QTextStream &s)
+void Node::WriteIncludes(QTextStream &h) const
+{
+    Q_UNUSED(h);
+}
+
+void Node::WriteNodeInfo(QTextStream &s) const
 {
     s<< "//!!GID";
     foreach(int i,this->GroupIDList) {
@@ -313,7 +309,7 @@ void Node::WriteNodeInfo(QTextStream &s)
     s<< "\n";
 }
 
-void Node::WriteSourceUserBefore(QTextStream &s)
+void Node::WriteSourceUserBefore(QTextStream &s) const
 {
     s << UserGuts;
 }
@@ -336,14 +332,15 @@ void Node::WriteSourceUserGuts(QTextStream &s)
     SourceBeenWritten = true;
 }
 
-void Node::WriteSourcePlainGuts(QTextStream &s)
+void Node::WriteSourcePlainGuts(QTextStream &s) const
 {
-    s<< "";
+    if (getUserGuts()=="")
+        s << Regenerate();
+    else s << getUserGuts();
 }
 
-QString Node::Regenerate()
-{
-    setUserGuts("");
+QString Node::Regenerate() const
+{    
     return getUserGuts();
 }
 

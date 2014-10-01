@@ -53,7 +53,7 @@ public:
     virtual QPainterPath shape() const;
 
     virtual void addEdge(Edge *edge);
-    virtual void FunctionData(QString &Return,QString &Parameters,QString &FunctionReturn);
+    virtual void FunctionData(QString &Return,QString &Parameters,QString &FunctionReturn) const;
 
 
     // scale up the input so we can simulate more varience
@@ -61,13 +61,13 @@ public:
     virtual bool AllowAttach(Node *) const=0;
 
 
-    virtual void WriteHeader(QTextStream &h);
-
-    virtual void WriteNodeInfo(QTextStream &s);
-    void WriteSourceUserBefore(QTextStream &s); // user modified
+    virtual void WriteHeader(QTextStream &h) const;
+    virtual void WriteIncludes(QTextStream &h) const;
+    virtual void WriteNodeInfo(QTextStream &s) const;
+    void WriteSourceUserBefore(QTextStream &s) const; // user modified
     void WriteSourceUserGuts(QTextStream &s); // user modified plus plain guts
-    virtual void WriteSourcePlainGuts(QTextStream &s);//plain guts
-    virtual QString Regenerate();
+    virtual void WriteSourcePlainGuts(QTextStream &s) const;//plain guts
+    virtual QString Regenerate() const;
 
 
     virtual double Simulate()=0;
@@ -106,8 +106,7 @@ protected:
      virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/);
      virtual QString gettype() const=0;
 
-private:
-    bool HeaderBeenWritten;
+private:    
     bool SourceBeenWritten;
     LOGICTYPE fType;
     double MinScale; // normally 1.0 unless dealing with real world IO values
@@ -153,8 +152,6 @@ public:
 
     QPointF getNewPos() const;
     void DeleteAllEdges();
-    bool getHeaderBeenWritten() const;
-    void setHeaderBeenWritten(bool value);
 
     bool getSourceBeenWritten() const;
     void setSourceBeenWritten(bool value);

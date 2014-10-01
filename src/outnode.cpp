@@ -20,10 +20,9 @@ OutNode::OutNode(GraphWidget *graphWidget) : Node(graphWidget)
     Regenerate();
 }
 
-QString OutNode::Regenerate()
+QString OutNode::Regenerate() const
 {
-    QString s;
-    setUserGuts(s);    // clear out old data
+    QString s;    
     foreach (Edge *edge, edgeList)
     {
         if (edge->getSource()!=this) // only one possible
@@ -57,15 +56,12 @@ bool OutNode::AllowAttach(Node *) const
 }
 
 
-void OutNode::WriteHeader(QTextStream &h)
+void OutNode::WriteHeader(QTextStream &h) const
 {
-    if (getHeaderBeenWritten()) return;
-    setHeaderBeenWritten(true);
-
     h << "void " << getName() << "(void);\n";
 }
 
-void OutNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn)
+void OutNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
 {
     Return = "void ";
     Parameters = "()";
@@ -75,11 +71,8 @@ void OutNode::FunctionData(QString &Return, QString &Parameters, QString &Functi
 
 
 
-void OutNode::WriteSourcePlainGuts(QTextStream &ts)
+void OutNode::WriteSourcePlainGuts(QTextStream &ts) const
 {
-    if (getSourceBeenWritten()) return;
-    setSourceBeenWritten(true);
-
     QString s;
     s = Regenerate();
     if (getUserGuts()=="")
@@ -88,7 +81,7 @@ void OutNode::WriteSourcePlainGuts(QTextStream &ts)
     return;
 }
 
-void OutNode::WriteNodeInfo(QTextStream &s)
+void OutNode::WriteNodeInfo(QTextStream &s) const
 {
     foreach (Edge *edge, edgeList)
     {
@@ -100,8 +93,7 @@ void OutNode::WriteNodeInfo(QTextStream &s)
             s << "\n\n";
             s << "//!!fOut!!" << getName() << ps;
             Node::WriteNodeInfo(s);
-            EndComment(s);
-            Node::WriteSourceUserGuts(s);
+            EndComment(s);         
             return;
         }
     }

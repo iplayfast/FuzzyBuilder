@@ -31,27 +31,13 @@ QRectF BoundNode::boundingRect() const
 
 }
 
-void BoundNode::WriteHeader(QTextStream &h)
+void BoundNode::WriteHeader(QTextStream &h) const
 {
-    if (getHeaderBeenWritten()) return;
-    setHeaderBeenWritten(true);
-    foreach (Edge *edge, edgeList)
-    {
-        if (edge->getSource()!=this)   {
-            edge->getSource()->WriteHeader(h);
-            edge->WriteNodeInfo(h);
-        }
-    }
-}
-
-void BoundNode::WriteNodeInfo(QTextStream &s)
-{
-
-    Q_UNUSED(s);
+        Q_UNUSED(h);
 }
 
 
-void BoundNode::WriteSourcePlainGuts(QTextStream &s)
+void BoundNode::WriteSourcePlainGuts(QTextStream &s) const
 {
     //
     Q_UNUSED(s);

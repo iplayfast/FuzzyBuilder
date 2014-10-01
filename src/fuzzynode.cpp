@@ -34,34 +34,38 @@ bool FuzzyNode::AllowAttach(Node *) const
 }
 
 
-void FuzzyNode::WriteHeader(QTextStream &h)
+void FuzzyNode::WriteHeader(QTextStream &h) const
 {
-    if (getHeaderBeenWritten()) return;
-    setHeaderBeenWritten(true);
-    h << "#include <Fuzzy.h>\n";
     h << "double " << getName() << "(void);\n";
+    h << "// structure holding the fuzzy datapoints\n";
     h << "struct TFuzzy" << getName() <<" {\n    int Count;\n    TFuzzyXY Data[" << fuzzy.Count() << "];\n};\n\n";
 }
 
-void FuzzyNode::WriteNodeInfo(QTextStream &s)
+void FuzzyNode::WriteIncludes(QTextStream &h) const
+{
+    h << "#include <Fuzzy.h>\n";
+}
+
+void FuzzyNode::WriteNodeInfo(QTextStream &s) const
 {
     QString ps; ps.sprintf("!!%f!!%f",pos().rx(),pos().ry());
-    StartComment(s);
+
     s << "//!!fFuzzy!!" << getName() << ps;
     for(int i=0;i<fuzzy.Count();i++)
         s << "!!" << fuzzy.GetItemc(i)->x << "!!" << fuzzy.GetItemc(i)->y;
-    EndComment(s);
+
     foreach (Edge *edge, edgeList)
     {
         if (edge->getSource()!=this)
         {
             edge->getSource()->WriteNodeInfo(s);
+            return; // only one connection allowed
         }
     }
 
 }
 
-void FuzzyNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn)
+void FuzzyNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
 {
     Return = "double ";
     Parameters = "()";

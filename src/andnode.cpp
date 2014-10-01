@@ -32,19 +32,12 @@ bool AndNode::AllowAttach(Node *) const
 }
 
 
-void AndNode::WriteHeader(QTextStream &h)
-{
-    if (getHeaderBeenWritten()) return;
-    setHeaderBeenWritten(true);
+void AndNode::WriteHeader(QTextStream &h) const
+{    
     h << "\ndouble " << getName() << "(void);\n";
-    foreach (Edge *edge, edgeList)
-    {
-        if (edge->getSource()!=this)
-            edge->getSource()->WriteHeader(h);
-    }
 }
 
-void AndNode::WriteNodeInfo(QTextStream &s)
+void AndNode::WriteNodeInfo(QTextStream &s) const
 {
     StartComment(s);
     s << "* And Node will find the minimum of a set of inputs\n";
@@ -60,21 +53,15 @@ void AndNode::WriteNodeInfo(QTextStream &s)
 
 
 
-void AndNode::WriteSourcePlainGuts(QTextStream &s)
-{
-        if (getUserGuts()=="")
-            s << Regenerate();
-        else s << getUserGuts();
-}
 
-void AndNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn)
+void AndNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
 {
     Return = "double ";
     Parameters = "()";
     FunctionReturn = " return Current;";
 }
 
-QString AndNode::Regenerate()
+QString AndNode::Regenerate() const
 {
     QString s,ss;
         ss.sprintf("%05.5f",getActiveValue());

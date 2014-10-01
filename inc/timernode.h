@@ -7,11 +7,11 @@ public:
     TimerNode(GraphWidget *graphWidget);
     virtual QRectF boundingRect() const;
     virtual bool AllowAttach(Node *) const;
-    virtual void WriteHeader(QTextStream &h);
-    void WriteNodeInfo(QTextStream &s);
-    virtual void FunctionData(QString &Return,QString &Parameters,QString &FunctionReturn);
-    void WriteSourcePlainGuts(QTextStream &s);
-    virtual QString Regenerate();
+    virtual void WriteHeader(QTextStream &h) const;
+    void WriteNodeInfo(QTextStream &s) const;
+    virtual void FunctionData(QString &Return,QString &Parameters,QString &FunctionReturn) const;
+    void WriteSourcePlainGuts(QTextStream &s) const;
+    virtual QString Regenerate() const;
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/);
     virtual void setName(const QString &value);
     virtual double Simulate() { return 0;} // setup doesn't do any simulations

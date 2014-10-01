@@ -13,8 +13,8 @@ public:
     virtual bool AllowAttach(Node *node) const;
     virtual void addEdge(Edge *edge);
 
-    virtual void WriteHeader(QTextStream &h);
-    void WriteNodeInfo(QTextStream &s);
+    virtual void WriteHeader(QTextStream &h) const;
+    void WriteNodeInfo(QTextStream &s) const;
 
 
     virtual double Simulate();

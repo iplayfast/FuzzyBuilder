@@ -9,10 +9,10 @@ public:
     virtual bool AllowAttach(Node *) const;
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
     virtual QRectF boundingRect() const;
-    virtual void WriteHeader(QTextStream &h);
-    void WriteNodeInfo(QTextStream &s);
+    virtual void WriteHeader(QTextStream &h) const;
 
-    virtual void WriteSourcePlainGuts(QTextStream &s);
+
+    virtual void WriteSourcePlainGuts(QTextStream &s) const;
 
     virtual double Simulate() {return 0;};
     virtual LOGICTYPE GetLogicType() const { return fPID; }

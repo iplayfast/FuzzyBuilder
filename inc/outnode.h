@@ -8,11 +8,11 @@ public:
     virtual QRectF boundingRect() const;
     virtual bool AllowAttach(Node *) const;
 
-    virtual void WriteHeader(QTextStream &h);
-    virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn);
-    virtual void WriteSourcePlainGuts(QTextStream &ts);//plain guts
-    virtual void WriteNodeInfo(QTextStream &s);
-    virtual QString Regenerate();
+    virtual void WriteHeader(QTextStream &h) const;
+    virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const;
+    virtual void WriteSourcePlainGuts(QTextStream &ts) const;//plain guts
+    virtual void WriteNodeInfo(QTextStream &s) const;
+    virtual QString Regenerate() const;
     virtual double Simulate();
     virtual QPainterPath shape() const;
     virtual bool UsesMinScale() const { return true; }

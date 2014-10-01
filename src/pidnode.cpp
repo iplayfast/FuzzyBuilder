@@ -44,22 +44,11 @@ void PidNode::addEdge(Edge *edge)
     }
 }
 
-void PidNode::WriteHeader(QTextStream &h)
+void PidNode::WriteHeader(QTextStream &h) const
 {
-    if (getHeaderBeenWritten()) return;
-    setHeaderBeenWritten(true);
-    QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
-    h << "\n\n";
-    h << "//!!fPid!!" << getName() << ps;
-    Node::WriteHeader(h);
-    SetPoint.WriteHeader(h);
-    Input.WriteHeader(h);
-    foreach (Edge *edge, edgeList)
-        if (edge->getSource()!=this)
-            edge->WriteNodeInfo(h);
 }
 
-void PidNode::WriteNodeInfo(QTextStream &s)
+void PidNode::WriteNodeInfo(QTextStream &s) const
 {
 
     Q_UNUSED(s);
