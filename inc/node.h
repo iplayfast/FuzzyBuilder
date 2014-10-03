@@ -65,8 +65,9 @@ public:
     virtual void WriteIncludes(QTextStream &h) const;
     virtual void WriteNodeInfo(QTextStream &s) const;
     void WriteSourceUserBefore(QTextStream &s) const; // user modified
-    void WriteSourceUserGuts(QTextStream &s); // user modified plus plain guts
+    void WriteSourceUserGuts(QTextStream &s) const; // user modified plus plain guts
     virtual void WriteSourcePlainGuts(QTextStream &s) const;//plain guts
+    virtual void WriteSource(QTextStream &s);   // calls other functions but tracks if it has been written
     virtual QString Regenerate() const;
 
 
@@ -105,7 +106,7 @@ protected:
      QRectF paintSetup(QPainter *painter, const QStyleOptionGraphicsItem *option);
      virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/);
      virtual QString gettype() const=0;
-
+    bool CheckSetSourceBeenWritten();
 private:    
     bool SourceBeenWritten;
     LOGICTYPE fType;

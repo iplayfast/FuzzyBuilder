@@ -17,7 +17,7 @@ public:
     virtual void WriteIncludes(QTextStream &h) const;
     void WriteNodeInfo(QTextStream &s) const;
     virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const;
-    virtual void WriteSourcePlainGuts(QTextStream &s);//plain guts
+    virtual void WriteSourcePlainGuts(QTextStream &s) const;//plain guts
     virtual QString MinText() const { return "Cause (the idea)"; }
     virtual QString MaxText() const { return "Effect (the truthiness of the idea)"; }
     virtual void setIOMin(double value);

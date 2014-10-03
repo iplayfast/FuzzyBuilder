@@ -19,6 +19,8 @@ InNode::InNode(GraphWidget *graphWidget) : Node(graphWidget)
 
     setIOMax(255);
     setIOMin(0);
+    this->setCurrent(0);
+    this->setActive(0);
     Regenerate();
 }
 QString InNode::Regenerate() const

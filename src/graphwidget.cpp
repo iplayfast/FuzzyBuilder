@@ -341,9 +341,6 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
     }
 
 
-    foreach (Node *node, nodes) {
-        node->setSourceBeenWritten(false);        
-    }
 
 
     StartComment(tss);
@@ -373,9 +370,58 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
 
 
 
+
+    foreach (Node *node, nodes) {
+        node->setSourceBeenWritten(false);
+    }
+
+
+    foreach (Node *node,nodes) {
+        if (node->GetLogicType()==fSETUP)   {
+            StartComment(tss);
+            tss << "//the setup routine runs once when you press reset\n";
+            EndComment(tss);
+            node->WriteSource(tss);
+            break; // only one setup
+        }
+    }
+
+    StartComment(tss);
+    tss << "// the loop routine runs over and over again forever\n";
+    EndComment(tss);
+    tss << "void loop() {\n";
+    tss << "//each output is called and it calls any inputs connected to it\n";
+    foreach (Node *node, nodes) {
+        if (node->GetLogicType()==fOUT)
+            tss << "  " << node->getName() << "();\n";
+    }
+    tss << "}\n\n\n";
+
+    StartComment(tss);
+    tss<< "These are the Logic Blocks written by the Fuzzybuilder\n";
+    EndComment(tss);
+    foreach (Node *node, nodes) {
+        if (node->GetLogicType()==fOUT)
+            node->WriteSource(tss); // the output nodes write out any connections they have to them recursively
+    }
+    bool notice = true;
+
+    foreach (Node *node, nodes) {
+        if (!node->getSourceBeenWritten())
+        {
+            if (notice) {
+                notice = false;
+                tss << "\n\n";
+                StartComment(tss);
+                tss << "// the following Logic Block(s) are not used\n//But are available for use with the FuzzyBuilder\n";
+                EndComment(tss);
+            }
+            node->WriteSource(tss);
+        }
+    }
     StartComment(tss);
     tss << "FuzzyBuilder Layout Section\n";
-    EndComment(tss);        
+    EndComment(tss);
     foreach(Node *node,nodes)
         node->WriteNodeInfo(tss);
     StartComment(tss);
@@ -392,50 +438,6 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
     EndComment(tss);
 
 
-
-    foreach (Node *node,nodes) {
-        if (node->GetLogicType()==fSETUP)   {
-            StartComment(tss);
-            tss << "//the setup routine runs once when you press reset\n";
-            EndComment(tss);
-            node->WriteSourceUserGuts(tss);
-            break; // only one setup
-        }
-    }
-
-    StartComment(tss);
-    tss << "// the loop routine runs over and over again forever\n";
-    EndComment(tss);
-    tss << "void loop() {\n";
-    tss << "//each output is called and it calls any inputs connected to it\n";
-    foreach (Node *node, nodes) {
-        if (node->GetLogicType()==fOUT)
-            tss << "  " << node->getName() << ";\n";
-    }
-    tss << "}\n\n\n";
-
-    StartComment(tss);
-    tss<< "These are the Logic Blocks written by the Fuzzybuilder\n";
-    EndComment(tss);
-    foreach (Node *node, nodes) {
-        if (node->GetLogicType()==fOUT)
-            node->WriteSourceUserGuts(tss); // the output nodes write out any connections they have to them recursively
-    }
-    bool notice = true;
-
-    foreach (Node *node, nodes) {
-        if (!node->getSourceBeenWritten())
-        {
-            if (notice) {
-                notice = false;
-                tss << "\n\n";
-                StartComment(tss);
-                tss << "// the following Logic Block(s) are not used\n//But are available for use with the FuzzyBuilder\n";
-                EndComment(tss);
-            }
-            node->WriteSourceUserGuts(tss);
-        }
-    }
 }
 
 

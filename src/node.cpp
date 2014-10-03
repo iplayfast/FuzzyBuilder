@@ -204,6 +204,14 @@ void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
 }
 
+// checks if the soure has already been written, and sets it as true (cause we are about to)
+bool Node::CheckSetSourceBeenWritten()
+{
+    if (SourceBeenWritten)   return true;
+    SourceBeenWritten = true;
+    return false;
+}
+
 double Node::Normalize(double value) const
 {
     return (value - getIOMin()) / (getIOMax() - getIOMin()); // normalize
@@ -315,7 +323,7 @@ void Node::WriteSourceUserBefore(QTextStream &s) const
 }
 
 
-void Node::WriteSourceUserGuts(QTextStream &s)
+void Node::WriteSourceUserGuts(QTextStream &s) const
 {
     QString Return,Parameters,ub,ua,FunctionReturn;
 
@@ -328,8 +336,7 @@ void Node::WriteSourceUserGuts(QTextStream &s)
     }
     else
         WriteSourcePlainGuts(s);
-    s << FunctionReturn << "\n}\n\n";
-    SourceBeenWritten = true;
+    s << FunctionReturn << "\n}\n\n";    
 }
 
 void Node::WriteSourcePlainGuts(QTextStream &s) const
@@ -337,6 +344,20 @@ void Node::WriteSourcePlainGuts(QTextStream &s) const
     if (getUserGuts()=="")
         s << Regenerate();
     else s << getUserGuts();
+}
+
+void Node::WriteSource(QTextStream &s)
+{
+    if (CheckSetSourceBeenWritten()) return;
+    WriteSourceUserGuts(s);
+    foreach (Edge *edge, edgeList)
+    {
+        if (edge->getSource()!=this)
+        {
+            edge->getSource()->WriteSource(s);
+        }
+    }
+
 }
 
 QString Node::Regenerate() const

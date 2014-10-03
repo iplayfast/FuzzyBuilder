@@ -733,8 +733,8 @@ Node *MainWindow::findNode(const QString &Name)
 
 void MainWindow::on_LoadTest_clicked()
 {
-    ui->Min->setValue(50);
-    //Load("test");
+
+    Load("test");
 }
 
 void MainWindow::on_GroupSelect_currentIndexChanged(const QString &arg1)

@@ -86,7 +86,7 @@ QString AndNode::MinText() const
 
 
 double AndNode::Simulate()
-{
+{    
     double Current = AndValue;
 
     foreach (Edge *edge, edgeList)
