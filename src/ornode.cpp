@@ -41,17 +41,11 @@ void OrNode::WriteHeader(QTextStream &h) const
 
 void OrNode::WriteNodeInfo(QTextStream &s) const
 {
-        StartComment(s);
-        s << "* Or Node will find the maximum of a set of inputs\n";
-
     QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
     QString ss;
         ss.sprintf("%05.5f",getActiveValue());
     s << "//!!fOr!!" << getName() << "!!" << ss << ps;
-    foreach (Edge *edge, edgeList)
-        if (edge->getSource()!=this)
-            edge->WriteNodeInfo(s);
-    EndComment(s);
+    Node::WriteNodeInfo(s);
 }
 
 QString OrNode::MinText() const

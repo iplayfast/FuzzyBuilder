@@ -709,6 +709,7 @@
     <addaction name="actionView_as_C_Source"/>
     <addaction name="actionSave_As_C_Source"/>
     <addaction name="separator"/>
+    <addaction name="actionSave_arduino"/>
     <addaction name="actionView_as_Arduino_Source"/>
     <addaction name="actionSave_as_Arduiono_Source"/>
     <addaction name="separator"/>
@@ -767,6 +768,14 @@
   <action name="actionSave_as_Arduiono_Source">
    <property name="text">
     <string>Save as Arduiono Source</string>
+   </property>
+  </action>
+  <action name="actionSave_arduino">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save (arduino)</string>
    </property>
   </action>
  </widget>

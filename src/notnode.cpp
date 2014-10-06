@@ -51,13 +51,10 @@ void NotNode::WriteHeader(QTextStream &h) const
 }
 
 void NotNode::WriteNodeInfo(QTextStream &s) const
-{
-    StartComment(s);
-    s << "* Not will return the opposite fuzzy value of an input (0 becomes 1, 1 becomes 0 etc)\n";
+{    
     QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
     s << "//!!fNOT!!" << getName() << "!!" << ps;
-    Node::WriteNodeInfo(s);
-    EndComment(s);
+    Node::WriteNodeInfo(s);    
 }
 
 void NotNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const

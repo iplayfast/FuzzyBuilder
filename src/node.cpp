@@ -346,6 +346,14 @@ void Node::WriteSourcePlainGuts(QTextStream &s) const
     else s << getUserGuts();
 }
 
+void Node::WriteEdges(QTextStream &s) const
+{
+    foreach (Edge *edge, edgeList)  {
+        if (edge->getDest()!=this)   // all nodes are covered so only get the edge from one end
+            edge->WriteNodeInfo(s);
+    }
+}
+
 void Node::WriteSource(QTextStream &s)
 {
     if (CheckSetSourceBeenWritten()) return;

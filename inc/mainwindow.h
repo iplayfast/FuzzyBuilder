@@ -31,7 +31,7 @@ public:
     void setGti(GroupTableItem *value);
 
     void WriteSource(QTextStream &h, QTextStream &s);
-    void SaveFile(QString filename);
+    void SaveFile(QString filename, bool arduino);
     void FillCodeUI(Node *np);
     void SelectAllAction(bool Select);
 
@@ -119,6 +119,8 @@ private slots:
     void AddNode(LOGICTYPE lt);
 
     void on_Extra_valueChanged(int value);
+
+    void on_actionSave_arduino_triggered();
 
 private:
     bool Frozen;

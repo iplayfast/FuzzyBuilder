@@ -52,6 +52,8 @@ void PidNode::WriteNodeInfo(QTextStream &s) const
 {
 
     Q_UNUSED(s);
+
+    Node::WriteNodeInfo(s);
 }
 
 

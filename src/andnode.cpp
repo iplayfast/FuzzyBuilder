@@ -39,16 +39,9 @@ void AndNode::WriteHeader(QTextStream &h) const
 
 void AndNode::WriteNodeInfo(QTextStream &s) const
 {
-    StartComment(s);
-    s << "* And Node will find the minimum of a set of inputs\n";
-    s << "* Fuzzy builder Description\n";
          QString ps; ps.sprintf("!!%05.5f!!%f!!%f\n",getActiveValue(),pos().rx(),pos().ry());
     s << "//!!fAnd!!" << getName()  << ps; // fAnd,name,active value,positionx,position y
-    foreach (Edge *edge, edgeList)
-        if (edge->getSource()!=this)
-            edge->WriteNodeInfo(s);
-    Node::WriteNodeInfo(s);
-    EndComment(s);
+    Node::WriteNodeInfo(s);    
 }
 
 

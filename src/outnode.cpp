@@ -83,21 +83,9 @@ void OutNode::WriteSourcePlainGuts(QTextStream &ts) const
 
 void OutNode::WriteNodeInfo(QTextStream &s) const
 {
-    foreach (Edge *edge, edgeList)
-    {
-        if (edge->getSource()!=this)
-        {
-            edge->getSource()->WriteNodeInfo(s); // only one edge on output
-            StartComment(s);
-            QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
-            s << "\n\n";
+      QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
             s << "//!!fOut!!" << getName() << ps;
             Node::WriteNodeInfo(s);
-            EndComment(s);         
-            return;
-        }
-    }
-    return;
 }
 
 

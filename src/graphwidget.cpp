@@ -422,8 +422,14 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
     StartComment(tss);
     tss << "FuzzyBuilder Layout Section\n";
     EndComment(tss);
-    foreach(Node *node,nodes)
+    foreach(Node *node,nodes)   {
         node->WriteNodeInfo(tss);
+    }
+    foreach(Node *node,nodes)   {
+        node->WriteEdges(tss);
+    }
+
+
     StartComment(tss);
     tss << "End FuzzyBuilder Layout Section\n";
     EndComment(tss);

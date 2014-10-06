@@ -44,6 +44,7 @@ void SetupNode::WriteNodeInfo(QTextStream &s) const
 {
     QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
     s << "//!!fSetup!!" << getName() <<  ps;
+    Node::WriteNodeInfo(s);
 }
 
 void SetupNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const

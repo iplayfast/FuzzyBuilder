@@ -67,6 +67,7 @@ public:
     void WriteSourceUserBefore(QTextStream &s) const; // user modified
     void WriteSourceUserGuts(QTextStream &s) const; // user modified plus plain guts
     virtual void WriteSourcePlainGuts(QTextStream &s) const;//plain guts
+    virtual void WriteEdges(QTextStream &s) const;  // connections between nodes
     virtual void WriteSource(QTextStream &s);   // calls other functions but tracks if it has been written
     virtual QString Regenerate() const;
 

@@ -44,6 +44,7 @@ void TimerNode::WriteNodeInfo(QTextStream &s) const
 {
     QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
     s << "//!!fTimer!!" << getName() <<  ps;
+    Node::WriteNodeInfo(s);
 }
 
 void TimerNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const

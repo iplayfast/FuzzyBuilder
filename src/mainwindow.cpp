@@ -318,18 +318,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::Load(QString filename)
 {
-    QFile h;
-
-    int ext = filename.lastIndexOf(".");
-    if (ext>-1)
-        filename.chop(filename.length() - ext);
-    h.setFileName(filename + ".h");
-
-    if (h.open(QIODevice::ReadOnly | QIODevice::Text ))    {
-        QTextStream hs(&h);
+    QFile src;
+    on_actionNew_triggered();
+    src.setFileName(filename);
+    if (src.open(QIODevice::ReadOnly | QIODevice::Text ))    {
+        QTextStream hs(&src);
         on_actionNew_triggered();
         ui->graphicsView->ReadSource(hs);
-        h.close();
+        src.close();
     }
     Filename = filename;
     ui->actionSave->setText("Save " + Filename);
@@ -362,7 +358,7 @@ void MainWindow::on_actionSave_triggered()
 {
     //Menu Save
     if (Filename!="") {
-         SaveFile(Filename);
+         SaveFile(Filename,false);
     }
 }
 void MainWindow::WriteGroups(QTextStream &h)
@@ -375,19 +371,30 @@ void MainWindow::WriteSource(QTextStream &h, QTextStream &s)
     ui->graphicsView->WriteSource(h,s);
 }
 
-void MainWindow::SaveFile(QString filename)
+void MainWindow::SaveFile(QString filename,bool arduino)
 {
+
     QFile h;
     QFile s;
 
     int ext = filename.lastIndexOf(".");
     if (ext>-1)
         filename.chop(filename.length() - ext);
-    h.setFileName(filename + ".h");
-    s.setFileName(filename + ".c");
-    if (h.exists()) h.remove();
-    if (s.exists()) s.remove();
 
+    h.setFileName(filename + ".h");
+    if (arduino)
+       s.setFileName(filename+".ino");
+    else    {
+       s.setFileName(filename + ".c");
+        if (h.exists()) h.remove();
+    }
+    if (s.exists()) s.remove();
+    if (arduino){
+        if (s.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream ss(&s);
+            WriteSource(ss,ss);
+        }
+    } else {
     if (h.open(QIODevice::WriteOnly | QIODevice::Text ))    {
         if (s.open(QIODevice::WriteOnly | QIODevice::Text ))            {
             QTextStream hs(&h),ss(&s);
@@ -395,9 +402,16 @@ void MainWindow::SaveFile(QString filename)
         }
         h.close();
     }
+    }
+    s.close();
     Filename = filename;
+    if (arduino)    {
+     ui->actionSave_arduino->setText("Save (Arduino) " +Filename);
+     ui->actionSave_arduino->setEnabled(true);
+    } else {
     ui->actionSave->setText("Save " + Filename);
     ui->actionSave->setEnabled(true);
+    }
 }
 
 void MainWindow::on_actionSave_As_C_Source_triggered()
@@ -411,7 +425,7 @@ void MainWindow::on_actionSave_As_C_Source_triggered()
     dialog.close();
     if (filename.isEmpty())
         return;
-    SaveFile(filename);
+    SaveFile(filename,false);
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -683,6 +697,7 @@ void MainWindow::on_actionNew_triggered()
          scene->items().removeOne(item);
          delete node;
     }
+    SelectNode(0);
 }
 
 void MainWindow::on_Group_clicked()
@@ -802,7 +817,7 @@ void MainWindow::on_actionSave_as_Arduiono_Source_triggered()
     dialog.close();
     if (filename.isEmpty())
         return;
-    SaveFile(filename);
+    SaveFile(filename,true);
 }
 
 void MainWindow::on_FunctionHeader_editingFinished()
@@ -1060,3 +1075,14 @@ void MainWindow::createActions()
 
 }
 
+
+void MainWindow::on_actionSave_arduino_triggered()
+{
+    // save as arduino source
+QString filename;
+        filename = ui->actionSave_arduino->text();
+        filename.remove(0,strlen("Save (Arduino) "));
+       if (filename.isEmpty())
+           return;
+       SaveFile(filename,true);
+}

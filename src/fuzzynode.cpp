@@ -49,20 +49,11 @@ void FuzzyNode::WriteIncludes(QTextStream &h) const
 void FuzzyNode::WriteNodeInfo(QTextStream &s) const
 {
     QString ps; ps.sprintf("!!%f!!%f",pos().rx(),pos().ry());
-
     s << "//!!fFuzzy!!" << getName() << ps;
     for(int i=0;i<fuzzy.Count();i++)
         s << "!!" << fuzzy.GetItemc(i)->x << "!!" << fuzzy.GetItemc(i)->y;
-
-    foreach (Edge *edge, edgeList)
-    {
-        if (edge->getSource()!=this)
-        {
-            edge->getSource()->WriteNodeInfo(s);
-            return; // only one connection allowed
-        }
-    }
-
+    s << "\n";
+    Node::WriteNodeInfo(s);
 }
 
 void FuzzyNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
