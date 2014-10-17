@@ -164,6 +164,8 @@ QString Line;
                 TimerNode *n = new TimerNode(graphWidget);
                 lastNode = n;
                 n->setName(TokenList[2]);
+                n->setPos(TokenList[3].toDouble(),TokenList[4].toDouble());
+                n->setIOMin(TokenList[5].toDouble());
                 // to do
             }
             default:

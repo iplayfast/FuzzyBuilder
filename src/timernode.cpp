@@ -19,6 +19,7 @@ TimerNode::TimerNode(GraphWidget *graphWidget) : Node(graphWidget)
     setPos(exposedRect.width()/2,exposedRect.height() / 2);
     if (!FindNewVertPosition(-1))
         FindNewVertPosition(1);
+    setIOMax(255);
 
 }
 
@@ -42,9 +43,23 @@ void TimerNode::WriteHeader(QTextStream &h) const
 
 void TimerNode::WriteNodeInfo(QTextStream &s) const
 {
-    QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
+    QString ps; ps.sprintf("!!%f!!%f!!%f\n",pos().rx(),pos().ry(),getIOMin());
     s << "//!!fTimer!!" << getName() <<  ps;
     Node::WriteNodeInfo(s);
+}
+
+int TimerNode::MaxOfMin() const
+{
+    return 256 * this->getMinScale();
+}
+
+QString TimerNode::GetValueText() const
+{
+    QString v = Node::GetValueText();
+    QString v1;
+        v1.sprintf("\n(%d)",(int)round(this->getActiveValue()));
+        v1 += v;
+        return v1;
 }
 
 void TimerNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
@@ -64,23 +79,25 @@ void TimerNode::WriteSourcePlainGuts(QTextStream &s) const
 QString TimerNode::Regenerate() const
 {
     QString ss;
-        ss.sprintf("%05.5f;\n",getActiveValue());
+        ss.sprintf("%u",(unsigned long)this->getIOMin());
 
     QString s = "static double Current=-1.0;// first time call flag value\n";
     s += "static unsigned long milliseconds;\nunsigned long ms;\n";
-    s += "  ms = millis(); // arduino specific\n";
-    s += "  if (ms>=milliseconds || Current==-1.0) {\n";
-    s += "     milliseconds = ms + "; s += ss; s += "\n";
+    s += "    ms = millis(); // arduino specific\n";
+    s += "    if (ms>=milliseconds || Current==-1.0) {\n";
+    s += "        milliseconds = ms + "; s += ss; s += " - (ms - milliseconds);\n";
     foreach (Edge *edge, edgeList) {
                 if (edge->getSource()!=this)
                 {
-                    s += "   Current = "; s+= edge->getSource()->getName(); s+= "();\n";
-                    s += "   }\n";
+                    s += "        Current = "; s+= edge->getSource()->getName(); s+= "();\n";
+                    s += "    }\n";
                     return s;
                 }
     }
     // if it got here input has not been setup
-    s += "Need an input connected for valid results";
+
+    s += "    currrent = //Need an input connected for valid results\n";
+    s += "    }\n";
     return s;
 }
 
