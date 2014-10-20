@@ -83,7 +83,7 @@ void OutNode::WriteSourcePlainGuts(QTextStream &ts) const
 
 void OutNode::WriteNodeInfo(QTextStream &s) const
 {
-      QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
+      QString ps; ps.sprintf("!!%f!!%f!!%f!!%f\n",pos().rx(),pos().ry(),getIOMin(),getIOMax());
             s << "//!!fOut!!" << getName() << ps;
             Node::WriteNodeInfo(s);
 }

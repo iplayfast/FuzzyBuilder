@@ -60,7 +60,7 @@ void InNode::WriteHeader(QTextStream &h) const
 
 void InNode::WriteNodeInfo(QTextStream &ts) const
 {
-    QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
+    QString ps; ps.sprintf("!!%f!!%f!!%f!!%f\n",pos().rx(),pos().ry(),getIOMin(),getIOMax());
     ts << "\n";
     ts << "//!!fIn!!" << getName() <<  ps;
     Node::WriteNodeInfo(ts);

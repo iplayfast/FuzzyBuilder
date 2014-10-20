@@ -39,7 +39,7 @@ void AndNode::WriteHeader(QTextStream &h) const
 
 void AndNode::WriteNodeInfo(QTextStream &s) const
 {
-         QString ps; ps.sprintf("!!%05.5f!!%f!!%f\n",getActiveValue(),pos().rx(),pos().ry());
+         QString ps; ps.sprintf("!!%05.5f!!%f!!%f!!%f\n",getActiveValue(),pos().rx(),pos().ry(),getIOMin());
     s << "//!!fAnd!!" << getName()  << ps; // fAnd,name,active value,positionx,position y
     Node::WriteNodeInfo(s);    
 }

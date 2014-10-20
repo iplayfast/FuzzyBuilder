@@ -343,8 +343,17 @@ void MainWindow::on_actionLoad_triggered()
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setNameFilter ( tr("C Header files(*.h *.H);;All Files(*.*)") );
-    QString filename = dialog.getOpenFileName();
+    QStringList filters;
+        filters << "Arduino files (*.ino)"
+                << "library files (*.cpp)"
+                << "Any files(*)";
+
+    dialog.setNameFilters (filters);
+    dialog.setDefaultSuffix("ino");
+    if (dialog.exec()!=QDialog::Accepted)
+        return;
+    QStringList sf = dialog.selectedFiles();
+    QString filename = sf.first();
     dialog.close();
     if (filename.isEmpty())
         return;
@@ -810,10 +819,29 @@ void MainWindow::on_actionView_as_Arduino_Source_triggered()
 void MainWindow::on_actionSave_as_Arduiono_Source_triggered()
 { // save as arduino source
     QFileDialog dialog(this);
+    QStringList filters;
+        filters << "Arduino files (*.ino)"
+                << "library files (*.cpp)";
+    dialog.setNameFilters(filters);
     dialog.setFileMode(QFileDialog::AnyFile);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setNameFilter ( tr("ino files(*.ino *.INO);;All Files(*.*)") );
-    QString filename = dialog.getSaveFileName();
+    bool repeat = true;
+    QString filename ;
+    while(repeat) {
+        repeat =false;
+
+        if (dialog.exec()!=QDialog::Accepted)
+            return;
+        QStringList sf = dialog.selectedFiles();
+        filename = sf.first();
+        QFileInfo file(filename);
+        if ((file.suffix()!="ino") && (file.suffix()!="cpp"))
+        {
+            QMessageBox::information(NULL,"Error","You must provide an extension");
+            repeat = true;
+        }
+
+    }
     dialog.close();
     if (filename.isEmpty())
         return;

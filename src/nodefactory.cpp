@@ -97,6 +97,8 @@ QString Line;
                 lastNode = n;
                 n->setName(TokenList[2]);
                 n->setPos(TokenList[3].toDouble(),TokenList[4].toDouble());
+                n->setIOMin(TokenList[5].toDouble());
+                n->setIOMax(TokenList[6].toDouble());
 
             }
                 break;
@@ -106,6 +108,9 @@ QString Line;
                 lastNode = n;
                 n->setName(TokenList[2]);
                 n->setPos(TokenList[3].toDouble(),TokenList[4].toDouble());
+                n->setIOMin(TokenList[5].toDouble());
+                n->setIOMax(TokenList[6].toDouble());
+
             }
                 break;
             case fFUZZY:
@@ -132,6 +137,7 @@ QString Line;
                 n->setName(TokenList[2]);
                 n->setActiveValue(TokenList[3].toDouble());
                 n->setPos(TokenList[4].toDouble(),TokenList[5].toDouble());
+                n->setIOMin(TokenList[5].toDouble());
             }
                 break;
             case fOR:
@@ -141,6 +147,7 @@ QString Line;
              n->setName(TokenList[2]);
              n->setActiveValue(TokenList[3].toDouble());
              n->setPos(TokenList[4].toDouble(),TokenList[5].toDouble());
+             n->setIOMin(TokenList[5].toDouble());
             }
                 break;
             case fNOT:

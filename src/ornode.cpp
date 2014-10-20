@@ -18,6 +18,7 @@ QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()
 setPos(exposedRect.width()/2,exposedRect.height() / 2);
 if (!FindNewVertPosition(-1))
     FindNewVertPosition(1);
+setIOMin(0);
 
 }
 
@@ -41,7 +42,7 @@ void OrNode::WriteHeader(QTextStream &h) const
 
 void OrNode::WriteNodeInfo(QTextStream &s) const
 {
-    QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
+    QString ps; ps.sprintf("!!%f!!%f!!%f\n",pos().rx(),pos().ry(),getIOMin());
     QString ss;
         ss.sprintf("%05.5f",getActiveValue());
     s << "//!!fOr!!" << getName() << "!!" << ss << ps;
