@@ -8,20 +8,23 @@
 #include <QDebug>
 #include "graphwidget.h"
 #include "innode.h"
-
+InNode *gInNode;
 InNode::InNode(GraphWidget *graphWidget) : Node(graphWidget)
 {
+    gInNode = this;
     QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
     //QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());
     setPos(0,exposedRect.height() / 2);
     if (!FindNewVertPosition(-1))
         FindNewVertPosition(1);
 
-    setIOMax(255);
+    setIOMax(1023);
     setIOMin(0);
     this->setCurrent(0);
     this->setActive(0);
+    this->setInValue(0);
     Regenerate();
+
 }
 QString InNode::Regenerate() const
 {
@@ -106,12 +109,12 @@ QPainterPath InNode::shape() const
 
 int InNode::MaxOfMin() const
 {
-    return 256 * this->getMinScale();
+    return 1024 * this->getMinScale();
 }
 
 int InNode::MaxOfMax() const
 {
-    return 256 * this->getMaxScale();
+    return 1024 * this->getMaxScale();
 }
 
 QString InNode::ExtraText() const

@@ -119,12 +119,12 @@ QPainterPath OutNode::shape() const
 
 int OutNode::MaxOfMin() const
 {
-    return 256 * this->getMinScale();
+    return 1024 * this->getMinScale();
 }
 
 int OutNode::MaxOfMax() const
 {
-    return 256 * this->getMaxScale();
+    return 1024 * this->getMaxScale();
 }
 
 QString OutNode::GetValueText() const

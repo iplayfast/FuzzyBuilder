@@ -732,7 +732,8 @@ void Node::DeleteAllEdges()
             Node *node = qgraphicsitem_cast<Node *>(item);
             if (!node || node==this)
                 continue;
-            startover = deleteEdge(node);
+            startover = deleteEdge(node) || node->deleteEdge(this);
+
         }
     }
 }

@@ -100,6 +100,7 @@ QString Line;
                 n->setIOMin(TokenList[5].toDouble());
                 n->setIOMax(TokenList[6].toDouble());
 
+
             }
                 break;
             case fOUT:

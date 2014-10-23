@@ -139,7 +139,7 @@ void GraphWidget::keyReleaseEvent(QKeyEvent *event)
 void GraphWidget::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event);
-
+return;
     QList<Node *> nodes;
     foreach (QGraphicsItem *item, scene()->items()) {
         if (Node *node = qgraphicsitem_cast<Node *>(item))
