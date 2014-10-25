@@ -8,10 +8,10 @@
 #include <QDebug>
 #include "graphwidget.h"
 #include "innode.h"
-InNode *gInNode;
+
 InNode::InNode(GraphWidget *graphWidget) : Node(graphWidget)
 {
-    gInNode = this;
+
     QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
     //QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());
     setPos(0,exposedRect.height() / 2);
@@ -34,14 +34,30 @@ QString InNode::Regenerate() const
     min.sprintf("%05.5f",getIOMin());
     max.sprintf("%05.5f",getIOMax());
 
+
     s = "double RealWorldMin = "; s+= min; s+= ",RealWorldMax = "; s+= max; s+= ";\n";
-
-
-    b = "double myinput = 0; /*add your code here to obtain input from a sensor or something*/\n";
+    if (!edgeList.isEmpty())
+    {
+        Edge *e = edgeList.first();
+        Node *n = e->getSource();
+            b = "double myinput = analogRead("; b += n->getName(); b += ");\n";
+    }
+    else
+        b = "double myinput = 0; /*add your code here to obtain input from a sensor or something*/\n";
     b += s;
     b += "if (myinput<RealWorldMin) myinput = RealWorldMin; // clamp lower limit\n";
     b += "if (myinput>RealWorldMax) myinput = RealWorldMax; // clamp upper limit\n";
     return b;
+}
+
+QString InNode::InitizationCode() const
+{
+QString s;
+    if (!edgeList.isEmpty())    {
+        Node *Inconst = edgeList.first()->getSource();
+        s = "   pinMode("; s += Inconst->getName(); s+= ",INPUT);\n";
+    }
+    return s;
 };
 QRectF InNode::boundingRect() const
 {
@@ -51,9 +67,10 @@ qreal adjust = 2;
 return QRectF( -width - adjust, -height - adjust, 2 * width + adjust, 2 * height + adjust);
 }
 
-bool InNode::AllowAttach(Node *) const
+bool InNode::AllowAttach(Node *n) const
 {
-    return false;
+
+    return n->GetLogicType()==fDEFINE && edgeList.isEmpty();
 }
 
 void InNode::WriteHeader(QTextStream &h) const
@@ -69,11 +86,12 @@ void InNode::WriteNodeInfo(QTextStream &ts) const
     Node::WriteNodeInfo(ts);
 }
 
-void InNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
+void InNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const
 {
     Return = "double ";
     Parameters = "()";
     FunctionReturn = "return myinput;";
+    HasBrackets = true;
 }
 
 

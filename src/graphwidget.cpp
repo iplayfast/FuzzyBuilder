@@ -212,7 +212,8 @@ QString GraphWidget::SuggestName(LOGICTYPE t) const
         case fTIMER:
             name = "Timer";
             break;
-
+        case fDEFINE:
+            name = "PIN";
         }
         int count = 1;
         QString result;
@@ -363,6 +364,18 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
     StartComment(tss);
     tss << "End Prototypes Section\n";
     EndComment(tss);
+    StartComment(tss);
+    tss << "Start Defines Section\n";
+    EndComment(tss);
+    foreach(Node *node,nodes)
+        if (node->GetLogicType()==fDEFINE)
+            node->WriteSource(tss);
+    StartComment(tss);
+    tss << "End Defines Section\n";
+    EndComment(tss);
+
+
+
     StartComment(tss);
     tss << "End Header Section\n";
     EndComment(tss);

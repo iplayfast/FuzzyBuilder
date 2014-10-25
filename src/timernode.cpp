@@ -62,11 +62,12 @@ QString TimerNode::GetValueText() const
         return v1;
 }
 
-void TimerNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
+void TimerNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const
 {
  Return = "void ";
  Parameters = "()";
  FunctionReturn = "return Current;";
+ HasBrackets = true;
 }
 
 void TimerNode::WriteSourcePlainGuts(QTextStream &s) const

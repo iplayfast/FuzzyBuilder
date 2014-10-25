@@ -13,7 +13,7 @@ public:
     virtual void WriteHeader(QTextStream &h) const;
     void WriteNodeInfo(QTextStream &s) const;
     virtual QString MinText() const;
-    virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const;
+    virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const;
     virtual void WriteSourcePlainGuts(QTextStream &ts) const;
     virtual bool UsesMax() const { return false; }
     virtual QString Regenerate() const;

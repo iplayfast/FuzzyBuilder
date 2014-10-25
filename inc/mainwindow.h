@@ -49,7 +49,7 @@ private slots:
 
     void on_actionExit_triggered();
 
-    void on_AddLogic_clicked();
+    //void on_AddLogic_clicked();
 
 
     void on_ValueTable_clicked(const QModelIndex &index);
@@ -116,6 +116,7 @@ private slots:
     void AddSetup();
     void AddPID();
     void AddTimer();
+    void AddDefine();
     void AddNode(LOGICTYPE lt);
 
     void on_Extra_valueChanged(int value);
@@ -139,6 +140,7 @@ private:
     QAction *setupNodeAct;
     QAction *pidNodeAct;
     QAction *timerNodeAct;
+    QAction *defineNodeAct;
 signals:
     void editCompleted(const QString &);
 };

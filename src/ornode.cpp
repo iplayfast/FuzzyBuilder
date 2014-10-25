@@ -54,11 +54,12 @@ QString OrNode::MinText() const
     return  "The lowest possible value";
 }
 
-void OrNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
+void OrNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const
 {
     Return = "double ";
     Parameters = "()";
     FunctionReturn = " return Current;";
+    HasBrackets = true;
 }
 
 void OrNode::WriteSourcePlainGuts(QTextStream &ts) const

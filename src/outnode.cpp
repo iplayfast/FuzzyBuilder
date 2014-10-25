@@ -42,6 +42,18 @@ QString OutNode::Regenerate() const
     return s;
 }
 
+QString OutNode::InitizationCode() const
+{
+    QString s;
+    foreach(Edge *edge,edgeList)  {//outputs can go to many pins
+        Node *Outconst = edge->getSource();
+        if (Outconst->GetLogicType()==fDEFINE)  {
+            s += "   pinMode("; s += Outconst->getName(); s+= ",OUTPUT);\n";
+        }
+    }
+    return s;
+}
+
 QRectF OutNode::boundingRect() const
 {
 int width = 40;
@@ -50,9 +62,14 @@ qreal adjust = 2;
 return QRectF( -width - adjust, -height - adjust, 2 * width + adjust, 2 * height + adjust);
 }
 
-bool OutNode::AllowAttach(Node *) const
+bool OutNode::AllowAttach(Node *n) const
 {
-    return (edgeList.count()<1);
+    if (n->GetLogicType()==fDEFINE) return true;
+    foreach (Edge *edge,edgeList){
+       if (edge->getSource()->GetLogicType()!=fDEFINE)
+           return false;
+    }
+    return true;
 }
 
 
@@ -61,11 +78,12 @@ void OutNode::WriteHeader(QTextStream &h) const
     h << "void " << getName() << "(void);\n";
 }
 
-void OutNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
+void OutNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const
 {
     Return = "void ";
     Parameters = "()";
     FunctionReturn = "return; ";
+    HasBrackets = true;
 }
 
 

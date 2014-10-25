@@ -15,8 +15,9 @@ public:
 
     virtual void WriteHeader(QTextStream &h) const;
     void WriteNodeInfo(QTextStream &s) const;
-
-
+    virtual QString MinText() const { return "P"; }
+    virtual QString MaxText() const { return "I"; }
+    virtual QString ExtraText() const { return "D"; }
     virtual double Simulate();
     double get_p() const { return getIOMax(); }
     double get_i() const { return getIOMin(); }

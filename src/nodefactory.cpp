@@ -27,6 +27,8 @@ Node *NodeFactory::Create(GraphWidget *graphWidget, LOGICTYPE lt)
         return new PidNode(graphWidget);
     case fTIMER:
         return new TimerNode(graphWidget);
+    case fDEFINE:
+        return new DefineNode(graphWidget);
     default:
         throw "Bad LogicType";
     }
@@ -55,6 +57,8 @@ QString Line;
             if (TokenList[1]=="fOr") lt = fOR;
             if (TokenList[1]=="fAnd") lt = fAND;
             if (TokenList[1]=="fNOT") lt = fNOT;
+            if (TokenList[1]=="fNOT") lt = fNOT;
+            if (TokenList[1]=="fDefine") lt = fDEFINE;
 
             if (TokenList[1]=="fEdge")  {
                 lastNode = 0;
@@ -176,6 +180,17 @@ QString Line;
                 n->setIOMin(TokenList[5].toDouble());
                 // to do
             }
+            case fDEFINE:
+            {
+             DefineNode *n = new DefineNode(graphWidget);
+             lastNode = n;
+             n->setName(TokenList[2]);
+             n->setActiveValue(TokenList[3].toDouble());
+             n->setPos(TokenList[4].toDouble(),TokenList[5].toDouble());
+             n->setIOMin(TokenList[5].toDouble());
+            }
+                break;
+
             default:
                 throw "Bad LogicType";
             }

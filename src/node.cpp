@@ -93,8 +93,8 @@ Node::Node(GraphWidget *graphWidget)
     : graph(graphWidget)
 {
     MinScale = MaxScale = ExtraScale = 1.0;
-    width = 40;
-    height = 20;
+    width = getNodeWidth();
+    height = getNodeHeight();
     QGraphicsScene *scene = graph->scene();
     scene->addItem(this);
     setFlag(ItemIsMovable);
@@ -114,7 +114,7 @@ Node::Node(GraphWidget *graphWidget)
  */
 QIcon Node::generateIcon()
 {
-    QPixmap pixmap(48,48);
+    QPixmap pixmap(getNodeWidth(),getNodeHeight());
     pixmap.fill(Qt::white);
     QPainter painter(&pixmap);
     painter.setRenderHint(QPainter::Antialiasing, true);
@@ -124,7 +124,7 @@ QIcon Node::generateIcon()
     QPainterPath s = shape();
     QRectF r = s.boundingRect();
     painter.translate(0,0);
-    painter.scale(48.0 /r1.width() ,48 / r1.height());
+    painter.scale(getNodeWidth() /r1.width() ,getNodeHeight() / r1.height());
     painter.translate(-r.x(),-r.y());
     painter.drawPath(s);
     QString nodetype = gettype();
@@ -132,12 +132,12 @@ QIcon Node::generateIcon()
     QFont f = painter.font();
     f.setBold(true);
     painter.setFont(f);
-    QPointF p(-24,0);
+    QPointF p(-getNodeWidth()/2,0);
     painter.drawText(r,Qt::AlignHCenter | Qt::AlignBottom,nodetype);
 
     painter.end();
 
-    pixmap.scaled(48,48);
+    pixmap.scaled(getNodeWidth(),getNodeHeight());
     return QIcon(pixmap);
 }
 
@@ -210,6 +210,27 @@ bool Node::CheckSetSourceBeenWritten()
     if (SourceBeenWritten)   return true;
     SourceBeenWritten = true;
     return false;
+}
+
+QString Node::getIOMinText() const
+{
+    QString ss;
+    ss.sprintf("%05.5f",getIOMin());
+    return ss;
+}
+
+QString Node::getIOMaxText() const
+{
+    QString ss;
+    ss.sprintf("%05.5f",getIOMax());
+    return ss;
+}
+
+QString Node::getExtraText() const
+{
+    QString ss;
+    ss.sprintf("%05.5f",this->getActiveValue());
+    return ss;
 }
 
 double Node::Normalize(double value) const
@@ -286,11 +307,12 @@ void Node::addEdge(Edge *edge)
     edge->adjust();
 }
 
-void Node::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
+void Node::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const
 {
     Return = "void ";
     Parameters = "(void)";
     FunctionReturn = "return;";
+    HasBrackets = true;
 }
 
 
@@ -326,9 +348,11 @@ void Node::WriteSourceUserBefore(QTextStream &s) const
 void Node::WriteSourceUserGuts(QTextStream &s) const
 {
     QString Return,Parameters,ub,ua,FunctionReturn;
-
-    this->FunctionData(Return,Parameters,FunctionReturn);
-    s << Return << " " << this->getName() << Parameters << "\n{\n";
+    bool HasBrackets;
+    this->FunctionData(Return,Parameters,FunctionReturn,HasBrackets);
+    s << Return << " " << this->getName() << Parameters << "\n";
+    if (HasBrackets)
+        s << "{\n";
     if (UserGuts!="") {
         s << "//!!USERBefore!!" << Name << "\n";
         s << UserGuts;
@@ -336,7 +360,9 @@ void Node::WriteSourceUserGuts(QTextStream &s) const
     }
     else
         WriteSourcePlainGuts(s);
-    s << FunctionReturn << "\n}\n\n";    
+    s << FunctionReturn << "\n";
+    if (HasBrackets)
+        s << "{\n\n";
 }
 
 void Node::WriteSourcePlainGuts(QTextStream &s) const
@@ -464,7 +490,7 @@ int w2 = sceneRect.width()/2;
         break;
     }
 
-//! [4]
+
     // Now subtract all forces pulling items together
     double weight = (edgeList.size() + 1) * 10;
     foreach (Edge *edge, edgeList) {

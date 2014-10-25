@@ -53,7 +53,7 @@ public:
     virtual QPainterPath shape() const;
 
     virtual void addEdge(Edge *edge);
-    virtual void FunctionData(QString &Return,QString &Parameters,QString &FunctionReturn) const;
+    virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const;
 
 
     // scale up the input so we can simulate more varience
@@ -108,6 +108,8 @@ protected:
      virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/);
      virtual QString gettype() const=0;
     bool CheckSetSourceBeenWritten();
+    int getNodeWidth() { return 48; }
+    int getNodeHeight() { return 48; }
 private:    
     bool SourceBeenWritten;
     LOGICTYPE fType;
@@ -120,6 +122,9 @@ private:
     double IOMax;   // pid_i
     double ActiveValue; // pid_d
 public:
+    virtual QString getIOMinText()const;
+    virtual QString getIOMaxText() const;
+    virtual QString getExtraText() const;
 
     virtual QString GetValueText() const;
     bool getSelected() const;
@@ -185,7 +190,7 @@ public:
     void setInValue(double value);
     double Normalize(double value) const;
     double UnNormalize(double value) const;
-
+    virtual QString InitizationCode() const { return ""; }
 private:
     bool selected;
     double Current;

@@ -12,7 +12,7 @@
 #include "notnode.h"
 #include "pidnode.h"
 #include "timernode.h"
-
+#include "DefineNode.h"
 
 class NodeFactory
 {

@@ -47,11 +47,26 @@ void SetupNode::WriteNodeInfo(QTextStream &s) const
     Node::WriteNodeInfo(s);
 }
 
-void SetupNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
+void SetupNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const
 {
- Return = "void ";
- Parameters = "()";
- FunctionReturn = "return;";
+    Return = "void ";
+    Parameters = "()";
+    FunctionReturn = "";
+    HasBrackets = true;
+}
+
+QString SetupNode::Regenerate() const
+{
+    QString s;
+    QList<Node *> nodes;
+    foreach (QGraphicsItem *item, scene()->items()) {
+        if (Node *node = qgraphicsitem_cast<Node *>(item))
+            nodes << node;
+    }
+    foreach (Node *node,nodes) {
+          s += node->InitizationCode();
+    }
+    return s;
 }
 
 void SetupNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)

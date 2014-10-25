@@ -99,9 +99,7 @@ const Node *cActive = Active; // use a const here so we can't change the Node at
         ui->Min->setStatusTip("The minimum expected value");
 
 
-        QString ss;
-        ss.sprintf("%05.5f",cActive->getIOMin());
-        ui->MinText->setText(ss);
+        ui->MinText->setText(cActive->getIOMinText());
         ui->MinText->setVisible(true);
         //on_Min_valueChanged(Active->IOMin);
     }
@@ -144,9 +142,7 @@ const Node *cActive = Active;
         ui->MaxTitle->setVisible(true);
         ui->MaxTitle->setText(cActive->MaxText());
         ui->Max->setStatusTip("The maximum expected value");
-        QString ss;
-        ss.sprintf("%05.5f",cActive->getIOMax());
-        ui->MaxText->setText(ss);
+        ui->MaxText->setText(cActive->getIOMaxText());
         ui->MaxText->setVisible(true);
         //on_Max_valueChanged(Active->IOMax);
     }
@@ -261,6 +257,7 @@ void MainWindow::SelectNode(Node *np)
             on_Min_valueChanged(np->getActiveValue());
             break;
         case fNOT:
+        case fDEFINE:
             break;
         case fFUZZY:
         {
@@ -445,7 +442,8 @@ void MainWindow::on_actionExit_triggered()
 
 
 
-void MainWindow::on_AddLogic_clicked()
+/*
+ * void MainWindow::on_AddLogic_clicked()
 {
     // Add Logic
     AddLogic *al = new AddLogic(this);
@@ -492,7 +490,7 @@ void MainWindow::on_AddLogic_clicked()
     SelectNode(node1);
 
 }
-
+*/
 
 void MainWindow::on_ValueTable_clicked(const QModelIndex &/*index*/)
 {
@@ -864,11 +862,14 @@ void MainWindow::on_regenerate_clicked()
         Active->WriteSourcePlainGuts(ss);
         ui->FunctionBody->setPlainText(os);
         QString Return,Parameters,FunctionReturn;
-        Active->FunctionData(Return,Parameters,FunctionReturn);
+        bool HasBrackets;
+        Active->FunctionData(Return,Parameters,FunctionReturn,HasBrackets);
         Active->setUserGuts("");
         ui->FunctionReturn->setText(Return);
         ui->FunctionParameters->setText(Parameters);
-        ui->FunctionBodyReturn->setText(FunctionReturn);
+        ui->FunctionBodyReturn->setText(FunctionReturn);        
+        ui->Bracket1->setText(HasBrackets ? "{" : "");
+        ui->Bracket2->setText(HasBrackets ? "}" : "");
     }
 }
 
@@ -885,11 +886,15 @@ void MainWindow::on_tabWidget_currentChanged(int index)
         if (s=="") s = os;
         ui->FunctionBody->setPlainText(s);
         QString Return,Parameters,FunctionReturn;
+        bool HasBrackets;
         ui->FunctionHeader->setText(Active->getName());
-        Active->FunctionData(Return,Parameters,FunctionReturn);
+        Active->FunctionData(Return,Parameters,FunctionReturn,HasBrackets);
         ui->FunctionReturn->setText(Return);
         ui->FunctionParameters->setText(Parameters);
         ui->FunctionBodyReturn->setText(FunctionReturn);
+        ui->Bracket1->setText(HasBrackets ? "{" : "");
+        ui->Bracket2->setText(HasBrackets ? "}" : "");
+
         return;
     }
     if (index==0) {
@@ -922,10 +927,7 @@ void MainWindow::on_MinText_editingFinished()
         }
         else {
             QMessageBox::information(NULL, "Bad Value","Number Expected");
-
-            QString ss;
-            ss.sprintf("%05.5f",Active->getIOMin());
-            ui->MinText->setText(ss);
+            ui->MinText->setText(Active->getIOMinText());
         }
     }
     catch(...)
@@ -947,10 +949,7 @@ void MainWindow::on_MaxText_editingFinished()
         }
         else {
             QMessageBox::information(NULL, "Bad Value","Integer Value Expected");
-
-            QString ss;
-            ss.sprintf("%05.5f",Active->getIOMax());
-            ui->MinText->setText(ss);
+            ui->MaxText->setText(Active->getIOMaxText());
         }
     }
     catch(...)
@@ -1009,6 +1008,11 @@ void MainWindow::AddTimer()
     AddNode(fTIMER);
 }
 
+void MainWindow::AddDefine()
+{
+    AddNode(fDEFINE);
+}
+
 void MainWindow::AddNode(LOGICTYPE lt)
 {
 
@@ -1036,6 +1040,7 @@ void MainWindow::createToolBars()
     editToolBar->addAction(setupNodeAct);
     editToolBar->addAction(pidNodeAct);
     editToolBar->addAction(timerNodeAct);
+    editToolBar->addAction(defineNodeAct);
 
 }
 
@@ -1100,6 +1105,13 @@ void MainWindow::createActions()
     timerNodeAct->setStatusTip(tr("Add a timer node"));
     connect(timerNodeAct, SIGNAL(triggered()), this, SLOT(AddTimer()));
     delete node;
+
+    node = NodeFactory::Create(ui->graphicsView,fDEFINE);
+    defineNodeAct = new QAction(node->generateIcon(), tr("&Def"), this);
+    defineNodeAct->setStatusTip(tr("Add a timer node"));
+    connect(defineNodeAct, SIGNAL(triggered()), this, SLOT(AddDefine()));
+    delete node;
+
 
 }
 

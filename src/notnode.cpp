@@ -57,11 +57,12 @@ void NotNode::WriteNodeInfo(QTextStream &s) const
     Node::WriteNodeInfo(s);    
 }
 
-void NotNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
+void NotNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const
 {
     Return = "double ";
     Parameters = "()";
     FunctionReturn = "return 1.0 - Value;";
+    HasBrackets = true;
 }
 
 

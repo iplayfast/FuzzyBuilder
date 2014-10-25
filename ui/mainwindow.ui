@@ -167,7 +167,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="ValueTab">
      <attribute name="title">
@@ -615,7 +615,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="Bracket1">
          <property name="text">
           <string>{</string>
          </property>
@@ -673,7 +673,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QLabel" name="label_2">
+     <widget class="QLabel" name="Bracket2">
       <property name="geometry">
        <rect>
         <x>0</x>

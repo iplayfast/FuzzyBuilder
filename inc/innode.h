@@ -6,12 +6,13 @@ class InNode : public Node
 public:
     InNode(GraphWidget *graphWidget);
     virtual QRectF boundingRect() const;
-    virtual bool AllowAttach(Node *) const;
+    virtual bool AllowAttach(Node *n) const;
     virtual void WriteHeader(QTextStream &h) const;
     virtual void WriteNodeInfo(QTextStream &ts) const;
-    virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const;
+    virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const;
     virtual void WriteSourcePlainGuts(QTextStream &ts) const;
     virtual QString Regenerate() const;
+    virtual QString InitizationCode() const;
     virtual double Simulate();
     virtual QPainterPath shape() const;
     virtual QString MinText()const  { return "Min possible Real world input value"; }

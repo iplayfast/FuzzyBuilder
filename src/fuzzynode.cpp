@@ -56,11 +56,12 @@ void FuzzyNode::WriteNodeInfo(QTextStream &s) const
     Node::WriteNodeInfo(s);
 }
 
-void FuzzyNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
+void FuzzyNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const
 {
     Return = "double ";
     Parameters = "()";
     FunctionReturn = "return Value;";
+    HasBrackets = true;
 }
 
 

@@ -9,7 +9,7 @@ public:
     virtual bool AllowAttach(Node *) const;
     virtual void WriteHeader(QTextStream &h) const;
     void WriteNodeInfo(QTextStream &s) const;
-    virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const;
+    virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const;
     virtual void WriteSourcePlainGuts(QTextStream &s) const;
     virtual double Simulate();
     virtual QPainterPath shape() const;

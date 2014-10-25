@@ -14,7 +14,4 @@ TEMPLATE = app
 
 include(FuzzyBuilder.pri)
 
-HEADERS += \
-    inc/logictype.h
-
 

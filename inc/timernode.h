@@ -14,7 +14,7 @@ public:
     virtual int MaxOfMin()const;
     virtual QString GetValueText() const;
     virtual bool UsesMax() const { return false; }
-    virtual void FunctionData(QString &Return,QString &Parameters,QString &FunctionReturn) const;
+    virtual void FunctionData(QString &Return,QString &Parameters,QString &FunctionReturn, bool &HasBrackets) const;
     void WriteSourcePlainGuts(QTextStream &s) const;
     virtual QString Regenerate() const;
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/);

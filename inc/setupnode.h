@@ -10,8 +10,8 @@ public:
     virtual bool AllowAttach(Node *) const;
     virtual void WriteHeader(QTextStream &h) const;
     void WriteNodeInfo(QTextStream &s) const;
-virtual void FunctionData(QString &Return,QString &Parameters,QString &FunctionReturn) const;
-
+virtual void FunctionData(QString &Return,QString &Parameters,QString &FunctionReturn, bool &HasBrackets) const;
+virtual QString Regenerate() const;
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/);
 virtual void setName(const QString &value);
     virtual double Simulate() { return 0;} // setup doesn't do any simulations
