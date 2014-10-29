@@ -7,13 +7,15 @@ QString FormatLabel(const char *text, double min, double v, double max)
     ss.sprintf("%s %05.5f>=%05.5f<=%05.5f",text,min,v,max);
     return ss;
 }
-
+bool verbose=true;
 void StartComment(QTextStream &s)
 {
+    if (verbose)
     s << "/**************************************************************\n";
 }
 
 void EndComment(QTextStream &s)
 {
+    if (verbose)
     s << "***************************************************************/\n";
 }

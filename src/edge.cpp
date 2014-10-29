@@ -58,12 +58,14 @@ Edge::Edge(Node *sourceNode, Node *destNode)
     source->addEdge(this);
     dest->addEdge(this);
     adjust();
+
 }
 
 void Edge::adjust()
 {
     if (!source || !dest)
         return;
+
 
     QLineF line(mapFromItem(source, 0, 0), mapFromItem(dest, 0, 0));
     qreal length = line.length();
@@ -188,16 +190,6 @@ void Edge::drawRotatedText(QPainter *painter, float degrees, int x, int y, const
     painter->drawText(0, 0, text);
     painter->restore();
   }
-void Edge::mousePressEvent(QGraphicsSceneMouseEvent */*event*/)
-{
-    /*int src = sourceNode()->edges().indexOf(this);
-    int dest= this->destNode()->edges().indexOf(this);
-    sourceNode()->edges().removeOne(this);
-    destNode()->edges().removeOne(this);
-    source = 0;
-    dest = 0;*/
-//    delete this;
-}
 Node *Edge::getDest() const
 {
     return dest;

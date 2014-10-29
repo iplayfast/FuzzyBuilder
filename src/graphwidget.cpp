@@ -343,50 +343,55 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
 
 
 
-
-    StartComment(tss);
-    tss << "Header Section\n";
-    EndComment(tss);
-    StartComment(tss);
-    tss << "Includes Section\n";
-    EndComment(tss);
+    if (verbose)    {
+        StartComment(tss);
+        tss << "Header Section\n";
+        EndComment(tss);
+        StartComment(tss);
+        tss << "Includes Section\n";
+        EndComment(tss);
+    }
     foreach (Node *node, nodes)
         node->WriteIncludes(tsh);
-    StartComment(tss);
-    tss << "End Includes Section\n";
-    EndComment(tss);
+    if (verbose) {
+        StartComment(tss);
+        tss << "End Includes Section\n";
+        EndComment(tss);
 
-    StartComment(tss);
-    tss << "Prototypes Section\n";
-    EndComment(tss);
+        StartComment(tss);
+        tss << "Prototypes Section\n";
+        EndComment(tss);
+    }
     foreach (Node *node, nodes)
         node->WriteHeader(tsh);
-    StartComment(tss);
-    tss << "End Prototypes Section\n";
-    EndComment(tss);
-    StartComment(tss);
-    tss << "Start Defines Section\n";
-    EndComment(tss);
-    foreach(Node *node,nodes)
-        if (node->GetLogicType()==fDEFINE)
-            node->WriteSource(tss);
-    StartComment(tss);
-    tss << "End Defines Section\n";
-    EndComment(tss);
-
-
-
-    StartComment(tss);
-    tss << "End Header Section\n";
-    EndComment(tss);
-
-
-
-
-
+    if (verbose)    {
+        StartComment(tss);
+        tss << "End Prototypes Section\n";
+        EndComment(tss);
+        StartComment(tss);
+        tss << "Start Defines Section\n";
+        EndComment(tss);
+    }
     foreach (Node *node, nodes) {
         node->setSourceBeenWritten(false);
     }
+
+
+    foreach(Node *node,nodes)
+        if (node->GetLogicType()==fDEFINE)
+            node->WriteSource(tss);
+    if (verbose) {
+        StartComment(tss);
+        tss << "End Defines Section\n";
+        EndComment(tss);
+
+        StartComment(tss);
+        tss << "End Header Section\n";
+        EndComment(tss);
+
+    }
+
+
 
 
     foreach (Node *node,nodes) {
@@ -409,10 +414,11 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
             tss << "  " << node->getName() << "();\n";
     }
     tss << "}\n\n\n";
-
+    if (verbose)    {
     StartComment(tss);
     tss<< "These are the Logic Blocks written by the Fuzzybuilder\n";
     EndComment(tss);
+    }
     foreach (Node *node, nodes) {
         if (node->GetLogicType()==fOUT)
             node->WriteSource(tss); // the output nodes write out any connections they have to them recursively
@@ -432,9 +438,11 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
             node->WriteSource(tss);
         }
     }
+
     StartComment(tss);
-    tss << "FuzzyBuilder Layout Section\n";
+    tss << "//FuzzyBuilder Layout Section\n";
     EndComment(tss);
+
     foreach(Node *node,nodes)   {
         node->WriteNodeInfo(tss);
     }
@@ -442,20 +450,22 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
         node->WriteEdges(tss);
     }
 
+    if (verbose)    {
+        StartComment(tss);
+        tss << "End FuzzyBuilder Layout Section\n";
+        EndComment(tss);
 
-    StartComment(tss);
-    tss << "End FuzzyBuilder Layout Section\n";
-    EndComment(tss);
 
-
-    StartComment(tss);
-    tss << "FuzzyBuilder Group Section\n";
-    EndComment(tss);
+        StartComment(tss);
+        tss << "FuzzyBuilder Group Section\n";
+        EndComment(tss);
+    }
     wp->WriteGroups(tss);
-    StartComment(tss);
-    tss << "End FuzzyBuilder Group Section\n";
-    EndComment(tss);
-
+    if (verbose) {
+        StartComment(tss);
+        tss << "End FuzzyBuilder Group Section\n";
+        EndComment(tss);
+    }
 
 }
 

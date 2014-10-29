@@ -373,7 +373,7 @@ void MainWindow::WriteGroups(QTextStream &h)
 }
 
 void MainWindow::WriteSource(QTextStream &h, QTextStream &s)
-{    
+{        
     ui->graphicsView->WriteSource(h,s);
 }
 
@@ -1125,4 +1125,9 @@ QString filename;
        if (filename.isEmpty())
            return;
        SaveFile(filename,true);
+}
+
+void MainWindow::on_Verbose_clicked()
+{
+    verbose = (ui->Verbose->checkState() == Qt::Checked) || (ui->Verbose->checkState() == Qt::PartiallyChecked);
 }

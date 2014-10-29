@@ -123,6 +123,8 @@ private slots:
 
     void on_actionSave_arduino_triggered();
 
+    void on_Verbose_clicked();
+
 private:
     bool Frozen;
     Ui::MainWindow *ui;

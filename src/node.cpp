@@ -362,7 +362,7 @@ void Node::WriteSourceUserGuts(QTextStream &s) const
         WriteSourcePlainGuts(s);
     s << FunctionReturn << "\n";
     if (HasBrackets)
-        s << "{\n\n";
+        s << "}\n\n";
 }
 
 void Node::WriteSourcePlainGuts(QTextStream &s) const

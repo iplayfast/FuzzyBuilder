@@ -53,7 +53,7 @@
      <rect>
       <x>130</x>
       <y>0</y>
-      <width>791</width>
+      <width>797</width>
       <height>29</height>
      </rect>
     </property>
@@ -111,6 +111,13 @@
          <string>Show All</string>
         </property>
        </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="Verbose">
+       <property name="text">
+        <string>Verbose</string>
+       </property>
       </widget>
      </item>
      <item>
