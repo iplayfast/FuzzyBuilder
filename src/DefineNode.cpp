@@ -10,7 +10,6 @@ DefineNode::DefineNode(GraphWidget *graphWidget) : Node(graphWidget)
     setPos(0,exposedRect.height() / 2);
     if (!FindNewVertPosition(-1))
         FindNewVertPosition(1);
-
     this->setCurrent(0);
     this->setActive(0);
     this->setInValue(0);

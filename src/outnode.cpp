@@ -25,7 +25,7 @@ QString OutNode::Regenerate() const
     QString s;    
     foreach (Edge *edge, edgeList)
     {
-        if (edge->getSource()!=this) // only one possible
+        if (edge->getSource()!=this && edge->getSource()->GetLogicType()!=fDEFINE) // only one possible
         {
             QString min,max;
             min.sprintf("%05.5f",getIOMin());

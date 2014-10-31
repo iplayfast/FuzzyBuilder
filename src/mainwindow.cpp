@@ -3,7 +3,6 @@
 
 #include "ui_mainwindow.h"
 #include "viewsourcedialog.h"
-#include "addlogic.h"
 #include "groups.h"
 #include "nodefactory.h"
 #include "fuzzynode.h"
@@ -786,22 +785,6 @@ void MainWindow::on_DelLogic_clicked()
    }
 }
 
-void MainWindow::on_EditLogic_clicked()
-{
-    if (Active) {
-        AddLogic *al = new AddLogic(this);
-        al->Load(Active);
-        al->HideType();
-        int r = al->exec();
-        if (r==0) {
-            delete al;
-            return;
-        }
-        Active->setName(al->getName());
-        delete al;
-        return;
-    }
-}
 
 void MainWindow::on_actionView_as_Arduino_Source_triggered()
 { // view as arduino source

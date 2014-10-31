@@ -51,26 +51,13 @@
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>6</x>
       <y>0</y>
-      <width>797</width>
+      <width>921</width>
       <height>29</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_11">
-     <item>
-      <widget class="QPushButton" name="AddLogic">
-       <property name="maximumSize">
-        <size>
-         <width>8000</width>
-         <height>40</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Add Logic</string>
-       </property>
-      </widget>
-     </item>
      <item>
       <widget class="QPushButton" name="DelLogic">
        <property name="text">

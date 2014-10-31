@@ -13,7 +13,7 @@ virtual QPainterPath shape() const;
         virtual double Simulate() { return getIOMin(); }
     virtual bool AllowAttach(Node *) const { return false; }
     virtual QString Regenerate() const;
-    virtual int MaxOfMin()const { return 1023; }
+    virtual int MaxOfMin()const { return 100; }
     virtual void WriteNodeInfo(QTextStream &ts) const;
     virtual void FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const;
     virtual void WriteSourcePlainGuts(QTextStream &ts) const;

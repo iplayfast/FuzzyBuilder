@@ -4,7 +4,6 @@ DEPENDPATH += $$PWD
  
 SOURCES += src/main.cpp\
         src/mainwindow.cpp \
-    src/addlogic.cpp \
     src/TFuzzy.c \
     src/node.cpp \
     src/graphwidget.cpp \
@@ -29,7 +28,6 @@ SOURCES += src/main.cpp\
 
 HEADERS  += inc/mainwindow.h \
     inc/logictype.h \
-    inc/addlogic.h \
     inc/node.h \
     inc/TFuzzy.h \
     inc/graphwidget.h \
@@ -54,7 +52,7 @@ HEADERS  += inc/mainwindow.h \
     inc/DefineNode.h
 
 
-FORMS += ui/addlogic.ui \
+FORMS += \
 	ui/groups.ui \
         ui/mainwindow.ui \
         ui/viewsourcedialog.ui

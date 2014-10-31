@@ -80,12 +80,13 @@ void TimerNode::WriteSourcePlainGuts(QTextStream &s) const
 QString TimerNode::Regenerate() const
 {
     QString ss;
-        ss.sprintf("%u",(unsigned long)this->getIOMin());
+        ss.sprintf("%u",(unsigned int)this->getIOMin());
 
-    QString s = "static double Current=-1.0;// first time call flag value\n";
-    s += "static unsigned long milliseconds;\nunsigned long ms;\n";
+    QString s = "\\\\ timer checks the input value every "; s+=ss; s+=" milliseconds and always returns last value obtained\n";
+            s += "static double Current=0;\n";
+    s += "static unsigned long milliseconds=0;\nunsigned long ms;\n";
     s += "    ms = millis(); // arduino specific\n";
-    s += "    if (ms>=milliseconds || Current==-1.0) {\n";
+    s += "    if (ms>=milliseconds ) {\n";
     s += "        milliseconds = ms + "; s += ss; s += " - (ms - milliseconds);\n";
     foreach (Edge *edge, edgeList) {
                 if (edge->getSource()!=this)

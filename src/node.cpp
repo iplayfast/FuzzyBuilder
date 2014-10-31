@@ -466,6 +466,7 @@ QPointF vec = pos();
 int w2 = sceneRect.width()/2;
     switch(this->GetLogicType()){
     case fSETUP:
+    case fDEFINE:
         xvel -=50;
         yvel -= 50;
         break;

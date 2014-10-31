@@ -393,6 +393,8 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
 
 
 
+    {
+        bool setupdone = false;
 
     foreach (Node *node,nodes) {
         if (node->GetLogicType()==fSETUP)   {
@@ -400,10 +402,20 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
             tss << "//the setup routine runs once when you press reset\n";
             EndComment(tss);
             node->WriteSource(tss);
+            setupdone = true;
             break; // only one setup
         }
     }
-
+    if (!setupdone) {
+        StartComment(tss);
+        tss << "//the setup routine runs once when you press reset\n";
+        EndComment(tss);
+        tss << "void setup()\n{\n";
+        foreach (Node *node,nodes)
+            tss << node->InitizationCode();
+        tss << "}\n\n";
+    }
+    }
     StartComment(tss);
     tss << "// the loop routine runs over and over again forever\n";
     EndComment(tss);

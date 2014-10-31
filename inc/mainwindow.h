@@ -90,7 +90,6 @@ private slots:
 
     void on_DelLogic_clicked();
 
-    void on_EditLogic_clicked();
 
     void on_actionView_as_Arduino_Source_triggered();
 
