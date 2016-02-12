@@ -65,7 +65,7 @@ public slots:
     void zoomIn();
     void zoomOut();
     void simulate();
-    void WriteSource(QTextStream &tsh, QTextStream &tss);
+    void WriteSource(QTextStream &textstreamHeader, QTextStream &textstreamsrc);
 protected:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);

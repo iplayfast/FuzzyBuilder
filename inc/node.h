@@ -24,7 +24,7 @@ QT_END_NAMESPACE
 
 
 //! [0]
-class Node : public QGraphicsItem
+class Node : public QObject, public QGraphicsItem
 {
     struct lmc{
         bool Used;
@@ -111,6 +111,7 @@ protected:
     int getNodeWidth() { return 48; }
     int getNodeHeight() { return 48; }
 private:    
+    bool HeaderBeenWritten;
     bool SourceBeenWritten;
     LOGICTYPE fType;
     double MinScale; // normally 1.0 unless dealing with real world IO values
@@ -145,9 +146,6 @@ public:
 
     QString getName() const;
     virtual void setName(const QString &value);
-
-    bool getBeenWritten() const;
-    void setBeenWritten(bool value);
 
     QString getInLineText() const;
     void setINTEXT(const QString &value);
@@ -191,6 +189,11 @@ public:
     double Normalize(double value) const;
     double UnNormalize(double value) const;
     virtual QString InitizationCode() const { return ""; }
+    bool getHeaderBeenWritten() const;
+    void setHeaderBeenWritten(bool value);
+
+public slots:
+    void OnClick();
 private:
     bool selected;
     double Current;

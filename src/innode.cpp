@@ -35,7 +35,7 @@ QString InNode::Regenerate() const
     max.sprintf("%05.5f",getIOMax());
 
 
-    s = "double RealWorldMin = "; s+= min; s+= ",RealWorldMax = "; s+= max; s+= ";\n";
+    s = "const double RealWorldMin = "; s+= min; s+= ",RealWorldMax = "; s+= max; s+= ";\n";
     if (!edgeList.isEmpty())
     {
         Edge *e = edgeList.first();

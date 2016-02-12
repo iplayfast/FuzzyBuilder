@@ -14,4 +14,7 @@ TEMPLATE = app
 
 include(FuzzyBuilder.pri)
 
+RESOURCES += \
+    res.qrc
+
 

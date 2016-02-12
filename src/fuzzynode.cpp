@@ -43,7 +43,8 @@ void FuzzyNode::WriteHeader(QTextStream &h) const
 
 void FuzzyNode::WriteIncludes(QTextStream &h) const
 {
-    h << "#include <Fuzzy.h>\n";
+    if (!this->getHeaderBeenWritten())
+        h << "#include <Fuzzy.h>\n";
 }
 
 void FuzzyNode::WriteNodeInfo(QTextStream &s) const
@@ -82,10 +83,11 @@ void FuzzyNode::WriteSourcePlainGuts(QTextStream &s) const
         if (edge->getSource()!=this)
         {
             //edge->getSource()->WriteSourceUserGuts(s);
-            s << "   double value = Value((const struct TFuzzy *)&TFuzzy" << edge->getSource()->getName() << ");\n";
-            return; // only one incoming edge ever
+            s << "   double value = Value((&TFuzzy"<<getName() <<"," << edge->getSource()->getName() << ");\n";
+            return; // only one incoming edge ever so we can safely return here
         }
     }
+    // no incoming edges were found
     s << "// unused fuzzy logic node\n";
 
 }

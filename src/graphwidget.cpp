@@ -333,7 +333,7 @@ Node *GraphWidget::FindNode(QString &name)
     return 0;
 }
 
-void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
+void GraphWidget::WriteSource(QTextStream &textstreamHeader, QTextStream &textstreamsrc)
 {
     QList<Node *> nodes;
     foreach (QGraphicsItem *item, scene()->items()) {
@@ -344,33 +344,38 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
 
 
     if (verbose)    {
-        StartComment(tss);
-        tss << "Header Section\n";
-        EndComment(tss);
-        StartComment(tss);
-        tss << "Includes Section\n";
-        EndComment(tss);
+        StartComment(textstreamsrc);
+        textstreamsrc << "Header Section\n";
+        EndComment(textstreamsrc);
+        StartComment(textstreamsrc);
+        textstreamsrc << "Includes Section\n";
+        EndComment(textstreamsrc);
     }
-    foreach (Node *node, nodes)
-        node->WriteIncludes(tsh);
+    foreach (Node *node, nodes) {
+        node->setHeaderBeenWritten(false);
+    }
+    foreach (Node *node, nodes) {
+        node->WriteIncludes(textstreamHeader);// will only write out if it hasn't been written yet
+        node->setHeaderBeenWritten(true);
+    }
     if (verbose) {
-        StartComment(tss);
-        tss << "End Includes Section\n";
-        EndComment(tss);
+        StartComment(textstreamsrc);
+        textstreamsrc << "End Includes Section\n";
+        EndComment(textstreamsrc);
 
-        StartComment(tss);
-        tss << "Prototypes Section\n";
-        EndComment(tss);
+        StartComment(textstreamsrc);
+        textstreamsrc << "Prototypes Section\n";
+        EndComment(textstreamsrc);
     }
     foreach (Node *node, nodes)
-        node->WriteHeader(tsh);
+        node->WriteHeader(textstreamHeader);
     if (verbose)    {
-        StartComment(tss);
-        tss << "End Prototypes Section\n";
-        EndComment(tss);
-        StartComment(tss);
-        tss << "Start Defines Section\n";
-        EndComment(tss);
+        StartComment(textstreamsrc);
+        textstreamsrc << "End Prototypes Section\n";
+        EndComment(textstreamsrc);
+        StartComment(textstreamsrc);
+        textstreamsrc << "Start Defines Section\n";
+        EndComment(textstreamsrc);
     }
     foreach (Node *node, nodes) {
         node->setSourceBeenWritten(false);
@@ -379,15 +384,15 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
 
     foreach(Node *node,nodes)
         if (node->GetLogicType()==fDEFINE)
-            node->WriteSource(tss);
+            node->WriteSource(textstreamsrc);
     if (verbose) {
-        StartComment(tss);
-        tss << "End Defines Section\n";
-        EndComment(tss);
+        StartComment(textstreamsrc);
+        textstreamsrc << "End Defines Section\n";
+        EndComment(textstreamsrc);
 
-        StartComment(tss);
-        tss << "End Header Section\n";
-        EndComment(tss);
+        StartComment(textstreamsrc);
+        textstreamsrc << "End Header Section\n";
+        EndComment(textstreamsrc);
 
     }
 
@@ -398,42 +403,42 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
 
     foreach (Node *node,nodes) {
         if (node->GetLogicType()==fSETUP)   {
-            StartComment(tss);
-            tss << "//the setup routine runs once when you press reset\n";
-            EndComment(tss);
-            node->WriteSource(tss);
+            StartComment(textstreamsrc);
+            textstreamsrc << "//the setup routine runs once when you press reset\n";
+            EndComment(textstreamsrc);
+            node->WriteSource(textstreamsrc);
             setupdone = true;
             break; // only one setup
         }
     }
     if (!setupdone) {
-        StartComment(tss);
-        tss << "//the setup routine runs once when you press reset\n";
-        EndComment(tss);
-        tss << "void setup()\n{\n";
+        StartComment(textstreamsrc);
+        textstreamsrc << "//the setup routine runs once when you press reset\n";
+        EndComment(textstreamsrc);
+        textstreamsrc << "void setup()\n{\n";
         foreach (Node *node,nodes)
-            tss << node->InitizationCode();
-        tss << "}\n\n";
+            textstreamsrc << node->InitizationCode();
+        textstreamsrc << "}\n\n";
     }
     }
-    StartComment(tss);
-    tss << "// the loop routine runs over and over again forever\n";
-    EndComment(tss);
-    tss << "void loop() {\n";
-    tss << "//each output is called and it calls any inputs connected to it\n";
+    StartComment(textstreamsrc);
+    textstreamsrc << "// the loop routine runs over and over again forever\n";
+    EndComment(textstreamsrc);
+    textstreamsrc << "void loop() {\n";
+    textstreamsrc << "//each output is called and it calls any inputs connected to it\n";
     foreach (Node *node, nodes) {
         if (node->GetLogicType()==fOUT)
-            tss << "  " << node->getName() << "();\n";
+            textstreamsrc << "  " << node->getName() << "();\n";
     }
-    tss << "}\n\n\n";
+    textstreamsrc << "}\n\n\n";
     if (verbose)    {
-    StartComment(tss);
-    tss<< "These are the Logic Blocks written by the Fuzzybuilder\n";
-    EndComment(tss);
+    StartComment(textstreamsrc);
+    textstreamsrc<< "These are the Logic Blocks written by the Fuzzybuilder\n";
+    EndComment(textstreamsrc);
     }
     foreach (Node *node, nodes) {
         if (node->GetLogicType()==fOUT)
-            node->WriteSource(tss); // the output nodes write out any connections they have to them recursively
+            node->WriteSource(textstreamsrc); // the output nodes write out any connections they have to them recursively
     }
     bool notice = true;
 
@@ -442,41 +447,41 @@ void GraphWidget::WriteSource(QTextStream &tsh, QTextStream &tss)
         {
             if (notice) {
                 notice = false;
-                tss << "\n\n";
-                StartComment(tss);
-                tss << "// the following Logic Block(s) are not used\n//But are available for use with the FuzzyBuilder\n";
-                EndComment(tss);
+                textstreamsrc << "\n\n";
+                StartComment(textstreamsrc);
+                textstreamsrc << "// the following Logic Block(s) are not used\n//But are available for use with the FuzzyBuilder\n";
+                EndComment(textstreamsrc);
             }
-            node->WriteSource(tss);
+            node->WriteSource(textstreamsrc);
         }
     }
 
-    StartComment(tss);
-    tss << "//FuzzyBuilder Layout Section\n";
-    EndComment(tss);
+    StartComment(textstreamsrc);
+    textstreamsrc << "//FuzzyBuilder Layout Section\n";
+    EndComment(textstreamsrc);
 
     foreach(Node *node,nodes)   {
-        node->WriteNodeInfo(tss);
+        node->WriteNodeInfo(textstreamsrc);
     }
     foreach(Node *node,nodes)   {
-        node->WriteEdges(tss);
+        node->WriteEdges(textstreamsrc);
     }
 
     if (verbose)    {
-        StartComment(tss);
-        tss << "End FuzzyBuilder Layout Section\n";
-        EndComment(tss);
+        StartComment(textstreamsrc);
+        textstreamsrc << "End FuzzyBuilder Layout Section\n";
+        EndComment(textstreamsrc);
 
 
-        StartComment(tss);
-        tss << "FuzzyBuilder Group Section\n";
-        EndComment(tss);
+        StartComment(textstreamsrc);
+        textstreamsrc << "FuzzyBuilder Group Section\n";
+        EndComment(textstreamsrc);
     }
-    wp->WriteGroups(tss);
+    wp->WriteGroups(textstreamsrc);
     if (verbose) {
-        StartComment(tss);
-        tss << "End FuzzyBuilder Group Section\n";
-        EndComment(tss);
+        StartComment(textstreamsrc);
+        textstreamsrc << "End FuzzyBuilder Group Section\n";
+        EndComment(textstreamsrc);
     }
 
 }

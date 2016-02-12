@@ -689,7 +689,7 @@
      <x>0</x>
      <y>0</y>
      <width>931</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -722,7 +722,7 @@
   </action>
   <action name="actionSave_As_C_Source">
    <property name="text">
-    <string>Save As C Source</string>
+    <string>Save As CPP Source</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
@@ -738,7 +738,7 @@
   </action>
   <action name="actionView_as_C_Source">
    <property name="text">
-    <string>View as C Source</string>
+    <string>View as CPP Source</string>
    </property>
   </action>
   <action name="actionNew">

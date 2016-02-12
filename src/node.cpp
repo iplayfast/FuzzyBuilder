@@ -212,6 +212,16 @@ bool Node::CheckSetSourceBeenWritten()
     return false;
 }
 
+bool Node::getHeaderBeenWritten() const
+{
+    return HeaderBeenWritten;
+}
+
+void Node::setHeaderBeenWritten(bool value)
+{
+    HeaderBeenWritten = value;
+}
+
 QString Node::getIOMinText() const
 {
     QString ss;

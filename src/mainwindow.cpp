@@ -425,7 +425,7 @@ void MainWindow::on_actionSave_As_C_Source_triggered()
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::AnyFile);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setNameFilter ( tr("C files(*.c *.C);;All Files(*.*)") );
+    dialog.setNameFilter ( tr("CPP files files(*.cpp);;All Files(*.*)") );
     QString filename = dialog.getSaveFileName();
     dialog.close();
     if (filename.isEmpty())
@@ -619,7 +619,8 @@ void MainWindow::on_Lock_clicked()
 void MainWindow::on_ValueTable_entered(const QModelIndex &/*index*/)
 {
     FuzzyNode *fActive = (FuzzyNode *)Active;
-    connect(fActive,SIGNAL(editCompleted(const QString &)),this,SLOT(setWindowTitle(QString)));
+
+   // connect(fActive,SIGNAL(editCompleted(const QString &)),this,SLOT(setWindowTitle(QString)));
 }
 
 void MainWindow::Simulate()

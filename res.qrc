@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>images/and.png</file>
+        <file>images/not.png</file>
+        <file>images/or.png</file>
+    </qresource>
+</RCC>
