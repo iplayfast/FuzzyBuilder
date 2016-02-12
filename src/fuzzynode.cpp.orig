@@ -36,15 +36,21 @@ bool FuzzyNode::AllowAttach(Node *) const
 
 void FuzzyNode::WriteHeader(QTextStream &h) const
 {
+<<<<<<< Updated upstream
     h << "double " << getName() << "(void);\n";
     h << "// structure holding the fuzzy datapoints\n";
+    h << "struct TFuzzy" << getName() <<" {\n    int Count;\n    TFuzzyXY Data[" << fuzzy.Count() << "];\n};\n\n";
+=======
+    if (getHeaderBeenWritten()) return;
+    setHeaderBeenWritten(true);
+    h << "double " << getName() << "(void);\n";
     h << "struct TFuzzy" << getName() <<" {\n    int Count;\n    TFuzzyXY data[" << fuzzy.Count() << "];\n};\n\n";
+>>>>>>> Stashed changes
 }
 
 void FuzzyNode::WriteIncludes(QTextStream &h) const
 {
-    if (!this->getHeaderBeenWritten())
-        h << "#include <Fuzzy.h>\n";
+    h << "#include <Fuzzy.h>\n";
 }
 
 void FuzzyNode::WriteNodeInfo(QTextStream &s) const
@@ -57,12 +63,11 @@ void FuzzyNode::WriteNodeInfo(QTextStream &s) const
     Node::WriteNodeInfo(s);
 }
 
-void FuzzyNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const
+void FuzzyNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn) const
 {
     Return = "double ";
     Parameters = "()";
     FunctionReturn = "return Value;";
-    HasBrackets = true;
 }
 
 
@@ -71,7 +76,11 @@ void FuzzyNode::FunctionData(QString &Return, QString &Parameters, QString &Func
 
 void FuzzyNode::WriteSourcePlainGuts(QTextStream &s) const
 {
+<<<<<<< Updated upstream
     s << "\nstruct TFuzzy" << getName() << " = {" << fuzzy.Count() << ",{\n";
+=======
+    s << "\nstruct TFuzzy" << getName() << " = {" << fuzzy.Count();
+>>>>>>> Stashed changes
     for(int i=0;i<fuzzy.Count();i++)
     {
         s << "\n   ,{" << fuzzy.GetItemc(i)->x << "," << fuzzy.GetItemc(i)->y << "}";
@@ -83,11 +92,10 @@ void FuzzyNode::WriteSourcePlainGuts(QTextStream &s) const
         if (edge->getSource()!=this)
         {
             //edge->getSource()->WriteSourceUserGuts(s);
-            s << "   double value = Value((&TFuzzy"<<getName() <<"," << edge->getSource()->getName() << ");\n";
-            return; // only one incoming edge ever so we can safely return here
+            s << "   double value = Value((const struct TFuzzy *)&TFuzzy" << edge->getSource()->getName() << ");\n";
+
         }
     }
-    // no incoming edges were found
     s << "// unused fuzzy logic node\n";
 
 }
