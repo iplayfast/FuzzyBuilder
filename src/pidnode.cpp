@@ -8,17 +8,20 @@
 #include <qnamespace.h>
 #include <QDebug>
 
-PidNode::PidNode(GraphWidget *graphWidget) : Node(graphWidget),SetPoint(graphWidget),Input(graphWidget),Direction(graphWidget)
+void PidNode::drawShape(QPainter *p, QRectF &r)
 {
-    SetPoint.setINTEXT("Requested(SetPoint)");
-    Input.setINTEXT("Obtained(Input)");
-    Direction.setINTEXT("Direction");
-    QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
-    setPos(exposedRect.width()/2,exposedRect.height() / 2);
-    if (!FindNewVertPosition(-1))
-        FindNewVertPosition(1);
+    p->drawRect( r);//-5, -10, 20, 20);
+}
 
+PidNode::PidNode(GraphWidget *graphWidget) : Node(graphWidget),Requested(graphWidget),Obtained(graphWidget)
+{
 
+    QGraphicsScene *scene = graphWidget->scene();
+    Requested.setINTEXT("Requested");
+    Obtained.setINTEXT("Obtained");
+    scene->addItem(&Requested);
+    scene->addItem(&Obtained);
+    setNewPos(pos());
 }
 
 QRectF PidNode::boundingRect() const
@@ -30,44 +33,49 @@ return QRectF( -width - adjust, -height - adjust, 2 * width + adjust, 2 * height
 }
 
 bool PidNode::AllowAttach(Node *node) const
-{
-    return (SetPoint.AllowAttach(node) || Input.AllowAttach(node) || Direction.AllowAttach(node));
+{    
+    return (Requested.AllowAttach(node) || Obtained.AllowAttach(node));
 }
 
 void PidNode::addEdge(Edge *edge)
 {
-    if (SetPoint.AllowAttach(edge->getSource())) SetPoint.addEdge(edge);
+    if (Requested.AllowAttach(edge->sourceNode())) Requested.addEdge(edge);
     else {
-        if (Input.AllowAttach(edge->getSource())) Input.addEdge(edge);
-        else if (Direction.AllowAttach(edge->getSource())) Direction.addEdge(edge);
-            else Node::addEdge(edge);// shouldn't get here
+        if (Obtained.AllowAttach(edge->sourceNode())) Obtained.addEdge(edge);
+        else Node::addEdge(edge);// shouldn't get here
     }
 }
 
-void PidNode::WriteHeader(QTextStream &h) const
+
+
+void PidNode::WriteSource(QTextStream &h,QTextStream &s)
 {
+    if (getBeenWritten()) return;
+    setBeenWritten(true);
+    QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
+    h << "//!!fPid!!" << getName() << ps;
+    Requested.WriteSource(h,s);
+    Obtained.WriteSource(h,s);
+    foreach (Edge *edge, edgeList)
+        if (edge->sourceNode()!=this)
+            edge->WriteSource(h);
+
+
+
+
+    // todo
+
+    s << "// here is the source of the pid controller... todo\n\n";
 }
-
-void PidNode::WriteNodeInfo(QTextStream &s) const
-{
-
-    Q_UNUSED(s);
-
-    Node::WriteNodeInfo(s);
-}
-
-
-
-
 
 double PidNode::Simulate()
 {
     // todo
     foreach (Edge *edge, edgeList)
     {
-        if (edge->getSource()!=this)
+        if (edge->sourceNode()!=this)
         {
-            setInValue(edge->getSource()->Simulate());
+            InValue  = edge->sourceNode()->Simulate();
             //double error =
 
         }
@@ -79,7 +87,7 @@ double PidNode::Simulate()
 void PidNode::setNewPos(const QPointF &value)
 {
     Node::setNewPos(value);
-    SetPoint.setPos(value.x()-25,value.y()-20);
-    Input.setPos(value.x()-25,value.y()+20);
-    Direction.setPos(value.x(),value.y()-20);
+    Requested.setPos(value.x()-25,value.y()-20);
+    Obtained.setPos(value.x()-25,value.y()+20);
+
 }

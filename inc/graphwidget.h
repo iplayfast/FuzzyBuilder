@@ -42,10 +42,9 @@
 #define GRAPHWIDGET_H
 #include <QTextStream>
 #include <QGraphicsView>
-//#include "nodefactory.h"
-#include "logictype.h"
-
+#include "nodefactory.h"
 class Node;
+
 //! [0]
 class GraphWidget : public QGraphicsView
 {
@@ -65,7 +64,7 @@ public slots:
     void zoomIn();
     void zoomOut();
     void simulate();
-    void WriteSource(QTextStream &textstreamHeader, QTextStream &textstreamsrc);
+    void WriteSource(QTextStream &h,QTextStream &s);    
 protected:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);

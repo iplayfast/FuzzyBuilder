@@ -4,27 +4,22 @@
 #include "boundnode.h"
 class PidNode : public Node
 {
-    BoundNode SetPoint;
-    BoundNode Input;
-    BoundNode Direction;
+    BoundNode Requested;
+    BoundNode Obtained;
+    virtual    void drawShape(QPainter *p,QRectF &r);
 public:
-    PidNode(GraphWidget *graphWidget);    
+    PidNode(GraphWidget *graphWidget);
     virtual QRectF boundingRect() const;
     virtual bool AllowAttach(Node *node) const;
     virtual void addEdge(Edge *edge);
-
-    virtual void WriteHeader(QTextStream &h) const;
-    void WriteNodeInfo(QTextStream &s) const;
-    virtual QString MinText() const { return "P"; }
-    virtual QString MaxText() const { return "I"; }
-    virtual QString ExtraText() const { return "D"; }
+    virtual void WriteSource(QTextStream &h, QTextStream &s);
     virtual double Simulate();
-    double get_p() const { return getIOMax(); }
-    double get_i() const { return getIOMin(); }
-    double get_d() const { return getActiveValue(); }
-    void set_p(double v) { setIOMax(v); }
-    void set_i(double v) { setIOMin(v); }
-    void set_d(double v) { setActiveValue(v); }
+    double get_p() const { return IOMax; }
+    double get_i() const { return IOMin; }
+    double get_d() const { return ActiveValue; }
+    void set_p(double v) { IOMax = v; }
+    void set_i(double v) { IOMin = v; }
+    void set_d(double v) { ActiveValue = v; }
     virtual void setNewPos(const QPointF &value);
     // Node interface
 public:
@@ -32,7 +27,6 @@ public:
     {
         return fPID;
     }
-    virtual QString gettype() const { return "PID"; }
 };
 
 #endif // ANDNODE_H

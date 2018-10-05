@@ -18,8 +18,35 @@ bool BoundNode::AllowAttach(Node *) const
 
 void BoundNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/)
 {
-    QRectF r = paintSetup(painter, option);
-    painter->drawEllipse( r);
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(Qt::darkGray);
+QRectF r =  boundingRect();
+    //r.adjust(-3,-3,0,0);
+    painter->drawEllipse(r);
+    //r.adjust(3,3,0,0);
+    QRadialGradient gradient(r.center(),r.height());
+    if (option->state & QStyle::State_Sunken) {
+        gradient.setCenter(3, 3);
+        gradient.setFocalPoint(3, 3);
+        if (!getSelected()) {
+            gradient.setColorAt(1, QColor(Qt::yellow).light(120));
+            gradient.setColorAt(0, QColor(Qt::darkYellow).light(120));
+        }
+        else {
+            gradient.setColorAt(1, QColor(Qt::green).light(120));
+            gradient.setColorAt(0, QColor(Qt::darkGreen).light(120));
+        }
+    } else {
+        if (!getSelected()) {
+            gradient.setColorAt(0, Qt::yellow);
+            gradient.setColorAt(1, Qt::darkYellow);
+        }
+        else {
+            gradient.setColorAt(1, QColor(Qt::green));
+            gradient.setColorAt(0, QColor(Qt::darkGreen));
+        }
+    }
+    painter->setBrush(gradient);
 }
 
 QRectF BoundNode::boundingRect() const
@@ -31,15 +58,16 @@ QRectF BoundNode::boundingRect() const
 
 }
 
-void BoundNode::WriteHeader(QTextStream &h) const
+void BoundNode::WriteSource(QTextStream &h, QTextStream &s)
 {
-        Q_UNUSED(h);
-}
-
-
-void BoundNode::WriteSourcePlainGuts(QTextStream &s) const
-{
-    //
-    Q_UNUSED(s);
+    if (getBeenWritten()) return;
+    setBeenWritten(true);
+    foreach (Edge *edge, edgeList)
+    {
+        if (edge->sourceNode()!=this)   {
+            edge->sourceNode()->WriteSource(h,s);
+            edge->WriteSource(h);
+        }
+    }
 }
 

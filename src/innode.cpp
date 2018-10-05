@@ -9,166 +9,56 @@
 #include "graphwidget.h"
 #include "innode.h"
 
+void InNode::drawShape(QPainter *p, QRectF &r)
+{
+    QRectF a(r);
+    a.adjust(-r.width()/2,0,0,0);
+   p->drawEllipse(a);
+}
+
 InNode::InNode(GraphWidget *graphWidget) : Node(graphWidget)
 {
-
     QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
     //QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());
     setPos(0,exposedRect.height() / 2);
-    if (!FindNewVertPosition(-1))
-        FindNewVertPosition(1);
-
-    setIOMax(1023);
-    setIOMin(0);
-    this->setCurrent(0);
-    this->setActive(0);
-    this->setInValue(0);
-    Regenerate();
-
-}
-QString InNode::Regenerate() const
-{
-    QString b;
-    QString s;
-    QString min,max;
-    min.sprintf("%05.5f",getIOMin());
-    max.sprintf("%05.5f",getIOMax());
-
-
-    s = "const double RealWorldMin = "; s+= min; s+= ",RealWorldMax = "; s+= max; s+= ";\n";
-    if (!edgeList.isEmpty())
-    {
-        Edge *e = edgeList.first();
-        Node *n = e->getSource();
-            b = "double myinput = analogRead("; b += n->getName(); b += ");\n";
-    }
-    else
-        b = "double myinput = 0; /*add your code here to obtain input from a sensor or something*/\n";
-    b += s;
-    b += "if (myinput<RealWorldMin) myinput = RealWorldMin; // clamp lower limit\n";
-    b += "if (myinput>RealWorldMax) myinput = RealWorldMax; // clamp upper limit\n";
-    return b;
+    //setPos(exposedRect.left(),exposedRect.height() );
 }
 
-QString InNode::InitizationCode() const
-{
-QString s;
-    if (!edgeList.isEmpty())    {
-        Node *Inconst = edgeList.first()->getSource();
-        s = "   pinMode("; s += Inconst->getName(); s+= ",INPUT);\n";
-    }
-    return s;
-};
 QRectF InNode::boundingRect() const
 {
-int width = getWidth();
-int height = getHeight();
+int width = 40;
+int height = 20;
 qreal adjust = 2;
 return QRectF( -width - adjust, -height - adjust, 2 * width + adjust, 2 * height + adjust);
 }
 
-bool InNode::AllowAttach(Node *n) const
+bool InNode::AllowAttach(Node *) const
 {
-
-    return n->GetLogicType()==fDEFINE && edgeList.isEmpty();
+    return false;
 }
 
-void InNode::WriteHeader(QTextStream &h) const
+
+
+void InNode::WriteSource(QTextStream &h,QTextStream &s)
 {
+    if (getBeenWritten()) return;
+
+
+    setBeenWritten(true);
+    QString ps; ps.sprintf("!!%f!!%f!!%f!!%f\n",pos().rx(),pos().ry(),IOMin,IOMax);
+    h << "//!!fIn!!" << getName() <<  ps;
     h << "double " << getName() << "(void);\n";
-}
-
-void InNode::WriteNodeInfo(QTextStream &ts) const
-{
-    QString ps; ps.sprintf("!!%f!!%f!!%f!!%f\n",pos().rx(),pos().ry(),getIOMin(),getIOMax());
-    ts << "\n";
-    ts << "//!!fIn!!" << getName() <<  ps;
-    Node::WriteNodeInfo(ts);
-}
-
-void InNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const
-{
-    Return = "double ";
-    Parameters = "()";
-    FunctionReturn = "return myinput;";
-    HasBrackets = true;
-}
-
-
-
-
-
-void InNode::WriteSourcePlainGuts(QTextStream &ts) const
-{
-
-    if (getUserGuts()=="")
-        ts << Regenerate();
-    else ts << getUserGuts();
+    s << "double " << getName() << "(void)\n{\n";
+    s << "int Max = " << IOMax << ",Min = " << IOMin << ";\n";
+    s << "double myinput = 0; /*add your code here to obtain input from a sensor or something*/\n";
+    s << "   myinput = (myinput - Min) / (Max - Min);/* convert input to a 0 <=Number <=1 */\n";
+    s << "   return myinput;\n}\n\n";
+    return;
 }
 
 double InNode::Simulate()
 {
-    double v = Normalize(getInValue());
+    double v = (InValue - IOMin) / (IOMax - IOMin); // normalize
     setCurrent(v);
     return v;
 }
-
-QPainterPath InNode::shape() const
-{
-    QPainterPath path,epath;
-    QRectF r= boundingRect();
-
-    epath.addEllipse(r);
-    r.setWidth(r.width()/2);
-
-    path.addRect(r);
-    return epath.subtracted(path);
-}
-
-int InNode::MaxOfMin() const
-{
-    return 1024 * this->getMinScale();
-}
-
-int InNode::MaxOfMax() const
-{
-    return 1024 * this->getMaxScale();
-}
-
-QString InNode::ExtraText() const
-{
-QString s;
-    s.sprintf("Simulated Input %f -> %f <- %f",getIOMin(),getActiveValue(),getIOMax());
-    return s;
-}
-
-void InNode::setIOMin(double value)
-{
-    if (getIOMax()<value)
-        setIOMax(value);
-    Node::setIOMin(value);
-}
-
-void InNode::setIOMax(double value)
-{
-    if (value<1) value = 1;
-    if (getIOMin()>=value)
-           setIOMin(value-1);
-    Node::setIOMax(value);
-
-}
-
-QString InNode::GetValueText() const
-{
-QString v = Node::GetValueText();
-QString v1;
-    v1.sprintf("\n(%d)",(int)round(this->getActiveValue()));
-    v1 += v;
-    return v1;
-}
-
-/*QString InNode::MaxText()
-{
-    return FormatLabel("Max",1.0 * MaxMin(),1.0*ActiveValue,1.0 * MaxMax());
-}
-*/

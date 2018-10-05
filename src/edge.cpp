@@ -58,14 +58,26 @@ Edge::Edge(Node *sourceNode, Node *destNode)
     source->addEdge(this);
     dest->addEdge(this);
     adjust();
+}
+//! [0]
 
+//! [1]
+Node *Edge::sourceNode() const
+{
+    return source;
 }
 
+Node *Edge::destNode() const
+{
+    return dest;
+}
+//! [1]
+
+//! [2]
 void Edge::adjust()
 {
     if (!source || !dest)
         return;
-
 
     QLineF line(mapFromItem(source, 0, 0), mapFromItem(dest, 0, 0));
     qreal length = line.length();
@@ -94,9 +106,9 @@ QRectF rs(source->boundingRect()),rd(dest->boundingRect());
     }
 }
 
-void Edge::WriteNodeInfo(QTextStream &s)
-{    
-    s << "//!!fEdge!!" << this->getSource()->getName() << "!!" << this->getDest()->getName() << "!!\n";
+void Edge::WriteSource(QTextStream &h)
+{
+    h << "//!!fEdge!!" << this->sourceNode()->getName() << "!!" << this->destNode()->getName() << "!!\n";
 }
 //! [2]
 
@@ -151,7 +163,7 @@ void Edge::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
     painter->drawPolygon(QPolygonF() << line.p2() << destArrowP1 << destArrowP2);
     //painter->drawRect(boundingRect());
 
-    QString s = dest->getNotes();
+    QString s = dest->getINTEXT();
     if (s!="") {
         qreal angleInDegrees = atan2(line.dy(),line.dx()) * 180 / 3.14;
         QRectF br(painter->fontMetrics().boundingRect(s));
@@ -190,24 +202,14 @@ void Edge::drawRotatedText(QPainter *painter, float degrees, int x, int y, const
     painter->drawText(0, 0, text);
     painter->restore();
   }
-Node *Edge::getDest() const
+void Edge::mousePressEvent(QGraphicsSceneMouseEvent */*event*/)
 {
-    return dest;
+    /*int src = sourceNode()->edges().indexOf(this);
+    int dest= this->destNode()->edges().indexOf(this);
+    sourceNode()->edges().removeOne(this);
+    destNode()->edges().removeOne(this);
+    source = 0;
+    dest = 0;*/
+//    delete this;
 }
-
-void Edge::setDest(Node *value)
-{
-    dest = value;
-}
-
-Node *Edge::getSource() const
-{
-    return source;
-}
-
-void Edge::setSource(Node *value)
-{
-    source = value;
-}
-
 //! [6]

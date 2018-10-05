@@ -2,7 +2,28 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-
+/*
+ * An idea:
+ * take in csv file with first row marked as I1,I2, I3... O1,O2,O3...
+ * and create the fuzzy logic needed to create this output.
+ * step1
+ * 	create input nodes,
+ *  create output nodes
+ * step 2
+ *   scan csv,
+ *      finding maximum and minimum for inputs and outputs,
+ * 		map every input value into one fuzzy output, by:
+ * 			1. eleminating duplicates ins ie any input that duplicates another input
+ *          2. counting number of unique values for each input and mapping them into
+ * 				a separate path. eg in1 = 4,5,6 int2=1...245 map=in1-4+in2+4
+ * 			3. set a fuzzy logic to output the correct output value
+ *          in the case where more then one value is needed, a new fuzzy logic value is
+ *          added in parallel to current fuzzy logic eg in1->map->F1->O1
+ *                                                           map->F2->O2
+ *		at this point output will be mapped from input to output and further optimization
+ *		can be looked into
+ *
+*/
 #ifndef FUZZY_DEF
 #define FUZZY_DEF
 #ifndef READONLY

@@ -1,4 +1,3 @@
-#include "mainwindow.h"
 #include "fuzzynode.h"
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
@@ -8,116 +7,86 @@
 #include <qnamespace.h>
 #include <QDebug>
 
+void FuzzyNode::drawShape(QPainter *p, QRectF &r)
+{
+    p->drawRect(r);
+}
+
+
 FuzzyNode::FuzzyNode(GraphWidget *graphWidget) : Node(graphWidget)
 {
-    setWidth(40);
-    setHeight(40);
-    QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
-    setPos(exposedRect.width()/2,exposedRect.height() / 2);
-    if (!FindNewVertPosition(-1))
-        FindNewVertPosition(1);
-
 
 }
 
 QRectF FuzzyNode::boundingRect() const
 {
-    int width = getWidth();
-    int height = getHeight();
+int width = 40;
+int height = 40;
 qreal adjust = 2;
 return QRectF( -width - adjust, -height - adjust, 2 * width + adjust, 2 * height + adjust);
 }
 
 bool FuzzyNode::AllowAttach(Node *) const
 {
-    return edgeList.count()<1 || edgeList.first()->getDest()!=this;
-}
-
-
-void FuzzyNode::WriteHeader(QTextStream &h) const
-{
-    h << "double " << getName() << "(void);\n";
-    h << "// structure holding the fuzzy datapoints\n";
-    h << "struct TFuzzy" << getName() <<" {\n    int Count;\n    TFuzzyXY data[" << fuzzy.Count() << "];\n};\n\n";
-}
-
-void FuzzyNode::WriteIncludes(QTextStream &h) const
-{
-    if (!this->getHeaderBeenWritten())
-        h << "#include <Fuzzy.h>\n";
-}
-
-void FuzzyNode::WriteNodeInfo(QTextStream &s) const
-{
-    QString ps; ps.sprintf("!!%f!!%f",pos().rx(),pos().ry());
-    s << "//!!fFuzzy!!" << getName() << ps;
-    for(int i=0;i<fuzzy.Count();i++)
-        s << "!!" << fuzzy.GetItemc(i)->x << "!!" << fuzzy.GetItemc(i)->y;
-    s << "\n";
-    Node::WriteNodeInfo(s);
-}
-
-void FuzzyNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const
-{
-    Return = "double ";
-    Parameters = "()";
-    FunctionReturn = "return Value;";
-    HasBrackets = true;
+    return edgeList.count()<1 || edgeList.first()->destNode()!=this;
 }
 
 
 
-
-
-void FuzzyNode::WriteSourcePlainGuts(QTextStream &s) const
+void FuzzyNode::WriteSource(QTextStream &h,QTextStream &s)
 {
-    s << "\nstruct TFuzzy" << getName() << " = {" << fuzzy.Count() << ",{\n";
-    for(int i=0;i<fuzzy.Count();i++)
-    {
-        s << "\n   ,{" << fuzzy.GetItemc(i)->x << "," << fuzzy.GetItemc(i)->y << "}";
-    }
-    s << "};\n";
+    if (getBeenWritten()) return;
+    setBeenWritten(true);
 
     foreach (Edge *edge, edgeList)
     {
-        if (edge->getSource()!=this)
+        if (edge->sourceNode()!=this)
         {
-            //edge->getSource()->WriteSourceUserGuts(s);
-            s << "   double value = Value((&TFuzzy"<<getName() <<"," << edge->getSource()->getName() << ");\n";
-            return; // only one incoming edge ever so we can safely return here
+            edge->sourceNode()->WriteSource(h,s);
+            QString ps; ps.sprintf("!!%f!!%f",pos().rx(),pos().ry());
+            h << "//!!fFuzzy!!" << getName() << ps;
+
+            for(int i=0;i<fuzzy.Count();i++)
+            {
+                h << "!!" << fuzzy.GetItemc(i)->x << "!!" << fuzzy.GetItemc(i)->y;
+            }
+            h << "\n";
+
+            h << "double " << getName() << "(void);\n";
+            s << "struct TFuzzy" << getName() << "\nint DataLength\nstruct TFuzzyXY Data["<< this->fuzzy.Count() << "];\n};\n";
+            s << "double " << getName() << "(void)\n{\n";
+            s << "struct TFuzzy" << getName() << " = {" << fuzzy.Count();
+            for(int i=0;i<fuzzy.Count();i++)
+            {
+                s << "\n   ,{" << fuzzy.GetItemc(i)->x << "," << fuzzy.GetItemc(i)->y << "}";
+            }
+            s << "};\n   return Value((const struct TFuzzy *) &Data," << edge->sourceNode()->getName()<<"());\n}\n\n";
+            foreach (Edge *edge, edgeList)
+                if (edge->sourceNode()!=this)
+                    edge->WriteSource(h);
+
+            return;
         }
     }
-    // no incoming edges were found
-    s << "// unused fuzzy logic node\n";
-
+    foreach (Edge *edge, edgeList)
+        if (edge->sourceNode()!=this)
+            edge->WriteSource(h);
+    return;
 }
-
-void FuzzyNode::setIOMin(double value)
-{
-    Node::setIOMin(value);
-    double lIOMax = fuzzy.Value(value);
-        if (lIOMax==-1)  // no value found
-            lIOMax = 0; // false
-        Node::setIOMax(lIOMax);
-}
-
-
 
 double FuzzyNode::Simulate()
 {
 double    Current = 0.0;
     foreach (Edge *edge, edgeList)
     {
-        if (edge->getSource()!=this)
+        if (edge->sourceNode()!=this)
         {
-            setInValue(edge->getSource()->Simulate());
-            setCurrent(Current = fuzzy.Value(getInValue()));
-            this->update();
+            double v = edge->sourceNode()->Simulate();
+            setCurrent(Current = fuzzy.Value(v));
             return Current;
         }
     }
     setCurrent(Current);
-    update();
     return Current;
 }
 
@@ -169,31 +138,12 @@ QVariant FuzzyNode::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QVariant FuzzyNode::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (role == Qt::DisplayRole)
-    {
-        if (orientation == Qt::Horizontal) {
-            switch (section)
-            {
-            case 0:
-                return QString("Cause");
-            case 1:
-                return QString("Effect");
-            }
-        }
-    }
-    return QVariant();
-}
 bool FuzzyNode::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (role == Qt::EditRole)
        {
         QString s = value.toString();
         double d = value.toDouble();
-            if (d>1.0 || d<0.0) {
-                return false;
-            }
             int causeeffect = index.column();
             int findex = index.row();
             double oldx,oldy;
@@ -210,19 +160,6 @@ bool FuzzyNode::setData(const QModelIndex &index, const QVariant &value, int rol
                 }
             //wp->DisplayNode(this);
        }
-    wp->UpdateTableAndGraph(this);
        return true;
 
-}
-
-QPainterPath FuzzyNode::shape() const
-{
-    QPainterPath a;
-    a.addRect(boundingRect());
-    return a;
-}
-
-Qt::ItemFlags FuzzyNode::flags(const QModelIndex &/*index*/) const
-{
-   return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
 }

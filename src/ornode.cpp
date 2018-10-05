@@ -1,5 +1,4 @@
 #include "ornode.h"
-#include "graphwidget.h"
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
@@ -7,18 +6,15 @@
 #include <qevent.h>
 #include <qnamespace.h>
 #include <QDebug>
-#include <QIcon>
 
+void OrNode::drawShape(QPainter *p, QRectF &r)
+{
+    p->drawEllipse(r);
+}
 
 
 OrNode::OrNode(GraphWidget *graphWidget) : Node(graphWidget)
 {
-    setActiveValue(0);
-QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
-setPos(exposedRect.width()/2,exposedRect.height() / 2);
-if (!FindNewVertPosition(-1))
-    FindNewVertPosition(1);
-setIOMin(0);
 
 }
 
@@ -35,56 +31,39 @@ bool OrNode::AllowAttach(Node *) const
     return true;
 }
 
-void OrNode::WriteHeader(QTextStream &h) const
+
+
+void OrNode::WriteSource(QTextStream &h,QTextStream &s)
 {
+    if (getBeenWritten()) return;
+    setBeenWritten(true);
+    QString ss;
+        ss.sprintf("%05.5f",ActiveValue);
+
+
+    foreach (Edge *edge, edgeList)
+    {
+        if (edge->sourceNode()!=this)
+            edge->sourceNode()->WriteSource(h,s);
+    }
+    QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
+    h << "//!!fOr!!" << getName() << "!!" << ss << ps;
     h << "double " << getName() << "(void);\n";
-}
-
-void OrNode::WriteNodeInfo(QTextStream &s) const
-{
-    QString ps; ps.sprintf("!!%f!!%f!!%f\n",pos().rx(),pos().ry(),getIOMin());
-    QString ss;
-        ss.sprintf("%05.5f",getActiveValue());
-    s << "//!!fOr!!" << getName() << "!!" << ss << ps;
-    Node::WriteNodeInfo(s);
-}
-
-QString OrNode::MinText() const
-{
-    return  "The lowest possible value";
-}
-
-void OrNode::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const
-{
-    Return = "double ";
-    Parameters = "()";
-    FunctionReturn = " return Current;";
-    HasBrackets = true;
-}
-
-void OrNode::WriteSourcePlainGuts(QTextStream &ts) const
-{
-    if (getUserGuts()=="")
-        ts << Regenerate();
-    else ts << getUserGuts();
-}
-
-QString OrNode::Regenerate() const
-{
-
-    QString ss;
-        ss.sprintf("%05.5f;\n",getActiveValue());
-    QString s;
-    s = "double  temp,Current = "; s +=  ss;
+    s << "\ndouble " << getName() << "(void)\n{\n";
+    s << "double  temp,Current = " << ss << ";\n";
         foreach (Edge *edge, edgeList)
         {
-            if (edge->getSource()!=this)
+            if (edge->sourceNode()!=this)
             {
-                s += "   temp = "; s+= edge->getSource()->getName(); s+= "();\n";
-                s += "   if (Current < temp) Current = temp;\n";
+                s << "   temp = " << edge->sourceNode()->getName() << "();\n";
+                s << "   if (Current < temp) Current = temp;\n";
             }
         }
-    return s;
+        s << "return Current;\n}\n";
+        foreach (Edge *edge, edgeList)
+            if (edge->sourceNode()!=this)
+                edge->WriteSource(h);
+
 }
 
 double OrNode::Simulate()
@@ -92,39 +71,13 @@ double OrNode::Simulate()
 double    Current = 0.0;
     foreach (Edge *edge, edgeList)
     {
-        if (edge->getSource()!=this)
+        if (edge->sourceNode()!=this)
         {
-            double v = edge->getSource()->Simulate();
+            double v = edge->sourceNode()->Simulate();
             if (Current<v) Current = v;
         }
     }
     setCurrent(Current);
     return Current;
 
-}
-
-QPainterPath OrNode::shape() const
-{
-    QPainterPath path;
-    QRectF r =  boundingRect();
-    float x = r.left();
-    float y = r.top();
-    double xn = r.width() / 5.6;
-    double yn = r.height() / 4;
-
-    path.moveTo(x,y);
-    path.lineTo(x+xn*3,y+yn*0);
-        path.lineTo(x+xn*4,y+yn*0.4);
-            path.lineTo(x+xn*5,y+yn*1);
-                path.lineTo(x+xn*5.6,y+yn*2);
-            path.lineTo(x+xn*5,y+yn*3);
-        path.lineTo(x+xn*4,y+yn*3.6);
-    path.lineTo(x+xn*3,y+yn*4);
-    path.lineTo(x+xn*0,y+yn*4);
-
-    path.lineTo(x+xn*1,y+yn*3.4);
-    path.lineTo(x+xn*1.5,y+yn*2);
-    path.lineTo(x+xn*1,y+yn*1);
-    path.lineTo(x,y);
-    return path;
 }

@@ -1,14 +1,12 @@
-#include <QMessageBox>
+#include <QFileDialog>
 #include "mainwindow.h"
-
 #include "ui_mainwindow.h"
 #include "viewsourcedialog.h"
-#include "groups.h"
+#include "addlogic.h"
 #include "nodefactory.h"
 #include "fuzzynode.h"
 #include "TFuzzy.h"
 #include "Util.h"
-#include <QtDebug>
 FuzzyNode *fnp =0;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -16,263 +14,205 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     wp = this;
-    gti = new GroupTableItem();
-    gti->AddGroupItem(0,"All");
     ui->setupUi(this);
     Active = 0;
-    SelectNode(0);
-    Filename = "";
-    createActions();
-    createToolBars();
+    DisplayNode(0);
+
 }
 
-void MainWindow::FillCodeUI(Node *np)
+MainWindow::~MainWindow()
 {
-    {
-    QString s;
-    QTextStream ts(&s);
-    np->setSourceBeenWritten(false);
-        np->WriteSourcePlainGuts(ts);
-    ui->FunctionBody->setPlainText(s);
-    s="";
-
-        ui->FunctionParameters->setText(s);
-        s = "";
-
-        ui->FunctionReturn->setText(s);
-
-        ui->FunctionHeader->setText(np->getName());
-        s = "";
-        //np->WriteSourceGutsReturn(ts);
-        ui->FunctionBodyReturn->setText(s);
-
-    }
+    delete ui;
 }
 
-void MainWindow::SelectAllAction(bool Select)
+void MainWindow::Load(QString filename)
 {
-    QGraphicsScene *scene = this->ui->graphicsView->scene();
-    foreach (QGraphicsItem *item, scene->items()) {
-        Node *node = qgraphicsitem_cast<Node *>(item);
-        if (!node)
-            continue;
-        if (node->getSelected()!=Select)    {
-            node->setSelected(Select);
-            node->update();
+    QFile h;
+
+    int ext = filename.lastIndexOf(".");
+        if (ext>-1)
+            filename.chop(filename.length() - ext);
+        h.setFileName(filename + ".h");
+
+        if (h.open(QIODevice::ReadOnly | QIODevice::Text ))    {
+             QTextStream hs(&h);
+             on_actionNew_triggered();
+                ui->graphicsView->ReadSource(hs);
+           h.close();
         }
-       }
 }
 
-void MainWindow::SetupMinSlider()
-{    
-const Node *cActive = Active; // use a const here so we can't change the Node at all
-    if (cActive->UsesMin()) // are we using the min slider (IOMin in node)
-    {
-        ui->MinLabel->setVisible(true);
-        ui->MinLabel->setText("");//Active->MinText());
-        ui->Min->setVisible(true);
-        ui->Min->setMinimum(cActive->MinOfMin());
+void MainWindow::on_actionLoad_triggered()
+{
+    // load as C source
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+    dialog.setNameFilter ( tr("C Header files(*.h *.H);;All Files(*.*)") );
+    QString filename = dialog.getOpenFileName();
+    dialog.close();
+    if (filename.isEmpty())
+        return;
 
-        //on_MinScale_valueChanged(Active->IOMin > 16 ? 512 : 16);
 
-        if (cActive->UsesMinScale()) {
-            int v = cActive->getIOMin() > 16 ? 512 : 16;
-            if (!ui->MinScale->isVisible()) {// not yet showing, set to reasonable values
-                Node *temp = Active;
-                Active = 0;
-                ui->MinScale->setMinimum(1);
-                ui->MinScale->setMaximum(v*2);
-                ui->MinScale->setVisible(true);
-                Active = temp;
+    Load(filename);
+
+}
+
+void MainWindow::on_actionSave_triggered()
+{
+    //Menu Save
+}
+
+void MainWindow::on_actionSave_As_C_Source_triggered()
+{
+    // save as C source
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setNameFilter ( tr("C files(*.c *.C);;All Files(*.*)") );
+    QString filename = dialog.getSaveFileName();
+    dialog.close();
+    if (filename.isEmpty())
+        return;
+    QFile h;
+    QFile s;
+
+    int ext = filename.lastIndexOf(".");
+        if (ext>-1)
+            filename.chop(filename.length() - ext);
+        h.setFileName(filename + ".h");
+        s.setFileName(filename + ".c");
+        if (h.exists()) h.remove();
+        if (s.exists()) s.remove();
+
+        if (h.open(QIODevice::WriteOnly | QIODevice::Text ))    {
+            if (s.open(QIODevice::WriteOnly | QIODevice::Text ))            {
+             QTextStream hs(&h),ss(&s);
+                ui->graphicsView->WriteSource(hs,ss);
             }
-            ui->MinScaleLabel->setVisible(true);
-            ui->Min->setMaximum(cActive->MaxOfMin());
-        }
-        else    {
-            ui->MinScale->setVisible(false);
-            ui->MinScaleLabel->setVisible(false);
-            ui->Min->setMaximum(cActive->MaxOfMin()*NODEHIGHVAL);
+           h.close();
         }
 
-        ui->MinTitle->setText(cActive->MinText());
-        ui->Min->setStatusTip("The minimum expected value");
-
-
-        ui->MinText->setText(cActive->getIOMinText());
-        ui->MinText->setVisible(true);
-        //on_Min_valueChanged(Active->IOMin);
-    }
-    else {
-        ui->MinLabel->setVisible(false);
-        ui->Min->setVisible(false);
-        ui->MinScale->setVisible(false);
-        ui->MinScaleLabel->setVisible(false);
-        ui->MinText->setVisible(false);
-    }
-    //   ui->MinScale->update();
-    //   ui->Min->update();
 }
 
-void MainWindow::SetupMaxSlider()
+void MainWindow::on_actionExit_triggered()
 {
-const Node *cActive = Active;
-    if (cActive->UsesMax())  {
-        ui->MaxLabel->setVisible(true);
-        ui->MaxLabel->setText("");//Active->MaxText());
-        ui->Max->setVisible(true);
-        ui->Max->setMinimum(cActive->MinOfMax());
-
-
-        if (cActive->UsesMaxScale()) {
-            int v = cActive->getIOMax() > 16 ? 512 : 16;
-            if (!ui->MaxScale->isVisible()) {
-                ui->MaxScale->setMinimum(1);
-                ui->MaxScale->setMaximum(v*2);
-            }
-            ui->MaxScale->setVisible(true);
-            ui->MaxScaleLabel->setVisible(true);
-            ui->Max->setMaximum(cActive->MaxOfMax());
-        }
-        else {
-            ui->MaxScale->setVisible(false);
-            ui->MaxScaleLabel->setVisible(false);
-            ui->Max->setMaximum(cActive->MaxOfMax()*NODEHIGHVAL);
-        }
-        ui->MaxTitle->setVisible(true);
-        ui->MaxTitle->setText(cActive->MaxText());
-        ui->Max->setStatusTip("The maximum expected value");
-        ui->MaxText->setText(cActive->getIOMaxText());
-        ui->MaxText->setVisible(true);
-        //on_Max_valueChanged(Active->IOMax);
-    }
-    else    {
-        ui->Max->setVisible(false);
-        ui->MaxLabel->setVisible(false);
-        ui->MaxScale->setVisible(false);
-        ui->MaxScaleLabel->setVisible(false);
-        ui->MaxText->setVisible(false);
-        ui->MaxTitle->setVisible(false);
-    }
-    //   ui->Max->update();
-    //   ui->MaxScale->update();
+    close();
 }
 
-void MainWindow::SetupExtraSlider()
+
+void MainWindow::setMin(bool Vis,const char *text,double v)
 {
-    if (Active->UsesExtra()) {
-        ui->ExtraLabel->setVisible(true);
-        // this may not be true in all cases but until proven otherwise it will stay
-        ui->Extra->setMinimum(Active->MinOfExtra());
-        ui->Extra->setMaximum(Active->MaxOfExtra());
-        ui->ExtraLabel->setText(Active->ExtraText());
-        ui->Extra->setVisible(true);
-    }
-    else {
-        ui->ExtraLabel->setVisible(false);
-        ui->Extra->setVisible(false);
-    }
+    ui->MinLabel->setText(text);
+    ui->MinLabel->setVisible(Vis);
+    ui->Min->setMinimum(0);
+    ui->Min->setMaximum(NODEHIGHVAL);
+
+
+    ui->Min->setValue(v);
+    ui->Min->setVisible(Vis);
+    ui->MinScale->setVisible(Vis);
 }
 
-void MainWindow::SetupTable(FuzzyNode *fnp)
+void MainWindow::setMax(bool Vis,const char *text,double v)
 {
-    ui->ValueTable->setModel(fnp);
-    ui->ValueTable->setVisible(true);
-    ui->ValueTable->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
-    ui->ValueTable->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
-    ui->ValueTable->update();
+    ui->MaxLabel->setText(text);
+    ui->MaxLabel->setVisible(Vis);
+    ui->Max->setMinimum(0);
+    ui->Max->setMaximum(NODEHIGHVAL);
+    ui->Max->setValue(v);
+    ui->Max->setVisible(Vis);
+    ui->MaxScale->setVisible(Vis);
 }
 
-void MainWindow::SelectNode(Node *np)
+void MainWindow::setPID(bool Vis,const char *text,double v)
+{
+    ui->pidlabel->setVisible(Vis);
+    ui->pidlabel->setText(text);
+    ui->pid->setValue(v);
+    ui->pid->setVisible(Vis);
+}
+
+void MainWindow::DisplayNode(Node *np)
 {
     bool visible = np!=0;
-    ui->tabWidget->setVisible(visible);
     ui->LogicLabel->setVisible(visible);
     ui->NodeName->setVisible(visible);
+    ui->UpdateName->setVisible(visible);
     ui->ValueTable->setVisible(visible);
     ui->MinLabel->setVisible(false);
     ui->Min->setVisible(false);
     ui->MaxLabel->setVisible(false);
     ui->Max->setVisible(false);
-    ui->MaxText->setVisible(false);
-    ui->ExtraLabel->setVisible(false);
-    ui->Extra->setVisible(false);
+    ui->pidlabel->setVisible(false);
+    ui->pid->setVisible(false);
     ui->SetPoint->setVisible(false);
     ui->ValueTable->setVisible(false);
     ui->Lock->setVisible(true);
     ui->Graph->setVisible(false);
     ui->MinScale->setVisible(false);
     ui->MaxScale->setVisible(false);
-    ui->MinText->setVisible(false);
-    ui->MaxText->setVisible(false);
-    ui->MaxScaleLabel->setVisible(false);
-    ui->MinScaleLabel->setVisible(false);
-
     if (np) {
         Active = np;
-        Active->setSelected(true);
-        QString ss;
-        ui->Min->setValue(Active->getIOMin());
-        ui->Max->setValue(Active->getIOMax());
-        ui->Extra->setValue(Active->getActiveValue());
-
-        SetupMinSlider();
-
-        SetupMaxSlider();
-        SetupExtraSlider();
-
         switch(np->GetLogicType()) {
-        case fSETUP:
-            break;
         case fIN:
-        {
-            double v = Active->UnNormalize(Active->getCurrent());
-            ui->Extra->setValue(v);
-            on_Extra_valueChanged(v);
-        }
-            break;
         case fOUT:
         {
-            double v = Active->Normalize(Active->getCurrent());
-            ui->Min->setValue(v);
-            on_Min_valueChanged(v);
+            double v = Active->InValue; // incase invalue get's corrupted while setting limits
+             this->on_MinScale_valueChanged(np->IOMin > 16 ? 512 : 16);
+             setMin(true,"Min",np->IOMin);
+
+            this->on_MaxScale_valueChanged(np->IOMax > 16 ? 512 : 16);
+                np->InValue = v;
+             setMax(true,"Max",np->IOMax);
+
+             if (np->GetLogicType()==fIN)   {
+                ui->pid->setMinimum(np->IOMin * Active->SimulateScale());
+                ui->pid->setMaximum(np->IOMax * Active->SimulateScale());
+                if (np->InValue<np->IOMin) np->InValue = np->IOMin;
+                if (np->InValue>np->IOMax) np->InValue = np->IOMax;
+                this->on_pid_valueChanged(np->InValue * Active->SimulateScale());
+                setPID(true,"Simulation",np->InValue);
+             }
         }
-            break;
+             break;
+
         case fAND:
-            ui->MaxLabel->setVisible(true);
-            ui->Max->setMinimum(0);
-            ui->Max->setValue(np->getActiveValue());
-            ui->Max->setMaximum(NODEHIGHVAL);
-            ui->Max->setVisible(true);
-            ui->MaxText->setVisible(visible);
-            on_Max_valueChanged(np->getActiveValue());
-            ui->Max->setStatusTip("The maximum of all inputs up to this level");
-            break;
+              setMax(true,"Max",np->getActiveValue());
+              on_Max_valueChanged(np->getActiveValue());
+              break;
         case fOR:
-            ui->MinLabel->setVisible(true);
-            ui->Min->setMinimum(0);
-            ui->Min->setMaximum(NODEHIGHVAL);
-            ui->Min->setVisible(true);
-            ui->Min->setStatusTip("The minimum of all inputs down to this level");
-            on_Min_valueChanged(np->getActiveValue());
-            break;
-        case fNOT:
-        case fDEFINE:
-            break;
+                setMin(true,"Min",np->getActiveValue());
+                on_Min_valueChanged(np->getActiveValue());
+              break;
         case fFUZZY:
         {
-            FuzzyNode *fnp = (FuzzyNode *)np;
-            fnp->setIOMin(fnp->getInValue());
+           FuzzyNode *fnp = (FuzzyNode *)np;
             fnp->setHeaderData(0,Qt::Horizontal,"Cause");
             fnp->setHeaderData(1,Qt::Horizontal,"Effect");
-            SetupMinSlider();
-            SetupMaxSlider();
-            SetupTable(fnp);
+            ui->ValueTable->setModel(fnp);
+            ui->ValueTable->setVisible(true);
+            ui->ValueTable->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
+            ui->ValueTable->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
+            ui->ValueTable->update();
+            setMin(true,"Cause", fnp->fuzzy.Count()>0 ? fnp->fuzzy.IndexAt(0):0);
+//            ui->MinScale->setVisible(true);
+//            ui->MaxScale->setVisible(true);
+//            ui->MinScale->setValue(np->IOMin);
+//            ui->MaxScale->setValue(np->IOMax);
+
+            ui->MaxLabel->setText("Effect");
+            ui->MaxLabel->setVisible(true);
+            ui->Max->setMinimum(0);
+            ui->Max->setMaximum(NODEHIGHVAL);
+            ui->Max->setValue(fnp->fuzzy.Count()>0 ? fnp->fuzzy.Value(ui->Min->value()):0);
+            ui->Max->setVisible(true);
+
             ui->SetPoint->setVisible(true);
             ui->Graph->setVisible(true);
-            ui->Min->setValue(fnp->getInValue()*NODEHIGHVAL);
-            on_Min_valueChanged(fnp->getInValue()*NODEHIGHVAL);
-
-            UpdateTableAndGraph(fnp);
+            ui->ValueTable->setModel(fnp);
+            ui->ValueTable->setVisible(true);
         }
             break;
         case fPID:
@@ -288,208 +228,68 @@ void MainWindow::SelectNode(Node *np)
             ui->MaxLabel->setText("I");
             ui->Max->setValue(pnp->get_i());
             ui->Max->setVisible(true);
-            ui->MaxText->setVisible(true);
             on_Max_valueChanged(pnp->get_i());
 
-            ui->ExtraLabel->setVisible(true);
-            ui->ExtraLabel->setText("P");
-            ui->Extra->setValue(pnp->get_d());
-            ui->Extra->setVisible(true);
+            ui->pidlabel->setVisible(true);
+            ui->pidlabel->setText("P");
+            ui->pid->setValue(pnp->get_d());
+            ui->pid->setVisible(true);
+            on_pid_valueChanged(pnp->get_d());
         }
             break;
         case fTIMER:
             break;
+        case fMAP:
+             ui->MaxLabel->setVisible(true);
+             ui->Max->setMinimum(0);
+             ui->Max->setValue(np->IOMax);
+             this->on_MaxScale_valueChanged(np->IOMax > 16 ? 512 : 16);
+             ui->Max->setVisible(true);
+             ui->MaxScale->setVisible(true);
+            break;
         }
         ui->NodeName->setText(np->getName());
-        FillCodeUI(np);
     }
     else Active = 0;
 }
 
-MainWindow::~MainWindow()
-{
-    delete gti;
-    delete ui;
-}
-
-void MainWindow::Load(QString filename)
-{
-    QFile src;
-    on_actionNew_triggered();
-    src.setFileName(filename);
-    if (src.open(QIODevice::ReadOnly | QIODevice::Text ))    {
-        QTextStream hs(&src);
-        on_actionNew_triggered();
-        ui->graphicsView->ReadSource(hs);
-        src.close();
-    }
-    Filename = filename;
-    ui->actionSave->setText("Save " + Filename);
-    ui->actionSave->setEnabled(true);
-    ui->GroupSelect->clear();
-    for(int i=0;i<gti->rowCount();i++) {
-        ui->GroupSelect->addItem(gti->GetItem(i)->Name);
-    }
-
-}
-
-void MainWindow::on_actionLoad_triggered()
-{
-    // load as C source
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    QStringList filters;
-        filters << "Arduino files (*.ino)"
-                << "library files (*.cpp)"
-                << "Any files(*)";
-
-    dialog.setNameFilters (filters);
-    dialog.setDefaultSuffix("ino");
-    if (dialog.exec()!=QDialog::Accepted)
-        return;
-    QStringList sf = dialog.selectedFiles();
-    QString filename = sf.first();
-    dialog.close();
-    if (filename.isEmpty())
-        return;
-
-
-    Load(filename);
-
-}
-
-void MainWindow::on_actionSave_triggered()
-{
-    //Menu Save
-    if (Filename!="") {
-         SaveFile(Filename,false);
-    }
-}
-void MainWindow::WriteGroups(QTextStream &h)
-{
-    getGroupTableItem()->WriteNodeInfo(h);
-}
-
-void MainWindow::WriteSource(QTextStream &h, QTextStream &s)
-{        
-    ui->graphicsView->WriteSource(h,s);
-}
-
-void MainWindow::SaveFile(QString filename,bool arduino)
-{
-
-    QFile h;
-    QFile s;
-
-    int ext = filename.lastIndexOf(".");
-    if (ext>-1)
-        filename.chop(filename.length() - ext);
-
-    h.setFileName(filename + ".h");
-    if (arduino)
-       s.setFileName(filename+".ino");
-    else    {
-       s.setFileName(filename + ".c");
-        if (h.exists()) h.remove();
-    }
-    if (s.exists()) s.remove();
-    if (arduino){
-        if (s.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            QTextStream ss(&s);
-            WriteSource(ss,ss);
-        }
-    } else {
-    if (h.open(QIODevice::WriteOnly | QIODevice::Text ))    {
-        if (s.open(QIODevice::WriteOnly | QIODevice::Text ))            {
-            QTextStream hs(&h),ss(&s);
-            WriteSource(hs, ss);
-        }
-        h.close();
-    }
-    }
-    s.close();
-    Filename = filename;
-    if (arduino)    {
-     ui->actionSave_arduino->setText("Save (Arduino) " +Filename);
-     ui->actionSave_arduino->setEnabled(true);
-    } else {
-    ui->actionSave->setText("Save " + Filename);
-    ui->actionSave->setEnabled(true);
-    }
-}
-
-void MainWindow::on_actionSave_As_C_Source_triggered()
-{
-    // save as C source
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setNameFilter ( tr("CPP files files(*.cpp);;All Files(*.*)") );
-    QString filename = dialog.getSaveFileName();
-    dialog.close();
-    if (filename.isEmpty())
-        return;
-    SaveFile(filename,false);
-}
-
-void MainWindow::on_actionExit_triggered()
-{
-    close();
-}
-
-
-
-
-/*
- * void MainWindow::on_AddLogic_clicked()
+void MainWindow::on_AddLogic_clicked()
 {
     // Add Logic
     AddLogic *al = new AddLogic(this);
     int r = al->exec();
-    if (r==0) {
-        delete al;
-        return;
-    }
+    if (r==0) return;
     LOGICTYPE lt = al->GetLogicType();
-    QString Name = al->getName();
+    QString Name = al->GetName();
 
-
-    Node *node1 = NodeFactory::Create(ui->graphicsView,lt);
+Node *node1 = NodeFactory::Create(ui->graphicsView,lt);
     node1->setName(Name);
-
-
-
-    //int w = scene->width();
-    //int h = scene->height();
-
-
-    QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());
-    //QPointF p = node1->pos();
-
-    //QPointF p1 = node1->pos();
     switch(lt) {
-    case fSETUP:
-
-        break;
     case fIN:
-
     case fTIMER:
+        node1->IOMax = al->GetMax();
+        node1->IOMin = al->GetMin();
         break;
     case fOUT:
+        node1->IOMax = al->GetMax();
+        node1->IOMin = al->GetMin();
         break;
     case fFUZZY:
     case fOR:
-    case fNOT:
     case fAND:
     case fPID:
+    case fMAP:
         break;
     }
     delete al;
-    SelectNode(node1);
-
 }
-*/
+
+void MainWindow::on_UpdateName_clicked()
+{
+    if (!Active) return;
+    Active->setName( ui->NodeName->text());
+    Active->update();
+}
 
 void MainWindow::on_ValueTable_clicked(const QModelIndex &/*index*/)
 {
@@ -499,73 +299,126 @@ void MainWindow::on_ValueTable_clicked(const QModelIndex &/*index*/)
 void MainWindow::on_Min_valueChanged(int value)
 {
     if (!Active) return;
-double v = value;
-    if (!Active->UsesMinScale())
-            v /= NODEHIGHVAL;
-    double Max = Active->getIOMax();
-    double MinOfMax = Active->MinOfMax();
-    double MaxOfMax = Active->MaxOfMax();
+    QString s;
+    switch (Active->GetLogicType()) {
+    case fIN:
+    case fOUT:
+    case fTIMER:
+        ui->MinLabel->setText(FormatLabel("Min",1.0 * ui->Min->minimum(),1.0 * value,1.0 * ui->Min->maximum()));
+        Active->IOMin  = value;
+        ui->pid->setMinimum(value * Active->SimulateScale());
+        if (value>=ui->Max->value())
+            this->on_Max_valueChanged(value+1);
+       // Active->Simulate(Active->InValue);
+        // update all outputs
+        break;
 
-    double Extra = Active->getActiveValue();
-    double MinOfExtra = Active->MinOfExtra();
-    double MaxOfExtra = Active->MaxOfExtra();
-    Active->setIOMin(v);
-    SetupMinSlider();
-
-    if (Max!=Active->getIOMax() || MinOfMax!=Active->MinOfMax() || MaxOfMax!=Active->MaxOfMax())
+    case fAND:
+        break;
+    case fOR:
+        ui->MinLabel->setText(FormatLabel("Minimum Output",ui->Min->minimum() / NODEHIGHVAL,1.0 * value / NODEHIGHVAL,1.0 * ui->Min->maximum()/ NODEHIGHVAL));
+        Active->setActiveValue(value);
+        break;
+    case fFUZZY:
     {
-        double v = Active->getIOMax();
-        if (!Active->UsesMaxScale())
-                v *= NODEHIGHVAL;
-        ui->Max->setValue(v);
+        FuzzyNode *fnp = (FuzzyNode *) Active;
+        ui->MinLabel->setText(FormatLabel("Cause",1.0 * ui->Min->minimum() / NODEHIGHVAL,1.0 * value/ NODEHIGHVAL,1.0 * ui->Min->maximum()/ NODEHIGHVAL));
+        ui->Max->setValue(NODEHIGHVAL * fnp->fuzzy.Value(value / NODEHIGHVAL));
     }
-    if (Extra!=Active->getActiveValue() || MinOfExtra!=Active->MinOfExtra() || MaxOfExtra!=Active->MaxOfExtra())
-        SetupExtraSlider();
+        break;
+    case fPID:
+    {
+        ((PidNode *)Active)->set_p(value);
+        ui->MinLabel->setText(FormatLabel("P",1.0 * ui->Min->minimum()/ NODEHIGHVAL,1.0 * value/ NODEHIGHVAL,1.0 * ui->Min->maximum()/ NODEHIGHVAL));
+    }
+        break;
+
+    }
+    // update all outputs
     Active->update();
+
 }
 
 void MainWindow::on_Max_valueChanged(int value)
 {
     if (!Active) return;
-    double v = value;
-    if (!Active->UsesMaxScale())
-            v /= NODEHIGHVAL;
 
-    double Min = Active->getIOMin();
-    double MinOfMin = Active->MinOfMin();
-    double MaxOfMin = Active->MaxOfMin();
+    switch (Active->GetLogicType()) {
+    case fIN:
+    case fOUT:
+        if (value<1) value = 1;
+        ui->MaxLabel->setText(FormatLabel("Max",1.0 * ui->Max->minimum(),1.0 * value,1.0 * ui->Max->maximum()));
 
-    double Extra = Active->getActiveValue();
-    double MinOfExtra = Active->MinOfExtra();
-    double MaxOfExtra = Active->MaxOfExtra();
-
-    Active->setIOMax(v);
-    SetupMaxSlider();
-    if (Active->getIOMin()!=Min || MinOfMin!=Active->MinOfMin() || MaxOfMin!=Active->MaxOfMin())
-        SetupMinSlider();
-    if (Extra!=Active->getActiveValue() || MinOfExtra!=Active->MinOfExtra() || MaxOfExtra!=Active->MaxOfExtra())
-        SetupExtraSlider();
+        Active->IOMax = value;
+        ui->Max->setValue(value);
+        if (value<=ui->Min->value())
+            this->on_Min_valueChanged(value-1);
+        ui->pid->setMaximum(value * Active->SimulateScale());
+        this->on_pid_valueChanged(ui->pid->value());
+        break;
+    case fAND:
+        ui->MinLabel->setText(FormatLabel("Maximum Output",1.0 * ui->Min->minimum()/ NODEHIGHVAL,1.0 * value/ NODEHIGHVAL,1.0 * ui->Min->maximum() / NODEHIGHVAL));
+        Active->setActiveValue(value/ NODEHIGHVAL);
+        break;
+    case fOR:
+        break;
+    case fFUZZY:
+        ui->MaxLabel->setText(FormatLabel("Effect",1.0 * ui->Max->minimum()/ NODEHIGHVAL,1.0 * value/ NODEHIGHVAL,1.0 * ui->Max->maximum()/ NODEHIGHVAL));
+        break;
+    case fPID:
+        ((PidNode *)Active)->set_i(value);
+        ui->MaxLabel->setText(FormatLabel("I",1.0 * ui->Max->minimum()/ NODEHIGHVAL,1.0 * value/ NODEHIGHVAL,1.0 * ui->Max->maximum()/ NODEHIGHVAL));
+       case fTIMER:
+        break;
+    }
+// update all outputs
+    //Active->Simulate(Active->Current);
     Active->update();
 }
-void MainWindow::on_Extra_valueChanged(int value)
+
+void MainWindow::on_pid_valueChanged(int value)
+{
+   if (!Active) return;
+    double v = value / NODEHIGHVAL;
+   switch (Active->GetLogicType()) {
+   case fIN:
+   {
+       ui->pidlabel->setText(FormatLabel("Simulate input Value",ui->pid->minimum() / Active->SimulateScale(),
+                                            value / Active->SimulateScale(),ui->pid->maximum() / Active->SimulateScale()));
+       Active->InValue = value / Active->SimulateScale();
+       ui->graphicsView->simulate();
+   }
+       break;
+   case fOUT:
+       break;
+   case fAND:
+       break;
+   case fOR:
+       break;
+   case fFUZZY:
+       ui->MaxLabel->setText(FormatLabel("Effect",ui->Max->minimum(), v,ui->Max->maximum()));
+       break;
+   case fPID:
+       ((PidNode *)Active)->set_d(value);
+       ui->pidlabel->setText(FormatLabel("D",ui->pid->minimum()/ NODEHIGHVAL, v/ NODEHIGHVAL,ui->pid->maximum()/ NODEHIGHVAL));
+       break;
+   case fTIMER:
+       break;
+   }
+// update all outputs
+//   Active->Simulate(Active->Current);
+   Active->update();
+}
+
+void MainWindow::on_SetPoint_clicked()
 {
     if (!Active) return;
-    double Max = Active->getIOMax();
-    double Min = Active->getIOMin();
-    Active->setActiveValue(value);
-    Active->setInValue(value);
-    SetupExtraSlider();
-        if (Max!=Active->getIOMax())
-            SetupMaxSlider();
-    if (Min!=Active->getIOMin())
-        SetupMinSlider();
-    Active->update();
-    Simulate();
-}
+    FuzzyNode *fActive = (FuzzyNode *) Active;
+    double cause = ui->Min->value()  / NODEHIGHVAL;
+    double effect = ui->Max->value() / NODEHIGHVAL;
 
+    fActive->fuzzy.TFuzzyAddPoint(cause,effect);
 
-void MainWindow::UpdateTableAndGraph(FuzzyNode *fActive)
-{
     ui->ValueTable->setModel(0);
     ui->ValueTable->setModel(fActive);
     ui->ValueTable->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
@@ -586,26 +439,12 @@ void MainWindow::UpdateTableAndGraph(FuzzyNode *fActive)
         ui->Graph->replot();
 
     }
-
-}
-
-void MainWindow::on_SetPoint_clicked()
-{
-    if (!Active) return;
-    FuzzyNode *fActive = (FuzzyNode *) Active;
-    double cause = ui->Min->value()  / NODEHIGHVAL;
-    double effect = ui->Max->value() / NODEHIGHVAL;
-
-    fActive->fuzzy.TFuzzyAddPoint(cause,effect);
-
-    UpdateTableAndGraph(fActive);
     fActive->update();
 }
 
 
 QString MainWindow::SuggestName(LOGICTYPE t) const
 {
-    if (this==0) return "oops";
     return ui->graphicsView->SuggestName(t);
 }
 
@@ -616,11 +455,11 @@ void MainWindow::on_Lock_clicked()
 
 
 
+
 void MainWindow::on_ValueTable_entered(const QModelIndex &/*index*/)
 {
     FuzzyNode *fActive = (FuzzyNode *)Active;
-
-   // connect(fActive,SIGNAL(editCompleted(const QString &)),this,SLOT(setWindowTitle(QString)));
+    connect(fActive,SIGNAL(editCompleted(const QString &)),this,SLOT(setWindowTitle(QString)));
 }
 
 void MainWindow::Simulate()
@@ -631,21 +470,18 @@ void MainWindow::Simulate()
 
 void MainWindow::on_MinScale_valueChanged(int value)
 {
-     Q_UNUSED(value);
-    if (Active)
-    {
-        if (Active->UsesMinScale())
-            Active->setMinScale(value);
-            SetupMinSlider();
-    }
+    ui->Min->setMaximum(value * 2);
+    ui->MinScale->setValue(value);
+    on_Min_valueChanged(ui->Min->value());
+    ui->MinScale->update();
 }
 
 void MainWindow::on_MaxScale_valueChanged(int value)
-{    
-    if (!Active) return;
-    Active->setMaxScale(value);
-
-    SetupMaxSlider();
+{
+    ui->Max->setMaximum(value * 2);
+    ui->MaxScale->setValue(value);
+    this->on_Max_valueChanged(ui->Max->value());
+    ui->MaxScale->update();
 }
 
 void MainWindow::on_actionView_as_C_Source_triggered()
@@ -653,13 +489,13 @@ void MainWindow::on_actionView_as_C_Source_triggered()
 ViewSourceDialog *vs = new ViewSourceDialog(this);
 QString h,s;
 QTextStream hs(&h),ss(&s);
-    WriteSource(hs,ss);
+    ui->graphicsView->WriteSource(hs,ss);
    vs->SetSource(h,s);
    vs->exec();
-   delete vs;
+
 }
 
-#include <QDockWidget>
+
 void MainWindow::on_DeleteBlock_clicked()
 {
     QGraphicsScene *scene = this->ui->graphicsView->scene();
@@ -669,13 +505,12 @@ void MainWindow::on_DeleteBlock_clicked()
             continue;
         if (node->getSelected())
         {
-            node->DeleteAllEdges();
+            node->ModifyEdges(true);
             scene->items().removeOne(item);
             delete node;
         }
     }
-//Load("test");
-
+Load("test");
 }
 bool MainWindow::getFrozen() const
 {
@@ -695,423 +530,40 @@ void MainWindow::on_actionNew_triggered()
         Node *node = qgraphicsitem_cast<Node *>(item);
         if (!node)
             continue;
-        node->DeleteAllEdges();
-    }
-    foreach (QGraphicsItem *item, scene->items()) {
-        Node *node = qgraphicsitem_cast<Node *>(item);
-        if (!node)
-            continue;
-         scene->items().removeOne(item);
-         delete node;
-    }
-    SelectNode(0);
-}
-
-void MainWindow::on_Group_clicked()
-{
-    Groups *g = new Groups(this);
-    QGraphicsScene *scene = this->ui->graphicsView->scene();
-    foreach (QGraphicsItem *item, scene->items()) {
-        Node *node = qgraphicsitem_cast<Node *>(item);
-        if (!node)
-            continue;
         {
-            g->addNode(node->getName());
-
+            node->ModifyEdges(true);
+            scene->items().removeOne(item);
+            delete node;
         }
-    }
-
-    g->exec();
-    delete g;
-    ui->GroupSelect->clear();
-    for(int i=0;i<gti->rowCount();i++) {
-        ui->GroupSelect->addItem(gti->GetItem(i)->Name);
-    }
-}
-GroupTableItem *MainWindow::getGroupTableItem() const
-{
-    return gti;
-}
-
-void MainWindow::setGti(GroupTableItem *value)
-{
-    gti = value;
-}
-
-
-Node *MainWindow::findNode(const QString &Name)
-{
-    QGraphicsScene *scene = this->ui->graphicsView->scene();
-    foreach (QGraphicsItem *item, scene->items()) {
-        Node *node = qgraphicsitem_cast<Node *>(item);
-        if (!node)
-            continue;
-        if (node->getName()==Name)
-               return node;
-    }
-    return 0;
-}
-
-
-void MainWindow::on_LoadTest_clicked()
-{
-
-    Load("test");
-}
-
-void MainWindow::on_GroupSelect_currentIndexChanged(const QString &arg1)
-{
-    QGraphicsScene *scene = this->ui->graphicsView->scene();
-   for(int i=0;i<gti->rowCount();i++)   {
-       if (gti->GetItem(i)->Name==arg1) {
-           int groupid = gti->GetItem(i)->GroupID;
-           foreach (QGraphicsItem *item, scene->items()) {
-               Node *node = qgraphicsitem_cast<Node *>(item);
-               if (!node)
-                   continue;
-               node->setVisible(node->GroupMember(groupid));
-
-           }
-           return;
-       }
-   }
-}
-
-void MainWindow::on_DelLogic_clicked()
-{
-   if (Active!=0) {
-       Active->DeleteAllEdges();
-       delete Active;
-       Active = 0;
-   }
-}
-
-
-void MainWindow::on_actionView_as_Arduino_Source_triggered()
-{ // view as arduino source
-    ViewSourceDialog *vs = new ViewSourceDialog(this);
-    QString hs;
-    QTextStream ss(&hs);
-        WriteSource(ss,ss);
-       vs->SetSource(hs);
-       vs->exec();
-
-}
-
-void MainWindow::on_actionSave_as_Arduiono_Source_triggered()
-{ // save as arduino source
-    QFileDialog dialog(this);
-    QStringList filters;
-        filters << "Arduino files (*.ino)"
-                << "library files (*.cpp)";
-    dialog.setNameFilters(filters);
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    bool repeat = true;
-    QString filename ;
-    while(repeat) {
-        repeat =false;
-
-        if (dialog.exec()!=QDialog::Accepted)
-            return;
-        QStringList sf = dialog.selectedFiles();
-        filename = sf.first();
-        QFileInfo file(filename);
-        if ((file.suffix()!="ino") && (file.suffix()!="cpp"))
-        {
-            QMessageBox::information(NULL,"Error","You must provide an extension");
-            repeat = true;
-        }
-
-    }
-    dialog.close();
-    if (filename.isEmpty())
-        return;
-    SaveFile(filename,true);
-}
-
-void MainWindow::on_FunctionHeader_editingFinished()
-{
-    if (!Active) return;
-    Active->setName( ui->FunctionHeader->text());
-    Active->update();
-}
-
-void MainWindow::on_regenerate_clicked()
-{
-    if (Active) {
-        QString os;
-        QTextStream ss(&os);
-        Active->setSourceBeenWritten(false);
-        Active->WriteSourcePlainGuts(ss);
-        ui->FunctionBody->setPlainText(os);
-        QString Return,Parameters,FunctionReturn;
-        bool HasBrackets;
-        Active->FunctionData(Return,Parameters,FunctionReturn,HasBrackets);
-        Active->setUserGuts("");
-        ui->FunctionReturn->setText(Return);
-        ui->FunctionParameters->setText(Parameters);
-        ui->FunctionBodyReturn->setText(FunctionReturn);        
-        ui->Bracket1->setText(HasBrackets ? "{" : "");
-        ui->Bracket2->setText(HasBrackets ? "}" : "");
-    }
-}
-
-void MainWindow::on_tabWidget_currentChanged(int index)
-{
-    if (Active==0) return;// No node selected
-    if (index==1) {// looking at code
-        QString os;
-        QTextStream ss(&os);
-            Active->WriteSourcePlainGuts(ss);
-
-        QString s;
-        s = Active->getUserGuts();
-        if (s=="") s = os;
-        ui->FunctionBody->setPlainText(s);
-        QString Return,Parameters,FunctionReturn;
-        bool HasBrackets;
-        ui->FunctionHeader->setText(Active->getName());
-        Active->FunctionData(Return,Parameters,FunctionReturn,HasBrackets);
-        ui->FunctionReturn->setText(Return);
-        ui->FunctionParameters->setText(Parameters);
-        ui->FunctionBodyReturn->setText(FunctionReturn);
-        ui->Bracket1->setText(HasBrackets ? "{" : "");
-        ui->Bracket2->setText(HasBrackets ? "}" : "");
-
-        return;
-    }
-    if (index==0) {
-       QString os;
-       QTextStream ss(&os);
-       Active->WriteSourcePlainGuts(ss);
-       QString s;
-       s = ui->FunctionBody->toPlainText();
-       ui->NodeName->setText(Active->getName());
-       //s = Active->getUserGuts();
-       QString regen = Active->Regenerate();
-       if (regen==os) // no change from regenerated
-           Active->setUserGuts("");
-        if (s!=os)
-            Active->setUserGuts(s);
-    }
-}
-
-void MainWindow::on_MinText_editingFinished()
-{
-    if (!Active) return;
-    try {
-        bool OK;
-    double value = ui->MinText->text().toDouble(&OK);
-        if (OK)
-        {
-            if (!Active->UsesMinScale())
-                value *= NODEHIGHVAL;
-            ui->Min->setValue(value);
-        }
-        else {
-            QMessageBox::information(NULL, "Bad Value","Number Expected");
-            ui->MinText->setText(Active->getIOMinText());
-        }
-    }
-    catch(...)
-    {
-
-    }
-}
-
-void MainWindow::on_MaxText_editingFinished()
-{
-    if (!Active) return;
-    try {
-        bool OK;
-    double value = ui->MaxText->text().toDouble(&OK);
-        if (OK) {
-            if (!Active->UsesMaxScale())
-                value *= NODEHIGHVAL;
-            ui->Max->setValue(value);
-        }
-        else {
-            QMessageBox::information(NULL, "Bad Value","Integer Value Expected");
-            ui->MaxText->setText(Active->getIOMaxText());
-        }
-    }
-    catch(...)
-    {
-
     }
 }
 
 void MainWindow::on_NodeName_editingFinished()
 {
-    if (Active==0) return;
-    Active->setName(ui->NodeName->text());
-    Active->update();
+    if (Active) {
+        Active->setName( ui->NodeName->text());
+        Active->update();
+    }
 }
 
-void MainWindow::AddIn()
+/*void MainWindow::on_NodeName_textChanged(const QString &arg1)
 {
-    AddNode(fIN);
-}
+    if (Active) {
+        Active->setName( ui->NodeName->text());
+        Active->update();
+   }
+}*/
 
-void MainWindow::AddOut()
+//void MainWindow::on_NodeName_textEdited(const QString &arg1)
+//{
+
+//}
+void MainWindow::on_NodeName_returnPressed()
 {
-    AddNode(fOUT);
-}
-
-void MainWindow::AddOr()
-{
-    AddNode(fOR);
-}
-
-void MainWindow::AddNot()
-{
-    AddNode(fNOT);
-}
-
-void MainWindow::AddAnd()
-{
-    AddNode(fAND);
-}
-void MainWindow::AddFuzzy()
-{
-    AddNode(fFUZZY);
-}
-void MainWindow::AddSetup()
-{
-    AddNode(fSETUP);
-}
-
-void MainWindow::AddPID()
-{
-    AddNode(fPID);
-}
-
-void MainWindow::AddTimer()
-{
-    AddNode(fTIMER);
-}
-
-void MainWindow::AddDefine()
-{
-    AddNode(fDEFINE);
-}
-
-void MainWindow::AddNode(LOGICTYPE lt)
-{
-
-
-    Node *node = NodeFactory::Create(ui->graphicsView,lt);
-    node->setName(SuggestName(lt));
-    QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());
-    SelectAllAction(false);// unselect all nodes
-    SelectNode(node);
-
-
 
 }
 
-
-void MainWindow::createToolBars()
+void MainWindow::on_graphicsView_rubberBandChanged(const QRect &viewportRect, const QPointF &fromScenePoint, const QPointF &toScenePoint)
 {
-    editToolBar = addToolBar(tr("Edit"));
-    editToolBar->addAction(inNodeAct);
-    editToolBar->addAction(outNodeAct);
-    editToolBar->addAction(orNodeAct);
-    editToolBar->addAction(andNodeAct);
-    editToolBar->addAction(notNodeAct);
-    editToolBar->addAction(fuzzyNodeAct);
-    editToolBar->addAction(setupNodeAct);
-    editToolBar->addAction(pidNodeAct);
-    editToolBar->addAction(timerNodeAct);
-    editToolBar->addAction(defineNodeAct);
 
-}
-
-void MainWindow::createActions()
-{
-    Node *node;
-    node = NodeFactory::Create(ui->graphicsView,fIN);
-    inNodeAct = new QAction(node->generateIcon(), tr("&In"), this);
-    //inNodeAct->setShortcuts(QKeySequence::Undo);
-    inNodeAct->setStatusTip(tr("Add an Input Node"));
-    connect(inNodeAct, SIGNAL(triggered()), this, SLOT(AddIn()));
-    delete node;
-
-
-    node = NodeFactory::Create(ui->graphicsView,fOUT);
-    outNodeAct = new QAction(node->generateIcon(), tr("&Out"), this);
-    outNodeAct->setStatusTip(tr("Add an Output Node"));
-    connect(outNodeAct, SIGNAL(triggered()), this, SLOT(AddOut()));
-    delete node;
-
-    node = NodeFactory::Create(ui->graphicsView,fOR);
-    orNodeAct = new QAction(node->generateIcon(), tr("&Or"), this);
-    //orNodeAct->setShortcuts(QKeySequence::Undo);
-    orNodeAct->setStatusTip(tr("Add an Or Node"));
-    connect(orNodeAct, SIGNAL(triggered()), this, SLOT(AddOr()));
-    delete node;
-
-    node = NodeFactory::Create(ui->graphicsView,fAND);
-    andNodeAct = new QAction(node->generateIcon(), tr("&And"), this);
-    //andNodeAct->setShortcuts(QKeySequence::Undo);
-    andNodeAct->setStatusTip(tr("Add an And Node"));
-    connect(andNodeAct, SIGNAL(triggered()), this, SLOT(AddAnd()));
-    delete node;
-
-    node = NodeFactory::Create(ui->graphicsView,fNOT);
-    notNodeAct = new QAction(node->generateIcon(), tr("&Not"), this);
-    //notNodeAct->setShortcuts(QKeySequence::Undo);
-    notNodeAct->setStatusTip(tr("Add a Not Node"));
-    connect(notNodeAct, SIGNAL(triggered()), this, SLOT(AddNot()));
-    delete node;
-
-    node = NodeFactory::Create(ui->graphicsView,fFUZZY);
-    fuzzyNodeAct = new QAction(node->generateIcon(), tr("&Fuzzy"), this);
-    fuzzyNodeAct->setStatusTip(tr("Add a Fuzzy Node"));
-    connect(fuzzyNodeAct, SIGNAL(triggered()), this, SLOT(AddFuzzy()));
-    delete node;
-
-    node = NodeFactory::Create(ui->graphicsView,fSETUP);
-    setupNodeAct = new QAction(node->generateIcon(), tr("&Setup"), this);
-    setupNodeAct->setStatusTip(tr("Add a setup node"));
-    connect(setupNodeAct, SIGNAL(triggered()), this, SLOT(AddSetup()));
-    delete node;
-
-    node = NodeFactory::Create(ui->graphicsView,fPID);
-    pidNodeAct = new QAction(node->generateIcon(), tr("&PID"), this);
-    pidNodeAct->setStatusTip(tr("Add a PID node"));
-    connect(pidNodeAct, SIGNAL(triggered()), this, SLOT(AddPID()));
-    delete node;
-
-    node = NodeFactory::Create(ui->graphicsView,fTIMER);
-    timerNodeAct = new QAction(node->generateIcon(), tr("&Timer"), this);
-    timerNodeAct->setStatusTip(tr("Add a timer node"));
-    connect(timerNodeAct, SIGNAL(triggered()), this, SLOT(AddTimer()));
-    delete node;
-
-    node = NodeFactory::Create(ui->graphicsView,fDEFINE);
-    defineNodeAct = new QAction(node->generateIcon(), tr("&Def"), this);
-    defineNodeAct->setStatusTip(tr("Add a timer node"));
-    connect(defineNodeAct, SIGNAL(triggered()), this, SLOT(AddDefine()));
-    delete node;
-
-
-}
-
-
-void MainWindow::on_actionSave_arduino_triggered()
-{
-    // save as arduino source
-QString filename;
-        filename = ui->actionSave_arduino->text();
-        filename.remove(0,strlen("Save (Arduino) "));
-       if (filename.isEmpty())
-           return;
-       SaveFile(filename,true);
-}
-
-void MainWindow::on_Verbose_clicked()
-{
-    verbose = (ui->Verbose->checkState() == Qt::Checked) || (ui->Verbose->checkState() == Qt::PartiallyChecked);
 }

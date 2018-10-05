@@ -1,6 +1,6 @@
 #include "edge.h"
 #include "node.h"
-
+#include "graphwidget.h"
 #include "mainwindow.h"
 
 #include <QGraphicsScene>
@@ -11,156 +11,77 @@
 #include <qnamespace.h>
 #include <QDebug>
 
+//! [0]
 
-QString Node::getInLineText() const
+QString Node::getINTEXT() const
 {
-    return UserGuts;
+    return INTEXT;
 }
 
 void Node::setINTEXT(const QString &value)
 {
-    UserGuts = value;
+    INTEXT = value;
 }
-
-QString Node::getUserGuts() const
-{
-    return UserGuts;
-}
-
-void Node::setUserGuts(const QString &value)
-{
-    UserGuts = value;
-}
-
-
-QString Node::getNotes() const
-{
-    return Notes;
-}
-
-void Node::setNotes(const QString &value)
-{
-    Notes = value;
-}
-
-
-int Node::getWidth() const
-{
-    return width;
-}
-
-void Node::setWidth(int value)
-{
-    width = value;
-}
-
-int Node::getHeight() const
-{
-    return height;
-}
-
-void Node::setHeight(int value)
-{
-    height = value;
-}
-bool Node::FindNewVertPosition(int updown)
-{    
-    QGraphicsScene *scene = graph->scene();
-    QPointF p = pos();
-    bool restart = true;
-    while(restart) {
-        restart =false;
-        foreach (QGraphicsItem *item, scene->items()) {
-            Node *node = qgraphicsitem_cast<Node *>(item);
-            if (!node || node==this)
-                continue;
-            if (node->pos()==p){
-                if (p.y()<100) return false; // can't do it
-                double y = p.y();
-             //   QRectF r = boundingRect();
-                int height = 50;
-                p.setY(y+ height * updown);
-                restart = true;
-                break;
-            }
-        }
-    }
-    setPos(p);
-    return true;
-}
-
 Node::Node(GraphWidget *graphWidget)
     : graph(graphWidget)
 {
-    MinScale = MaxScale = ExtraScale = 1.0;
-    width = getNodeWidth();
-    height = getNodeHeight();
-    QGraphicsScene *scene = graph->scene();
+    QGraphicsScene *scene = graphWidget->scene();
     scene->addItem(this);
     setFlag(ItemIsMovable);
     setFlag(ItemSendsGeometryChanges);
     setCacheMode(DeviceCoordinateCache);
     setZValue(-1);
     selected = false;
-    UserGuts = "";
-    MinScale = MaxScale = ExtraScale = 1.0;
+    INTEXT = "";
+    QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
+    setPos(exposedRect.width()/2,exposedRect.height() / 2);
+
 }
-/**
- * Generate a QIcon for the supplied QPainterPath.
- *
- * @param path a const reference to a QPainterPath
- *
- * @return a QIcon
- */
-QIcon Node::generateIcon()
+void Node::addEdge(Edge *edge)
 {
-    QPixmap pixmap(getNodeWidth(),getNodeHeight());
-    pixmap.fill(Qt::white);
-    QPainter painter(&pixmap);
-    painter.setRenderHint(QPainter::Antialiasing, true);
-
-    QStyleOptionGraphicsItem g;
-    QRectF r1 = paintSetup(&painter,&g);
-    QPainterPath s = shape();
-    QRectF r = s.boundingRect();
-    painter.translate(0,0);
-    painter.scale(getNodeWidth() /r1.width() ,getNodeHeight() / r1.height());
-    painter.translate(-r.x(),-r.y());
-    painter.drawPath(s);
-    QString nodetype = gettype();
-
-    QFont f = painter.font();
-    f.setBold(true);
-    painter.setFont(f);
-    QPointF p(-getNodeWidth()/2,0);
-    painter.drawText(r,Qt::AlignHCenter | Qt::AlignBottom,nodetype);
-
-    painter.end();
-
-    pixmap.scaled(getNodeWidth(),getNodeHeight());
-    return QIcon(pixmap);
+    edgeList << edge;
+    edge->adjust();
 }
 
-double Node::OnMinValueChanged(int Value, QString &MinText)
+QList<Edge *> Node::edges() const
 {
-    MinText.sprintf("%d",Value);
-    IOMin = Value;
-    return Value;
+    return edgeList;
 }
-
-double Node::OnMaxValueChanged(int Value, QString &MinText)
+QString Node::getName() const
 {
-    MinText.sprintf("%d",Value);
-    IOMax = Value;
-    return Value;
+    return Name;
 }
 
-QRectF Node::paintSetup(QPainter *painter, const QStyleOptionGraphicsItem *option)
+void Node::drawShape(QPainter *p,QRectF &r)
+{
+    p->drawEllipse(r);
+}
+
+QColor Node::getGradient(int zero_one)
+{
+    if (zero_one)
+        return QColor(Qt::green);
+    return QColor(Qt::darkGreen);
+}
+
+QRectF Node::boundingRect() const
+{
+int width = 20;
+int height = 20;
+qreal adjust = 2;
+return QRectF( -width - adjust, -height - adjust, 2 * width + adjust, 2 * height + adjust);
+}
+
+
+void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/)
 {
     painter->setPen(Qt::NoPen);
     painter->setBrush(Qt::darkGray);
-QRectF r =  boundingRect();
-
+    QRectF r =  boundingRect();
+    r.adjust(-3,-3,0,0);
+    drawShape(painter,r);
+//    painter->drawEllipse(r);
+    r.adjust(3,3,0,0);
     QRadialGradient gradient(r.center(),r.height());
     if (option->state & QStyle::State_Sunken) {
         gradient.setCenter(3, 3);
@@ -179,246 +100,27 @@ QRectF r =  boundingRect();
             gradient.setColorAt(1, Qt::darkYellow);
         }
         else {
-            gradient.setColorAt(1, QColor(Qt::green));
-            gradient.setColorAt(0, QColor(Qt::darkGreen));
+            gradient.setColorAt(1,getGradient(1));
+            gradient.setColorAt(0,getGradient(0));
         }
     }
+
     painter->setBrush(gradient);
+
+
+
     painter->setPen(QPen(Qt::black, 0));
-    return r;
-}
-
-void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/)
-{
-    QRectF r = paintSetup(painter, option);
+    QString v;
+        v.sprintf("\n%05.5f",getCurrent());
     QString NameV(getName());
-    NameV += GetValueText();
-
-    painter->drawPath(shape());
-    if (fType==fIN || fType==fSETUP)    {
-        painter->drawText(r,Qt::AlignRight,NameV);
-    }
-    else
-        painter->drawText(r,Qt::AlignHCenter,NameV);
-
-
-}
-
-// checks if the soure has already been written, and sets it as true (cause we are about to)
-bool Node::CheckSetSourceBeenWritten()
-{
-    if (SourceBeenWritten)   return true;
-    SourceBeenWritten = true;
-    return false;
-}
-
-bool Node::getHeaderBeenWritten() const
-{
-    return HeaderBeenWritten;
-}
-
-void Node::setHeaderBeenWritten(bool value)
-{
-    HeaderBeenWritten = value;
-}
-
-QString Node::getIOMinText() const
-{
-    QString ss;
-    ss.sprintf("%05.5f",getIOMin());
-    return ss;
-}
-
-QString Node::getIOMaxText() const
-{
-    QString ss;
-    ss.sprintf("%05.5f",getIOMax());
-    return ss;
-}
-
-QString Node::getExtraText() const
-{
-    QString ss;
-    ss.sprintf("%05.5f",this->getActiveValue());
-    return ss;
-}
-
-double Node::Normalize(double value) const
-{
-    return (value - getIOMin()) / (getIOMax() - getIOMin()); // normalize
-}
-
-double Node::UnNormalize(double value) const
-{
-    return (getIOMax() - getIOMin()) * value + getIOMin();
-}
-
-QString Node::GetValueText() const
-{
-QString v;
-v.sprintf("\n%05.5f",getCurrent());
-    return v;
-}
-double Node::getInValue() const
-{
-    return InValue;
-}
-
-void Node::setInValue(double value)
-{
-    InValue = value;
-}
-
-double Node::getExtraScale() const
-{
-    return ExtraScale;
-}
-
-void Node::setExtraScale(double value)
-{
-    ExtraScale = value;
-}
-
-double Node::getMaxScale() const
-{
-    return MaxScale;
-}
-
-void Node::setMaxScale(double value)
-{
-    MaxScale = value;
-}
-
-double Node::getMinScale() const
-{
-    return MinScale;
-}
-
-void Node::setMinScale(double value)
-{
-    MinScale = value;
-}
-
-bool Node::getSourceBeenWritten() const
-{
-    return SourceBeenWritten;
-}
-
-void Node::setSourceBeenWritten(bool value)
-{
-    SourceBeenWritten = value;
-}
-
-
-
-void Node::addEdge(Edge *edge)
-{
-    edgeList << edge;
-    edge->adjust();
-}
-
-void Node::FunctionData(QString &Return, QString &Parameters, QString &FunctionReturn, bool &HasBrackets) const
-{
-    Return = "void ";
-    Parameters = "(void)";
-    FunctionReturn = "return;";
-    HasBrackets = true;
-}
-
-
-void Node::WriteHeader(QTextStream &h) const
-{
-    Q_UNUSED(h);
-    return;
-    /*if (userGuts!="") {
-        h<< "//!!INLINE!!" << userGuts << "\n";
-    }*/
-}
-
-void Node::WriteIncludes(QTextStream &h) const
-{
-    Q_UNUSED(h);
-}
-
-void Node::WriteNodeInfo(QTextStream &s) const
-{
-    s<< "//!!GID";
-    foreach(int i,this->GroupIDList) {
-        s<< "!!" << i;
-    }
-    s<< "\n";
-}
-
-void Node::WriteSourceUserBefore(QTextStream &s) const
-{
-    s << UserGuts;
-}
-
-
-void Node::WriteSourceUserGuts(QTextStream &s) const
-{
-    QString Return,Parameters,ub,ua,FunctionReturn;
-    bool HasBrackets;
-    this->FunctionData(Return,Parameters,FunctionReturn,HasBrackets);
-    s << Return << " " << this->getName() << Parameters << "\n";
-    if (HasBrackets)
-        s << "{\n";
-    if (UserGuts!="") {
-        s << "//!!USERBefore!!" << Name << "\n";
-        s << UserGuts;
-        s << "\n//!!USERBefore!!" << Name << "\n\n";
-    }
-    else
-        WriteSourcePlainGuts(s);
-    s << FunctionReturn << "\n";
-    if (HasBrackets)
-        s << "}\n\n";
-}
-
-void Node::WriteSourcePlainGuts(QTextStream &s) const
-{
-    if (getUserGuts()=="")
-        s << Regenerate();
-    else s << getUserGuts();
-}
-
-void Node::WriteEdges(QTextStream &s) const
-{
-    foreach (Edge *edge, edgeList)  {
-        if (edge->getDest()!=this)   // all nodes are covered so only get the edge from one end
-            edge->WriteNodeInfo(s);
-    }
-}
-
-void Node::WriteSource(QTextStream &s)
-{
-    if (CheckSetSourceBeenWritten()) return;
-    WriteSourceUserGuts(s);
-    foreach (Edge *edge, edgeList)
+    NameV += v;
     {
-        if (edge->getSource()!=this)
-        {
-            edge->getSource()->WriteSource(s);
-        }
+        drawShape(painter,r);
+    //r.adjust(-15,-15,15,15);
+        painter->drawText(r,Qt::AlignHCenter,NameV);
+//        painter->drawText(r.bottomLeft(),NameV);
     }
-
 }
-
-QString Node::Regenerate() const
-{    
-    return getUserGuts();
-}
-
-
-QList<Edge *> Node::edges() const
-{
-    return edgeList;
-}
-QString Node::getName() const
-{
-    return Name;
-}
-
 void Node::setName(const QString &value)
 {
     Name = value;
@@ -475,11 +177,6 @@ QRectF sceneRect = scene()->sceneRect();
 QPointF vec = pos();
 int w2 = sceneRect.width()/2;
     switch(this->GetLogicType()){
-    case fSETUP:
-    case fDEFINE:
-        xvel -=50;
-        yvel -= 50;
-        break;
     case fIN:
         xvel -=50;
         break;
@@ -492,7 +189,6 @@ int w2 = sceneRect.width()/2;
         break;
     case fAND:
     case fOR:
-    case fNOT:
         yvel -=5;
         xvel += +(vec.rx() - w2) / 10;
         break;
@@ -501,15 +197,15 @@ int w2 = sceneRect.width()/2;
         break;
     }
 
-
+//! [4]
     // Now subtract all forces pulling items together
     double weight = (edgeList.size() + 1) * 10;
     foreach (Edge *edge, edgeList) {
         QPointF vec;
-        if (edge->getSource() == this)
-            vec = mapToItem(edge->getDest(), 0, 0);
+        if (edge->sourceNode() == this)
+            vec = mapToItem(edge->destNode(), 0, 0);
         else
-            vec = mapToItem(edge->getSource(), 0, 0);
+            vec = mapToItem(edge->sourceNode(), 0, 0);
         xvel -= vec.x() / weight;
         yvel -= vec.y() / weight;
     }
@@ -542,21 +238,6 @@ bool Node::advance()
 
     setPos(newPos);
     return true;
-}
-
-void Node::setVisible(bool visible)
-{
-    QGraphicsItem::setVisible(visible);
-    foreach(Edge *e, edgeList)
-            e->setVisible(visible);
-}
-
-bool Node::GroupMember(int GroupID)
-{
-    if (GroupID==0) return true; // all group
-        foreach(int i, GroupIDList)
-            if (GroupID==i) return true;
-        return false;
 }
 //! [7]
 
@@ -693,12 +374,9 @@ void Node::setPos(qreal ax, qreal ay)
 
 void Node::setPos(QPointF p)
 {
-    if (getName()=="In1")
-        qDebug() << getName() << pos() << QString(" new pos ") << p;
     setNewPos(p);
     QGraphicsItem::setPos(p);
 }
-
 
 
 /*bool Node::AllowAttach(Node *)
@@ -740,53 +418,37 @@ QVariant Node::itemChange(GraphicsItemChange change, const QVariant &value)
 bool Node::deleteEdge(Node *node)
 {
     bool deleted = false;
-    bool startover = true;
-    while(startover) {
-        startover = false;
-        foreach (Edge *edge, edgeList)
-        {
-            if (edge->getSource()==node) {
-                node->edgeList.removeOne(edge);
-                edgeList.removeOne(edge);
-                scene()->removeItem(edge);
-  //              delete edge;
-                deleted = true;
-                startover = true;
-                break;
-            }
+    foreach (Edge *edge, edgeList)
+    {
+        if (edge->sourceNode()==node) {
+            node->edges().removeOne(edge);
+            edges().removeOne(edge);
+            node->edgeList.removeOne(edge);
+            edgeList.removeOne(edge);
+            scene()->removeItem(edge);
+            deleted = true;
+            //break;
         }
     }
+
     return deleted;
 }
 
-//  will delete any edges from any nodes to this one.
-void Node::DeleteAllEdges()
-{
-    bool startover = true;
-    while(startover) {
-        startover = false;
-        foreach (QGraphicsItem *item, scene()->items()) {
-            Node *node = qgraphicsitem_cast<Node *>(item);
-            if (!node || node==this)
-                continue;
-            startover = deleteEdge(node) || node->deleteEdge(this);
-
-        }
-    }
-}
-// will add or remove edges from selected nodes to this one
-void Node::JoinRemoveEdgesFromSelectedNodes()
+// will add or remove edges from selected nodes to this one, or if DeleteAll will delete any edges from any nodes to this one.
+void Node::ModifyEdges(bool DeleteAll)
 {
     foreach (QGraphicsItem *item, scene()->items()) {
         Node *node = qgraphicsitem_cast<Node *>(item);
         if (!node || node==this)
             continue;
-
-        if (node->selected) {
-            if (!deleteEdge(node) && AllowAttach(node)) {
-                this->scene()->addItem(new Edge(node,this));
+        if (DeleteAll)
+                deleteEdge(node);
+        else    {
+            if (node->selected) {
+                if (!deleteEdge(node) && AllowAttach(node)) {
+                    this->scene()->addItem(new Edge(node,this));
+                }
             }
-
         }
     }
 }
@@ -805,12 +467,11 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     Qt::MouseButton b = event->button();
     if (b & Qt::RightButton) {
-        JoinRemoveEdgesFromSelectedNodes();
+        ModifyEdges(false);
         // if at this point no other node had an edge selected so this is first one
         QGraphicsItem::mousePressEvent(event);
         return;
     }
-
     if (graph->GetShift()) selected = true;
     else {
         foreach (QGraphicsItem *item, scene()->items()) {
@@ -821,7 +482,7 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent *event)
             node->update(node->boundingRect());
         }
     }
-    wp->SelectNode(this);
+    wp->DisplayNode(this);
     event->setAccepted(true);
     update();
     QGraphicsItem::mousePressEvent(event);
@@ -838,8 +499,6 @@ void Node::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     if (selected) calculateForces();
     QGraphicsItem::mouseMoveEvent(event);
 }
-
-
 
 QVariant Node::headerData(int section, Qt::Orientation orientation, int role) const
 {
@@ -858,10 +517,23 @@ QVariant Node::headerData(int section, Qt::Orientation orientation, int role) co
     return QVariant();
 }
 
+void Node::editCompleted(const QString &)
+{
+    //
+}
 
 Qt::ItemFlags Node::flags(const QModelIndex &/*index*/) const
 {
     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
+}
+bool Node::getBeenWritten() const
+{
+    return BeenWritten;
+}
+
+void Node::setBeenWritten(bool value)
+{
+    BeenWritten = value;
 }
 
 
@@ -893,7 +565,6 @@ double Node::getIOMax() const
 void Node::setIOMax(double value)
 {
     IOMax = value;
-
 }
 
 bool Node::getSelected() const
@@ -979,22 +650,6 @@ double Node::getCurrent() const
 void Node::setCurrent(double value)
 {
     Current = value;
-}
-
-void Node::setInGroup(int GroupID, bool IsIn)
-{
-    int count=0;
-    foreach(int i, GroupIDList) {
-
-        if (i==GroupID) {
-            if (IsIn) return; // already in list
-            GroupIDList.removeAt(count);
-            return;
-        }
-        count++;
-    }
-    if (IsIn)
-        GroupIDList.append(GroupID);
 }
 
 

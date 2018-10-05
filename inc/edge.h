@@ -45,29 +45,26 @@
 #include <QTextStream>
 class Node;
 
+
 //! [0]
 class Edge : public QGraphicsItem
 {
 public:
-    Edge(Node *getSource, Node *destNode);
+    Edge(Node *sourceNode, Node *destNode);
 
+    Node *sourceNode() const;
+    Node *destNode() const;
 
     void adjust();
 
     enum { Type = UserType + 2 };
     int type() const { return Type; }
-    virtual void WriteNodeInfo(QTextStream &s);
-
-    Node *getSource() const;
-    void setSource(Node *value);
-
-    Node *getDest() const;
-    void setDest(Node *value);
+    virtual void WriteSource(QTextStream &h);
 
 protected:
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
+void mousePressEvent(QGraphicsSceneMouseEvent *event);
 private:
     Node *source, *dest;
 

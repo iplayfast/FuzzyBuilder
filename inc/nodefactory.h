@@ -3,16 +3,14 @@
 
 
 #include "node.h"
-#include "setupnode.h"
 #include "innode.h"
 #include "outnode.h"
 #include "fuzzynode.h"
 #include "andnode.h"
 #include "ornode.h"
-#include "notnode.h"
 #include "pidnode.h"
+#include "mapnode.h"
 #include "timernode.h"
-#include "DefineNode.h"
 
 class NodeFactory
 {

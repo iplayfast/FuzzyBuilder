@@ -15,7 +15,6 @@ public:
     explicit ViewSourceDialog(QWidget *parent = 0);
     ~ViewSourceDialog();
    void SetSource(QString h,QString s);
-   void SetSource(QString s);
 private:
     Ui::ViewSourceDialog *ui;
 };

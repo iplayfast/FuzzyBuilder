@@ -41,7 +41,7 @@
 #include "graphwidget.h"
 #include "edge.h"
 #include "nodefactory.h"
-#include "mainwindow.h"
+
 #include <math.h>
 #include <QGraphicsSceneEvent>
 #include <QKeyEvent>
@@ -59,30 +59,32 @@ public:
 
 };
 
-//! [0]
 GraphWidget::GraphWidget(QWidget *parent)
     : QGraphicsView(parent), timerId(0)
 {
-    MyQGraphicsScene *scene = new MyQGraphicsScene(this,parent);//this);
+    //MyQGraphicsScene *scene = new MyQGraphicsScene(this,parent);//this);
+    QGraphicsScene *scene = new QGraphicsScene(this);
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
 
     Shift = false;
-    //scene->setSceneRect(-parent->width(),- parent->height(),parent->width(),parent->height());
     scene->setSceneRect(0,0,parent->width(),parent->height());
     setScene(scene);
-    setCacheMode(CacheNone);//CacheBackground);
+    //setCacheMode(CacheNone);//CacheBackground);
+    setCacheMode(CacheBackground);
     setViewportUpdateMode(BoundingRectViewportUpdate);
     setRenderHint(QPainter::Antialiasing);
     setTransformationAnchor(AnchorUnderMouse);
     scale(qreal(0.95), qreal(0.95));
-    setMinimumSize(400, 400);
-    setWindowTitle(tr("Fuzzy Builder"));
+    setMinimumSize(400, 200);
+//    setWindowTitle(tr("Fuzzy Builder"));
 }
+
 void GraphWidget::itemMoved()
 {
     if (!timerId)
         timerId = startTimer(1000 / 25);
 }
+
 void GraphWidget::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
@@ -98,21 +100,6 @@ void GraphWidget::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Right:
         centerNode->moveBy(20, 0);
         break;*/
-    case Qt::Key_Delete:
-    {
-        QList<Node *> nodes;
-        foreach (QGraphicsItem *item, scene()->items()) {
-            if (Node *node = qgraphicsitem_cast<Node *>(item)){
-                if (node->getSelected())
-                {
-                    node->DeleteAllEdges();
-                    scene()->items().removeOne(item);
-                    delete node;
-                }
-            }
-        }
-    }
-        break;
     case Qt::Key_Plus:
         zoomIn();
         break;
@@ -125,6 +112,7 @@ void GraphWidget::keyPressEvent(QKeyEvent *event)
         break;
    case Qt::Key_Shift:
         Shift = true;
+         /* fall through */
     default:
         QGraphicsView::keyPressEvent(event);
     }
@@ -139,7 +127,7 @@ void GraphWidget::keyReleaseEvent(QKeyEvent *event)
 void GraphWidget::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event);
-return;
+
     QList<Node *> nodes;
     foreach (QGraphicsItem *item, scene()->items()) {
         if (Node *node = qgraphicsitem_cast<Node *>(item))
@@ -165,10 +153,13 @@ void GraphWidget::mousePressEvent(QGraphicsSceneMouseEvent */*event*/)
 {
     QList<Node *> nodes;
     foreach (QGraphicsItem *item, scene()->items()) {
-        if (Node *node = qgraphicsitem_cast<Node *>(item)){
-            node->setSelected(false);
-            node->update();
-        }
+        if (Node *node = qgraphicsitem_cast<Node *>(item))
+            nodes << node;
+    }
+
+    foreach (Node *node, nodes) {
+        node->setSelected(false);
+        node->update();
     }
 
 }
@@ -184,10 +175,6 @@ QString GraphWidget::SuggestName(LOGICTYPE t) const
     QString name;
         switch(t)
         {
-        case fSETUP:
-            name = "setup";
-            return name;
-            break;
         case fIN:
             name = "In";
             break;
@@ -200,9 +187,6 @@ QString GraphWidget::SuggestName(LOGICTYPE t) const
         case fOR:
             name = "Or";
             break;
-        case fNOT:
-            name = "Not";
-            break;
         case fFUZZY:
             name = "Fuzzy";
             break;
@@ -212,8 +196,9 @@ QString GraphWidget::SuggestName(LOGICTYPE t) const
         case fTIMER:
             name = "Timer";
             break;
-        case fDEFINE:
-            name = "PIN";
+        case fMAP:
+            name = "Map";
+            break;
         }
         int count = 1;
         QString result;
@@ -238,23 +223,21 @@ QString GraphWidget::SuggestName(LOGICTYPE t) const
 
 }
 
-
 #ifndef QT_NO_WHEELEVENT
-
 void GraphWidget::wheelEvent(QWheelEvent *event)
 {
     scaleView(pow((double)2, -event->delta() / 240.0));
 }
-
 #endif
-
 
 void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
 {
     Q_UNUSED(rect);
-
     // Shadow
+    return;
     QRectF sceneRect = this->sceneRect();
+    QRectF sceneRect1 = rect;
+    sceneRect.adjust(-5,-5,-5,-5);
     QRectF rightShadow(sceneRect.right(), sceneRect.top() + 5, 5, sceneRect.height());
     QRectF bottomShadow(sceneRect.left() + 5, sceneRect.bottom(), sceneRect.width(), 5);
     if (rightShadow.intersects(rect) || rightShadow.contains(rect))
@@ -271,8 +254,8 @@ void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
     painter->drawRect(sceneRect);
 
     // Text
-    QRectF textRect(sceneRect.left() + 4, sceneRect.top() + 4,
-                    sceneRect.width() - 4, sceneRect.height() - 4);
+  //  QRectF textRect(sceneRect.left() + 4, sceneRect.top() + 4,
+  //                  sceneRect.width() - 4, sceneRect.height() - 4);
 /*    QString message(tr("Click and drag the nodes around, and zoom with the mouse "
                        "wheel or the '+' and '-' keys"));
 
@@ -286,7 +269,9 @@ void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
     painter->drawText(textRect, message);
     */
 }
+//! [6]
 
+//! [7]
 void GraphWidget::scaleView(qreal scaleFactor)
 {
     qreal factor = transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
@@ -304,10 +289,6 @@ void GraphWidget::simulate()
             nodes << node;
     }
 
-    foreach (Node *node, nodes) {
-        if (node->GetLogicType()!=fOUT)
-                node->Simulate();
-    }
     foreach (Node *node, nodes) {
         if (node->GetLogicType()==fOUT)
                 node->Simulate();
@@ -330,162 +311,26 @@ Node *GraphWidget::FindNode(QString &name)
                 return node;
         }
     }
-    return 0;
+    return nullptr;
 }
 
-void GraphWidget::WriteSource(QTextStream &textstreamHeader, QTextStream &textstreamsrc)
+void GraphWidget::WriteSource(QTextStream &h, QTextStream &s)
 {
     QList<Node *> nodes;
     foreach (QGraphicsItem *item, scene()->items()) {
         if (Node *node = qgraphicsitem_cast<Node *>(item))
             nodes << node;
     }
-
-
-
-    if (verbose)    {
-        StartComment(textstreamsrc);
-        textstreamsrc << "Header Section\n";
-        EndComment(textstreamsrc);
-        StartComment(textstreamsrc);
-        textstreamsrc << "Includes Section\n";
-        EndComment(textstreamsrc);
-    }
     foreach (Node *node, nodes) {
-        node->setHeaderBeenWritten(false);
-    }
-    foreach (Node *node, nodes) {
-        node->WriteIncludes(textstreamHeader);// will only write out if it hasn't been written yet
-        node->setHeaderBeenWritten(true);
-    }
-    if (verbose) {
-        StartComment(textstreamsrc);
-        textstreamsrc << "End Includes Section\n";
-        EndComment(textstreamsrc);
-
-        StartComment(textstreamsrc);
-        textstreamsrc << "Prototypes Section\n";
-        EndComment(textstreamsrc);
-    }
-    foreach (Node *node, nodes)
-        node->WriteHeader(textstreamHeader);
-    if (verbose)    {
-        StartComment(textstreamsrc);
-        textstreamsrc << "End Prototypes Section\n";
-        EndComment(textstreamsrc);
-        StartComment(textstreamsrc);
-        textstreamsrc << "Start Defines Section\n";
-        EndComment(textstreamsrc);
-    }
-    foreach (Node *node, nodes) {
-        node->setSourceBeenWritten(false);
+        node->setBeenWritten(false);
     }
 
-
-    foreach(Node *node,nodes)
-        if (node->GetLogicType()==fDEFINE)
-            node->WriteSource(textstreamsrc);
-    if (verbose) {
-        StartComment(textstreamsrc);
-        textstreamsrc << "End Defines Section\n";
-        EndComment(textstreamsrc);
-
-        StartComment(textstreamsrc);
-        textstreamsrc << "End Header Section\n";
-        EndComment(textstreamsrc);
-
-    }
-
-
-
-    {
-        bool setupdone = false;
-
-    foreach (Node *node,nodes) {
-        if (node->GetLogicType()==fSETUP)   {
-            StartComment(textstreamsrc);
-            textstreamsrc << "//the setup routine runs once when you press reset\n";
-            EndComment(textstreamsrc);
-            node->WriteSource(textstreamsrc);
-            setupdone = true;
-            break; // only one setup
-        }
-    }
-    if (!setupdone) {
-        StartComment(textstreamsrc);
-        textstreamsrc << "//the setup routine runs once when you press reset\n";
-        EndComment(textstreamsrc);
-        textstreamsrc << "void setup()\n{\n";
-        foreach (Node *node,nodes)
-            textstreamsrc << node->InitizationCode();
-        textstreamsrc << "}\n\n";
-    }
-    }
-    StartComment(textstreamsrc);
-    textstreamsrc << "// the loop routine runs over and over again forever\n";
-    EndComment(textstreamsrc);
-    textstreamsrc << "void loop() {\n";
-    textstreamsrc << "//each output is called and it calls any inputs connected to it\n";
     foreach (Node *node, nodes) {
         if (node->GetLogicType()==fOUT)
-            textstreamsrc << "  " << node->getName() << "();\n";
-    }
-    textstreamsrc << "}\n\n\n";
-    if (verbose)    {
-    StartComment(textstreamsrc);
-    textstreamsrc<< "These are the Logic Blocks written by the Fuzzybuilder\n";
-    EndComment(textstreamsrc);
-    }
-    foreach (Node *node, nodes) {
-        if (node->GetLogicType()==fOUT)
-            node->WriteSource(textstreamsrc); // the output nodes write out any connections they have to them recursively
-    }
-    bool notice = true;
-
-    foreach (Node *node, nodes) {
-        if (!node->getSourceBeenWritten())
-        {
-            if (notice) {
-                notice = false;
-                textstreamsrc << "\n\n";
-                StartComment(textstreamsrc);
-                textstreamsrc << "// the following Logic Block(s) are not used\n//But are available for use with the FuzzyBuilder\n";
-                EndComment(textstreamsrc);
-            }
-            node->WriteSource(textstreamsrc);
-        }
-    }
-
-    StartComment(textstreamsrc);
-    textstreamsrc << "//FuzzyBuilder Layout Section\n";
-    EndComment(textstreamsrc);
-
-    foreach(Node *node,nodes)   {
-        node->WriteNodeInfo(textstreamsrc);
-    }
-    foreach(Node *node,nodes)   {
-        node->WriteEdges(textstreamsrc);
-    }
-
-    if (verbose)    {
-        StartComment(textstreamsrc);
-        textstreamsrc << "End FuzzyBuilder Layout Section\n";
-        EndComment(textstreamsrc);
-
-
-        StartComment(textstreamsrc);
-        textstreamsrc << "FuzzyBuilder Group Section\n";
-        EndComment(textstreamsrc);
-    }
-    wp->WriteGroups(textstreamsrc);
-    if (verbose) {
-        StartComment(textstreamsrc);
-        textstreamsrc << "End FuzzyBuilder Group Section\n";
-        EndComment(textstreamsrc);
+                node->WriteSource(h,s);
     }
 
 }
-
 
 void GraphWidget::shuffle()
 {
