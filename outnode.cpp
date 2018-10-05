@@ -11,8 +11,8 @@
 void OutNode::drawShape(QPainter *p, QRectF &r)
 {
     QRectF a(r);
-    a.adjust(r.width()/2,0,0,0);
-   p->drawEllipse(a);
+    p->drawPie(r,120*16,140*15);
+  // p->drawEllipse(a);
 }
 QColor OutNode::getGradient(int zero_one)
 {
@@ -25,7 +25,7 @@ OutNode::OutNode(GraphWidget *graphWidget) : Node(graphWidget)
 {
     //QRect exposedRect(ui->graphicsView->mapToScene(0,0).toPoint(), ui->graphicsView->viewport()->rect().size());
     QRect exposedRect(graphWidget->mapToScene(0,0).toPoint(),graphWidget->viewport()->rect().size());
-    setPos(exposedRect.width(),exposedRect.height() / 2);
+    setPos(exposedRect.width()/2,exposedRect.height() / 2);
 
 }
 

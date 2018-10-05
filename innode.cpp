@@ -45,7 +45,7 @@ void InNode::WriteSource(QTextStream &h,QTextStream &s)
 
 
     setBeenWritten(true);
-    QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
+    QString ps; ps.sprintf("!!%f!!%f!!%f!!%f\n",pos().rx(),pos().ry(),IOMin,IOMax);
     h << "//!!fIn!!" << getName() <<  ps;
     h << "double " << getName() << "(void);\n";
     s << "double " << getName() << "(void)\n{\n";

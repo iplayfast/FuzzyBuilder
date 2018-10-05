@@ -261,6 +261,7 @@ void MainWindow::on_AddLogic_clicked()
     if (r==0) return;
     LOGICTYPE lt = al->GetLogicType();
     QString Name = al->GetName();
+
 Node *node1 = NodeFactory::Create(ui->graphicsView,lt);
     node1->setName(Name);
     switch(lt) {
@@ -444,7 +445,6 @@ void MainWindow::on_SetPoint_clicked()
 
 QString MainWindow::SuggestName(LOGICTYPE t) const
 {
-    if (this==0) return "oops";
     return ui->graphicsView->SuggestName(t);
 }
 

@@ -59,103 +59,32 @@ public:
 
 };
 
-//! [0]
 GraphWidget::GraphWidget(QWidget *parent)
     : QGraphicsView(parent), timerId(0)
 {
-    MyQGraphicsScene *scene = new MyQGraphicsScene(this,parent);//this);
+    //MyQGraphicsScene *scene = new MyQGraphicsScene(this,parent);//this);
+    QGraphicsScene *scene = new QGraphicsScene(this);
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
 
     Shift = false;
-    //scene->setSceneRect(-parent->width(),- parent->height(),parent->width(),parent->height());
     scene->setSceneRect(0,0,parent->width(),parent->height());
     setScene(scene);
-    setCacheMode(CacheNone);//CacheBackground);
+    //setCacheMode(CacheNone);//CacheBackground);
+    setCacheMode(CacheBackground);
     setViewportUpdateMode(BoundingRectViewportUpdate);
     setRenderHint(QPainter::Antialiasing);
     setTransformationAnchor(AnchorUnderMouse);
     scale(qreal(0.95), qreal(0.95));
     setMinimumSize(400, 200);
 //    setWindowTitle(tr("Fuzzy Builder"));
-#ifdef shit
-//! [0]
-//! [1]
-    Node *node1 = NodeFactory::Create(this,fIN);
-    node1->IOMin = 0;
-    node1->IOMax = 5;
-    Node *node2 = NodeFactory::Create(this,fOUT);
-    node2->IOMin = 3;
-    node2->IOMax = 5;
-    node1->setName("sensor");
-    node2->setName("buzzer");
-    scene->addItem(node1);
-    scene->addItem(node2);
-    scene->addItem(new Edge(node1, node2));
-
-
-
-    Node *node3 = new Node(this,fFUZZY);
-    node3->Name = "fuzball";
-    Node *node4 = new Node(this,fOR);
-    node4->Name = "bob";
-    //centerNode = new Node(this,fAND);
-    //centerNode->Name = "george";
-    Node *node6 = new Node(this,fOUT);
-    node6->Name = "out1";
-
-
-    /*Node *node7 = new Node(this);
-    Node *node8 = new Node(this);
-    Node *node9 = new Node(this);
-*/
-    scene->addItem(node3);
-    scene->addItem(node4);
-    scene->addItem(node6);
-    /*scene->addItem(centerNode);*/
-  /*  scene->addItem(node6);
-    scene->addItem(node7);
-    scene->addItem(node8);
-    scene->addItem(node9);
-*/
-
-    //scene->addItem(new Edge(node1, node2));
-/*    scene->addItem(new Edge(node1, node3));
-    scene->addItem(new Edge(node1, node8));
-    scene->addItem(new Edge(node2, node3));
-    scene->addItem(new Edge(node2, centerNode));
-    scene->addItem(new Edge(node3, node6));
-    scene->addItem(new Edge(node4, node1));
-    scene->addItem(new Edge(node4, centerNode));
-    scene->addItem(new Edge(centerNode, node6));
-    scene->addItem(new Edge(centerNode, node8));
-    scene->addItem(new Edge(node6, node9));
-    scene->addItem(new Edge(node7, node4));
-    scene->addItem(new Edge(node8, node7));
-    scene->addItem(new Edge(node9, node8));
-*/
-    /*node1->setPos(-50, -50);
-    node2->setPos(0, -50);
-    node3->setPos(50, -50);
-    node4->setPos(-50, 0);*/
-    //centerNode->setPos(0, 0);
-/*    node6->setPos(50, 0);
-    node7->setPos(-50, 50);
-    node8->setPos(0, 50);
-    node9->setPos(50, 50);
-*/
-#endif
 }
-//! [1]
 
-//! [2]
 void GraphWidget::itemMoved()
 {
     if (!timerId)
         timerId = startTimer(1000 / 25);
 }
-//! [2]
 
-//! [3]
 void GraphWidget::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
@@ -183,7 +112,7 @@ void GraphWidget::keyPressEvent(QKeyEvent *event)
         break;
    case Qt::Key_Shift:
         Shift = true;
-        /* fallthrough */
+         /* fall through */
     default:
         QGraphicsView::keyPressEvent(event);
     }
@@ -195,9 +124,6 @@ void GraphWidget::keyReleaseEvent(QKeyEvent *event)
          Shift = false;
     QGraphicsView::keyPressEvent(event);
 }
-//! [3]
-
-//! [4]
 void GraphWidget::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event);
@@ -296,24 +222,21 @@ QString GraphWidget::SuggestName(LOGICTYPE t) const
         return result;
 
 }
-//! [4]
 
 #ifndef QT_NO_WHEELEVENT
-//! [5]
 void GraphWidget::wheelEvent(QWheelEvent *event)
 {
     scaleView(pow((double)2, -event->delta() / 240.0));
 }
-//! [5]
 #endif
 
-//! [6]
 void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
 {
     Q_UNUSED(rect);
     // Shadow
-//    QRectF sceneRect = this->sceneRect();
-    QRectF sceneRect = rect;
+    return;
+    QRectF sceneRect = this->sceneRect();
+    QRectF sceneRect1 = rect;
     sceneRect.adjust(-5,-5,-5,-5);
     QRectF rightShadow(sceneRect.right(), sceneRect.top() + 5, 5, sceneRect.height());
     QRectF bottomShadow(sceneRect.left() + 5, sceneRect.bottom(), sceneRect.width(), 5);
@@ -331,8 +254,8 @@ void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
     painter->drawRect(sceneRect);
 
     // Text
-    QRectF textRect(sceneRect.left() + 4, sceneRect.top() + 4,
-                    sceneRect.width() - 4, sceneRect.height() - 4);
+  //  QRectF textRect(sceneRect.left() + 4, sceneRect.top() + 4,
+  //                  sceneRect.width() - 4, sceneRect.height() - 4);
 /*    QString message(tr("Click and drag the nodes around, and zoom with the mouse "
                        "wheel or the '+' and '-' keys"));
 
@@ -388,7 +311,7 @@ Node *GraphWidget::FindNode(QString &name)
                 return node;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 void GraphWidget::WriteSource(QTextStream &h, QTextStream &s)
@@ -408,7 +331,6 @@ void GraphWidget::WriteSource(QTextStream &h, QTextStream &s)
     }
 
 }
-//! [7]
 
 void GraphWidget::shuffle()
 {

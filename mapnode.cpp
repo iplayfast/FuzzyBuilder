@@ -31,7 +31,7 @@ void mapnode::WriteSource(QTextStream &h, QTextStream &s)
             edge->sourceNode()->WriteSource(h,s);
     }
     QString ps; ps.sprintf("!!%f!!%f\n",pos().rx(),pos().ry());
-    h << "//!!fMap!!" << getName() << "!!" << ss << ps;
+    h << "//!!fMap!!" << getName() << "!!" <<  ps;
     h << "double " << getName() << "(void);\n";
     s << "\ndouble " << getName() << "(void)\n{\n";
     s << "double  Result = 0.0;\n//all inputs to the map are in range 0..1\n";

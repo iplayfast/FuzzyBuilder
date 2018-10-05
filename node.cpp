@@ -37,9 +37,6 @@ Node::Node(GraphWidget *graphWidget)
     setPos(exposedRect.width()/2,exposedRect.height() / 2);
 
 }
-//! [0]
-
-//! [1]
 void Node::addEdge(Edge *edge)
 {
     edgeList << edge;
@@ -119,7 +116,7 @@ void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     NameV += v;
     {
         drawShape(painter,r);
-    r.adjust(-15,-15,15,15);
+    //r.adjust(-15,-15,15,15);
         painter->drawText(r,Qt::AlignHCenter,NameV);
 //        painter->drawText(r.bottomLeft(),NameV);
     }
